@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:kaleydo/app/config/theme/app_media_type.dart';
+import 'package:kaleydo/app/config/enums/app_media_type.dart';
 
 
 /// Modelo que representa un ítem de medio en la aplicación.

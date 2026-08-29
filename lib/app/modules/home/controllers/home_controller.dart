@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:kaleydo/app/config/theme/app_media_type.dart';
+import 'package:kaleydo/app/config/enums/app_media_type.dart';
 import 'package:kaleydo/app/core/utils/capitalize_text.dart';
 import 'package:kaleydo/app/core/utils/natural_sort.dart';
 import 'package:kaleydo/app/data/models/media_item_model.dart';
