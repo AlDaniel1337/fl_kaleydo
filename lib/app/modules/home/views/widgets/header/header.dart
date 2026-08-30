@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/header/components/tab_button.dart';
 import 'components/header_title.dart';
+import 'components/global_search_bar.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/modules/home/controllers/home_controller.dart';
 import 'package:kaleydo/app/modules/settings/controllers/config_controller.dart';
@@ -37,26 +38,9 @@ class KaleydoHeader extends GetView<HomeController> {
 
           const Spacer(),
 
-          //: Barra de Búsqueda Global (Ctrl+F)
-          Container(
-            width: 260,
-            height: 38,
-            decoration: BoxDecoration(
-              color: AppColors.searchBackground,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: TextField(
-              onChanged: (val) => controller.searchQuery.value = val,
-              style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
-              decoration: const InputDecoration(
-                hintText: 'Search... (Ctrl+F)',
-                hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                prefixIcon: Icon(Icons.search, size: 18, color: AppColors.textSecondary),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(vertical: 9),
-              ),
-            ),
+          //: Barra de Búsqueda Global
+          GlobalSearchBar(
+            onChanged: (val) => controller.searchQuery.value = val,
           ),
           const SizedBox(width: 16),
 
