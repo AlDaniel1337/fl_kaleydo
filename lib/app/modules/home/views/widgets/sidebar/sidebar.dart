@@ -14,7 +14,7 @@ class KaleydoSidebar extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 230,
+      width: 200,
       color: AppColors.sidebarBackground,
       padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
       child: Column(

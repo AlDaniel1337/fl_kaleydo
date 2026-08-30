@@ -27,7 +27,7 @@ class HomeView extends GetView<HomeController> {
           body: Row(
             children: [
 
-              // 1. Sidebar Fija
+              //: 1. Sidebar Fija
               const KaleydoSidebar(),
         
               //+ 2. Área Principal (Header + Contenido Grid + Footer)
