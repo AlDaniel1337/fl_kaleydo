@@ -103,7 +103,7 @@ class HomeController extends GetxController {
 
 
 
-  ///+ [Random Items] Generar / Reordenar 10 elementos aleatorios respetando la categoría actual
+  ///+ [Random Items] Generar / Reordenar 12 elementos aleatorios respetando la categoría actual
   void loadRandomItems() {
     List<MediaItemModel> sourceList = List.from(allMediaItems);
 
@@ -117,8 +117,8 @@ class HomeController extends GetxController {
     //: Mezclar la lista
     sourceList.shuffle();
 
-    //: Tomar máximo 10 elementos
-    final count = sourceList.length < 10 ? sourceList.length : 10;
+    //: Tomar máximo 12 elementos
+    final count = sourceList.length < 12 ? sourceList.length : 12;
     randomMediaItems.assignAll(sourceList.take(count).toList());
   }
   //!+
@@ -198,13 +198,6 @@ class HomeController extends GetxController {
 
 
 
-
-  /// [Sidebar] - Seleccionar pestaña
-  void selectTab(ViewTab tab) => selectedTab.value = tab;
-
-
-
-
   ///+ [Sidebar] - Detectar categorías dinámicas en el sistema de archivos
   Future<void> _detectSidebarCategories(String rootPath) async {
     //: Verificar que el directorio raíz exista antes de continuar.
@@ -257,4 +250,14 @@ class HomeController extends GetxController {
     dynamicCategories.assignAll(detected);
   }
   //!+
+
+
+
+  /// [Header] - Verificar si la pestaña seleccionada es "Aleatoria"
+  bool get isRandomTabSelected => selectedTab.value == ViewTab.random;
+
+
+
+  /// [Header] - Seleccionar pestaña
+  void selectTab(ViewTab tab) => selectedTab.value = tab;
 }

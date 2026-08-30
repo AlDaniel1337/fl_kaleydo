@@ -65,7 +65,7 @@ class HomeView extends GetView<HomeController> {
                       ),
                     ),
         
-                    // Paginación Inferior
+                    //: Paginación Inferior
                     _buildPaginator(),
                   ],
                 ),
@@ -85,6 +85,8 @@ class HomeView extends GetView<HomeController> {
       child: Obx(() {
         final current = controller.currentPage.value;
         final total = controller.totalPages.value;
+
+        if ( controller.isRandomTabSelected ) return const SizedBox.shrink();
 
         return Paginador(
           current: current, 
