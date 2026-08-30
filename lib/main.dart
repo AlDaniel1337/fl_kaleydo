@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kaleydo/app/config/routes/app_pages.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:kaleydo/app/modules/home/bindings/home_binding.dart';
-import 'package:kaleydo/app/modules/home/views/home_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,8 +41,8 @@ class KaleydoApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: AppColors.background,
       ),
-      initialBinding: HomeBinding(),
-      home: const HomeView(),
+      initialRoute: AppPages.initial,
+      getPages: AppPages.routes,
     );
   }
 }

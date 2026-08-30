@@ -7,6 +7,9 @@ import 'package:kaleydo/app/modules/home/views/widgets/paginator/paginador.dart'
 import 'package:kaleydo/app/modules/home/views/widgets/widgets.index.dart';
 
 class HomeView extends GetView<HomeController> {
+
+  static const String route = "/home";
+
   const HomeView({super.key});
 
   @override
