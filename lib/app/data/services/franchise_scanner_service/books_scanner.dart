@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:kaleydo/app/core/utils/natural_sort.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
 import 'package:path/path.dart' as p;
-import 'find_cover.dart';
 
 /// Servicio para escanear libros dentro de un directorio.
 class BooksScannerService {
