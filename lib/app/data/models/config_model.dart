@@ -27,7 +27,7 @@ class ConfigModel {
       imageExtensions:      ['.jpg', '.jpeg', '.png', '.webp'],
       audioExtensions:      ['.mp3', '.flac', '.wav', '.ogg'],
       documentExtensions:   ['.pdf', '.cbz', '.cbr', '.epub', '.md'],
-      executableExtensions: ['.exe', '.lnk'],
+      executableExtensions: ['.exe', '.lnk', '.url'],
     );
   }
 
