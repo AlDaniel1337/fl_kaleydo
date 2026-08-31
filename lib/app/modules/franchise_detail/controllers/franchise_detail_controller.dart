@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
 import 'package:kaleydo/app/data/models/media_item_model.dart';
@@ -9,10 +10,17 @@ import 'package:process_run/shell.dart';
 
 /// Controlador para gestionar el detalle y la navegación de contenidos de una franquicia.
 class FranchiseDetailController extends GetxController {
+
+  //: Servicio de escaneo de franquicias.
   final FranchiseScannerService _scannerService = FranchiseScannerService();
+
+  //: Controlador de desplazamiento para la lista de episodios de anime.
+  final ScrollController animeScrollController = ScrollController();
 
   //+ VARIABLES DE ESTADO
   late final MediaItemModel mediaItem;
+
+  
 
   //: Pestañas disponibles basadas en los tipos de medios encontrados físicamente.
   final RxList<FranchiseMediaType> availableTabs = <FranchiseMediaType>[].obs;
@@ -36,6 +44,40 @@ class FranchiseDetailController extends GetxController {
     super.onInit();
     _initializeArguments();
   }
+
+
+
+  //+ MÉTODOS PÚBLICOS
+  /// Cambia la temporada de anime seleccionada y desplaza la lista de episodios al inicio.
+  void changeAnimeSeason(String season) {
+    selectedAnimeSeason.value = season;
+    moveScrollToTop();
+  }
+
+
+
+  /// Mueve el scroll de la lista de episodios de anime al inicio.
+  void moveScrollToTop() {
+    if (animeScrollController.hasClients) {
+      
+      animeScrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+
+
+  /// Determina si se deben mostrar las pestañas de temporadas de anime.
+  bool showAnimeSeasonTabs(){
+    return 
+      selectedTab.value == FranchiseMediaType.anime && 
+      animeSeasons.length > 1;
+  }
+
+
 
   //+ CARGA DE DATOS
   /// Carga y clasifica los detalles de la franquicia desde el sistema de archivos.

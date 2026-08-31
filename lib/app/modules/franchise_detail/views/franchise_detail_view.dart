@@ -28,7 +28,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
             _buildTabSelector(),
 
             // 3. Sub-header para Selector de Temporadas de Anime
-            if (controller.selectedTab.value == FranchiseMediaType.anime)
+            if (controller.showAnimeSeasonTabs())
               _buildSeasonSelector(),
 
             // 4. Vista de Contenido Dinámica
@@ -114,7 +114,10 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
               color: isSelected ? Colors.white : AppColors.textSecondary,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
-            onSelected: (_) => controller.selectedTab.value = tab,
+            onSelected: (_) {
+              controller.selectedTab.value = tab;
+              controller.moveScrollToTop();
+            },
           );
         }).toList(),
       ),
@@ -138,7 +141,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
                 color: isSelected ? AppColors.primaryAccent : AppColors.textSecondary,
                 fontSize: 12,
               ),
-              onSelected: (_) => controller.selectedAnimeSeason.value = season,
+              onSelected: (_) => controller.changeAnimeSeason(season), // Usar método del controller
             ),
           );
         }).toList(),
@@ -178,6 +181,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
     if (tab == FranchiseMediaType.anime) {
       final episodes = controller.filteredAnimeEpisodes;
       return ListView.builder(
+        controller: controller.animeScrollController, // Vinculación del ScrollController
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         itemCount: episodes.length,
         itemBuilder: (ctx, idx) => _buildAnimeTile(episodes[idx]),
