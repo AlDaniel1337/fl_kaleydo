@@ -7,38 +7,35 @@ import 'package:window_manager/window_manager.dart';
 
 class MediaPlayerController extends GetxController {
 
-  //+ Instancias y propiedades de media_kit
+  //: Intancias
+  // Instancias y propiedades de media_kit
   late final Player player;
   late final VideoController videoController;
-  //!+
 
 
-  //+ Estados reactivos (reproducción y tiempo)
+  //: Estados reactivos 
+  // Estados de reproducción y tiempo
   final RxBool isPlaying = false.obs;
   final Rx<Duration> position = Duration.zero.obs;
   final Rx<Duration> duration = Duration.zero.obs;
-  //!+
-
-
-  //+ Estados reactivos (ajustes de audio, velocidad y brillo)
-  final RxDouble playbackSpeed = 1.0.obs; // 0.5x a 2.0x
-  final RxDouble volume = 100.0.obs;       // 0.0 a 100.0
+  
+  // Estados de ajustes de audio, velocidad y brillo
+  final RxDouble playbackSpeed = 1.0.obs;
+  final RxDouble volume = 100.0.obs;
   double _previousVolume = 0.0;
-  final RxDouble brightness = 1.0.obs;   // 0.2 a 1.0 (1.0 = normal, <1.0 = oscuro)
-  //!+
+  final RxDouble brightness = 1.0.obs;
 
-
-  //+ Estados reactivos (pistas de audio y subtítulos)
+  // Estados de subtítulos
   final RxList<SubtitleTrack> availableSubtitles = <SubtitleTrack>[].obs;
   final Rx<SubtitleTrack> currentSubtitle = SubtitleTrack.no().obs;
   SubtitleTrack _lastSelectedSubtitle = SubtitleTrack.no();
 
+  // Estados de pistas de audio
   final RxList<AudioTrack> availableAudioTracks = <AudioTrack>[].obs;
   final Rx<AudioTrack> currentAudioTrack = AudioTrack.auto().obs;
-  //!+
 
 
-  //+ Estados de configuración y UI (OSD / controles)
+  // Estados de configuración y UI (OSD / controles)
   final RxBool isFullScreen = false.obs;
   final RxBool isControlsVisible = true.obs;
   final RxBool isFastSeeking = true.obs; // Por defecto en modo Rápido
@@ -46,10 +43,9 @@ class MediaPlayerController extends GetxController {
 
   Timer? _osdTimer;
   Timer? _hideTimer;
-  //!+
 
 
-  //+ Ciclo de vida (init & close)
+
   @override
   void onInit() {
     super.onInit();
@@ -67,6 +63,9 @@ class MediaPlayerController extends GetxController {
     _startHideControlsTimer();
   }
 
+
+
+  //: Key Listeners (Streams del reproductor)
   /// Escucha los streams del reproductor para actualizar los estados reactivos.
   void _listenToStreams() {
     // Escuchar estado de reproducción y tiempo
@@ -88,6 +87,8 @@ class MediaPlayerController extends GetxController {
     });
   }
 
+
+
   @override
   void onClose() {
     _osdTimer?.cancel();
@@ -101,10 +102,9 @@ class MediaPlayerController extends GetxController {
 
     super.onClose();
   }
-  //!+
 
 
-  //+ Acciones de control de reproducción y navegación
+  //+ Reproducción
   /// Alterna entre reproducir y pausar el video.
   void togglePlayPause() {
     player.playOrPause();
@@ -123,8 +123,12 @@ class MediaPlayerController extends GetxController {
     player.seek(clampedPos);
     _showOSD(seconds > 0 ? '+${seconds}s' : '${seconds}s');
   }
+  //!+
 
-  /// Sale del reproductor, deteniendo la reproducción y cerrando la pantalla.
+
+
+  //+ Navegación
+  /// Salir del reproductor, deteniendo la reproducción y cerrando la pantalla.
   Future<void> exitPlayer() async {
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -139,14 +143,19 @@ class MediaPlayerController extends GetxController {
   //!+
 
 
-  //+ Control de parámetros (volumen, brillo y velocidad)
+
+  //+ Velocidad de reproducción
   /// Establece la velocidad de reproducción del video.
   void setSpeed(double speed) {
     playbackSpeed.value = speed;
     player.setRate(speed);
     _showOSD('Velocidad: ${speed.toStringAsFixed(1)}x');
   }
+  //!+
 
+
+
+  //+ Volumen del reproductor
   /// Establece el volumen del reproductor.
   void setVolume(double val, {bool shouldMute = false}) {
     if (shouldMute) {
@@ -175,7 +184,11 @@ class MediaPlayerController extends GetxController {
       shouldMute: !isMuted,
     );
   }
+  //!+
 
+
+
+  //+ Brillo del reproductor
   /// Establece el brillo del reproductor.
   void setBrightness(double val) {
     brightness.value = val.clamp(0.2, 1.0);
@@ -189,7 +202,8 @@ class MediaPlayerController extends GetxController {
   //!+
 
 
-  //+ Gestión de pistas (audio y subtítulos)
+
+  //+ Audio del reproductor
   /// Establece la pista de subtítulos activa.
   void setSubtitleTrack(SubtitleTrack track) {
   if (track != SubtitleTrack.no()) {
@@ -202,7 +216,11 @@ class MediaPlayerController extends GetxController {
   void setAudioTrack(AudioTrack track) {
     player.setAudioTrack(track);
   }
+  //!+
 
+
+
+  //+ Subtítulos del reproductor
   /// Alterna entre activar y desactivar los subtítulos.
   void toggleSubtitles() {
     if (availableSubtitles.isEmpty) {
@@ -230,6 +248,7 @@ class MediaPlayerController extends GetxController {
     }
   }
   //!+
+
 
 
   //+ Configuración avanzada y nativa de MPV
@@ -261,6 +280,7 @@ class MediaPlayerController extends GetxController {
     }
   }
   //!+
+
 
 
   //+ Gestión de UI (pantalla completa, OSD y temporizadores)
@@ -297,17 +317,18 @@ class MediaPlayerController extends GetxController {
   //!+
 
 
+
   //+ Getters para widgets de UI
   double get getMediaMaxDuration {
     return duration.value.inMilliseconds.toDouble() > 0
-        ? duration.value.inMilliseconds.toDouble()
-        : 1.0;
+      ? duration.value.inMilliseconds.toDouble()
+      : 1.0;
   }
 
   double get getPositionInMilliseconds {
     return position.value.inMilliseconds
-        .toDouble()
-        .clamp(0.0, duration.value.inMilliseconds.toDouble());
+      .toDouble()
+      .clamp(0.0, duration.value.inMilliseconds.toDouble());
   }
   //!+
 }
