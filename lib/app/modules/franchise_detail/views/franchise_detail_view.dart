@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
 import 'package:kaleydo/app/modules/franchise_detail/controllers/franchise_detail_controller.dart';
+import 'package:kaleydo/app/modules/media_player/views/media_player_view.dart';
 
 class FranchiseDetailView extends GetView<FranchiseDetailController> {
   static const String route = "/franchise-detail";
@@ -295,10 +296,13 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       child: ListTile(
         leading: const Icon(Icons.play_circle_fill, color: AppColors.primaryAccent),
         title: Text(episode.title, style: const TextStyle(color: AppColors.textPrimary)),
-        subtitle: Text(episode.seasonName ?? 'Anime', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+        subtitle: Text(episode.seasonName ?? 'Anime',
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
         trailing: const Icon(Icons.play_arrow_rounded, color: Colors.white),
         onTap: () {
-          // Navegación al Reproductor de Video
+          FocusManager.instance.primaryFocus?.unfocus();
+          // Navega al reproductor pasando la ruta absoluta del video .mp4/.mkv
+          Get.toNamed(MediaPlayerView.route, arguments: episode.path);
         },
       ),
     );
