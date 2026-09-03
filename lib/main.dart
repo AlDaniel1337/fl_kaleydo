@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:kaleydo/app/config/routes/app_pages.dart';
 import 'package:media_kit/media_kit.dart';
+import 'app/data/services/local_storage_service.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -11,6 +12,7 @@ void main() async {
   
   //: Inicialización de almacenamiento local
   await GetStorage.init();
+  await Get.putAsync(() => PlayerStorageService().init());
 
   //: Inicializa los binarios nativos de libmpv
   MediaKit.ensureInitialized();

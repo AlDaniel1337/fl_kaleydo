@@ -55,6 +55,8 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
                 onPressed: controller.togglePlayPause,
               )),
 
+
+
               //: Adelantar / Retroceder
               // Saltar -5s / +5s
               IconButton(
@@ -70,17 +72,8 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
 
 
               //: Volumen
-              // Control Rápido de Volumen
-              Obx(() => HoverCustomSlider(
-                icon: controller.volume.value == 0 
-                  ? Icons.volume_off_rounded 
-                  : Icons.volume_up_rounded,
-                mainColor: AppColors.primaryAccent,
-                sliderValue: controller.volume.value,
-                onChanged: controller.setVolume,
-                onIconTap: controller.toggleMute,
-                max: 100.0,
-              )),
+              // Control Rápido de Volumen              
+              _buildMultiLayerVolumeSlider( controller ),
               const SizedBox(width: 12),
 
 
@@ -102,7 +95,7 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
               
 
 
-              //: Slider
+              //: Velocidad
               // Control deslizante para ajustar la velocidad de reproducción
               Obx(() => HoverCustomSlider(
                 icon: Icons.speed,
@@ -154,24 +147,6 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
 
 
 
-              //: Aceleración
-              // Botón Búsqueda Rápida (Rayo)
-              Obx(() => IconButton(
-                icon: Icon( 
-                  controller.isFastSeeking.value 
-                    ? Icons.flash_on_rounded 
-                    : Icons.flash_off_rounded,
-                  color: controller.isFastSeeking.value ? AppColors.primaryAccent : Colors.white54,
-                  size: 20,
-                ),
-                tooltip: controller.isFastSeeking.value
-                    ? 'Modo Búsqueda Rápida'
-                    : 'Modo Búsqueda Exacta',
-                onPressed: controller.toggleFastSeeking,
-              )),
-
-
-
               //: Full Screen
               //Botón para Pantalla Completa
               Obx(() => FullScreenButton(
@@ -193,4 +168,88 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
     final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     return '${d.inHours > 0 ? '${d.inHours}:' : ''}$minutes:$seconds';
   }
+}
+
+
+
+
+// Widget para el Slider Multicapa de Volumen
+Widget _buildMultiLayerVolumeSlider(MediaPlayerController controller) {
+  return Obx(() {
+    final double vol = controller.volume.value;
+
+    // Calcular el valor del Slider relativo al tramo actual (0.0 a 100.0)
+    double currentSegmentValue;
+    Color activeColor;
+    Color backgroundTrackColor;
+
+    if (vol <= 100.0) {
+      // Nivel Base (0% - 100%)
+      currentSegmentValue = vol;
+      activeColor = Colors.white;
+      backgroundTrackColor = Colors.white24;
+    } else if (vol <= 200.0) {
+      // Nivel Boost 1 (101% - 200%)
+      currentSegmentValue = vol - 100.0; // Se llena de 0 a 100 en el 2do nivel
+      activeColor = AppColors.primaryAccent; // Rosa
+      backgroundTrackColor = Colors.white; // Fondo es el Nivel 1 lleno
+    } else {
+      // Nivel Boost 2 (201% - 300%)
+      currentSegmentValue = vol - 200.0; // Se llena de 0 a 100 en el 3er nivel
+      activeColor = const Color(0xFFFF9800); // Naranja
+      backgroundTrackColor = AppColors.primaryAccent; // Fondo es el Nivel 2 lleno
+    }
+
+    return Row(
+      children: [
+        // Barra Multicapa de Volumen
+        HoverCustomSlider(
+          icon: Icons.volume_up_rounded,
+          mainColor: activeColor,
+          backgroundColor: backgroundTrackColor,
+          sliderValue: currentSegmentValue.clamp(0.0, 100.0),
+          onChanged: (segmentValue) {
+
+            if( !controller.isVolumeBoostEnabled.value){
+
+              if(segmentValue > 100.0){
+                segmentValue = 100.0;
+              }
+
+              controller.setVolume(segmentValue);
+              return;
+            }
+
+            // Mapear el valor del segmento de vuelta al volumen global
+            double globalVol;
+            if (vol <= 100.0) {
+              globalVol = segmentValue;
+            } else if (vol <= 200.0) {
+              globalVol = 100.0 + segmentValue;
+            } else {
+              globalVol = 200.0 + segmentValue;
+            }
+            controller.setVolume(globalVol);
+          },
+          min: 0.0,
+          max: 100.0,
+          expandedWidth: 85,
+        ),
+
+        // Etiqueta del Porcentaje Actual
+        if (vol > 100)
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: Text(
+              '${vol.toInt()}%',
+              style: TextStyle(
+                color: activeColor,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+      ],
+    );
+  });
 }

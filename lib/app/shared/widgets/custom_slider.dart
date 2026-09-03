@@ -5,6 +5,7 @@ enum ExpansionDirection { left, right, up, down }
 class HoverCustomSlider extends StatefulWidget {
   final IconData icon;
   final Color mainColor;
+  final Color backgroundColor;
   final double sliderValue;
   final ValueChanged<double> onChanged;
   final double min;
@@ -28,6 +29,7 @@ class HoverCustomSlider extends StatefulWidget {
     this.expandedWidth = 140.0,
     this.onIconTap,
     this.expansionDirection = ExpansionDirection.right,
+    this.backgroundColor = Colors.white12,
   });
 
   @override
@@ -124,6 +126,7 @@ class _HoverCustomSliderState extends State<HoverCustomSlider> with SingleTicker
   Widget _buildSlider() {
     return CustomSlider(
       mainColor: widget.mainColor,
+      backgroundColor: widget.backgroundColor,
       sliderValue: widget.sliderValue,
       onChanged: widget.onChanged,
       onChangeStart: (_) => setState(() => _isDragging = true),
@@ -138,6 +141,7 @@ class _HoverCustomSliderState extends State<HoverCustomSlider> with SingleTicker
 
 class CustomSlider extends StatelessWidget {
   final Color mainColor;
+  final Color backgroundColor;
   final double sliderValue;
   final ValueChanged<double> onChanged;
   final ValueChanged<double>? onChangeStart;
@@ -158,6 +162,7 @@ class CustomSlider extends StatelessWidget {
     this.max = 1.0,
     this.label,
     this.divisions,
+    this.backgroundColor = Colors.white12,
   });
 
   @override
@@ -170,7 +175,7 @@ class CustomSlider extends StatelessWidget {
       data: SliderTheme.of(context).copyWith(
         trackHeight: 2.0,
         activeTrackColor: mainColor,
-        inactiveTrackColor: Colors.white12,
+        inactiveTrackColor: backgroundColor,
         thumbColor: mainColor,
         overlayColor: mainColor.withValues(alpha: 0.2),
         thumbShape: const CustomPillThumbShape(width: 4, height: 12),
