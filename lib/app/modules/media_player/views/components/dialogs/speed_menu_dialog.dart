@@ -8,7 +8,7 @@ import 'player_dialog_helper.dart';
 /// Muestra un submenú emergente con las opciones de velocidad de reproducción del reproductor de medios.
 void showSpeedSubMenu(BuildContext context, MediaPlayerController controller) {
 
-  final position = PlayerDialogHelper.getButtonPosition(context);
+  final position = PlayerDialogHelper.getButtonPosition(context, verticalOffset: 150);
 
   showMenu(
     context: context,

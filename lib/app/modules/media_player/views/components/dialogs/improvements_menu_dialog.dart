@@ -9,7 +9,7 @@ import 'player_dialog_helper.dart';
 /// Muestra un menú emergente con las opciones de mejoras disponibles para el reproductor de medios.
 void showImprovementsMenu(BuildContext context, MediaPlayerController controller) {
 
-  final position = PlayerDialogHelper.getButtonPosition(context, verticalOffset: 230);
+  final position = PlayerDialogHelper.getButtonPosition(context, verticalOffset: 150);
 
   showMenu(
     context: context,

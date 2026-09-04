@@ -11,7 +11,7 @@ abstract class PlayerDialogHelper {
   /// [verticalOffset]: La distancia vertical (en píxeles) para elevar o desplazar el menú.
   static RelativeRect getButtonPosition(
     BuildContext buttonContext, {
-    double verticalOffset = 250.0,
+    double verticalOffset = 200.0,
   }) {
     
     // 1. Obtiene el RenderBox del botón que recibió el toque/click.
@@ -34,7 +34,7 @@ abstract class PlayerDialogHelper {
 
     // 4. Crea un área rectangular ([Rect]) ajustando la posición con los desplazamientos deseados.
     final Rect shiftedRect = Rect.fromLTRB(
-      buttonTopLeft.dx,                         // Lado Izquierdo: Mantiene la alineación del botón.
+      buttonTopLeft.dx + 40,                    // Lado Izquierdo: Mantiene la alineación del botón.
       buttonTopLeft.dy - verticalOffset,        // Lado Superior: Resta el offset para desplegar el menú MÁS ARRIBA del botón.
       buttonBottomRight.dx - 18,                // Lado Derecho: Recorta 18px a la derecha para un ajuste fino de margen.
       buttonBottomRight.dy - verticalOffset,    // Lado Inferior: Resta el offset para mantener la altura coherente.

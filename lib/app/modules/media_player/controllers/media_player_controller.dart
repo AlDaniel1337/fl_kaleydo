@@ -1,18 +1,20 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kaleydo/app/data/models/franchise_model.dart';
 import 'package:kaleydo/app/data/services/local_storage_service.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../mixins/player_audio_mixin.dart';
-import '../mixins/player_subtitle_mixin.dart';
-import '../mixins/player_settings_mixin.dart';
-import '../mixins/player_ui_mixin.dart';
+import 'mixins/player_audio_mixin.dart';
+import 'mixins/player_subtitle_mixin.dart';
+import 'mixins/player_settings_mixin.dart';
+import 'mixins/player_ui_mixin.dart';
+import 'mixins/player_playlist_mixin.dart';
 
-class MediaPlayerController extends GetxController
-    with PlayerAudioMixin, PlayerSubtitleMixin, PlayerSettingsMixin, PlayerUIMixin {
+/// Controlador principal del reproductor de medios que combina múltiples mixins para manejar audio, subtítulos, configuración, interfaz de usuario y lista de reproducción.
+class MediaPlayerController extends GetxController with PlayerAudioMixin, PlayerSubtitleMixin, PlayerSettingsMixin, PlayerUIMixin, PlayerPlaylistMixin {
 
   //: Intancias
   // Instancias y propiedades de media_kit
@@ -23,13 +25,14 @@ class MediaPlayerController extends GetxController
   
   @override
   PlayerStorageService get storage => _storage;
-  late final String videoPath;
+  late String videoPath;
 
   //: Estados reactivos 
   // Estados de reproducción y tiempo
   @override
   final RxBool isPlaying = false.obs;
   final Rx<Duration> position = Duration.zero.obs;
+  @override
   final Rx<Duration> duration = Duration.zero.obs;
 
   bool _hasRestoredPosition = false;
@@ -41,16 +44,33 @@ class MediaPlayerController extends GetxController
   @override
   void onInit() {
     super.onInit();
-    videoPath = Get.arguments as String;
+
+    // Recuperar argumentos (compatibilidad si solo mandan un String o el mapa completo)
+    final args = Get.arguments;
+    
+    if (args is Map<String, dynamic>) {
+      playlist = args['playlist'] as List<FranchiseItemModel>;
+      currentIndex = args['currentIndex'] as int;
+      videoPath = playlist[currentIndex].path;
+    } else if (args is String) {
+      videoPath = args;
+    }
 
     _loadStoredPreferences();
+    final savedMs = _storage.getPosition(videoPath);
 
     player = Player();
     videoController = VideoController(player);
 
     _listenToStreams();
-
-    player.open(Media(videoPath)).then((_) {
+    
+    // Abrir el video en el reproductor comenzando desde la posición guardada si existe.
+    player.open(Media(
+      videoPath, 
+      start: savedMs > 0 
+        ? Duration(milliseconds: savedMs) 
+        : Duration.zero
+    )).then((_) {
       applySeekingMode(isFastSeekingEnabled.value);
       player.setRate(playbackSpeed.value);
       player.setVolume(volume.value);
@@ -64,6 +84,7 @@ class MediaPlayerController extends GetxController
   void onClose() {
     _isDisposed = true;
     cancelUITimers();
+    cancelPlaylistTimers();
 
     // 1. Cancelar todas las suscripciones a los streams
     for (final subscription in _subscriptions) {
@@ -88,12 +109,12 @@ class MediaPlayerController extends GetxController
 
   /// Carga la configuración previa guardada en el almacenamiento local.
   void _loadStoredPreferences() {
-    playbackSpeed.value = _storage.speed;
-    volume.value = _storage.volume;
-    subtitlesEnabled.value = _storage.subtitlesEnabled;
+    playbackSpeed.value        = _storage.speed;
+    volume.value               = _storage.volume;
+    subtitlesEnabled.value     = _storage.subtitlesEnabled;
     isFastSeekingEnabled.value = _storage.isFastSeeking;
-    brightness.value = _storage.brightness;
-    savedAudioTrackId = _storage.audioTrackId;
+    brightness.value           = _storage.brightness;
+    savedAudioTrackId          = _storage.audioTrackId;
   }
 
   //: Key Listeners (Streams del reproductor)
@@ -116,8 +137,17 @@ class MediaPlayerController extends GetxController
         }
       }),
 
-      player.stream.position.listen((val) {
-        position.value = val;
+      // Escuchar tiempo para auto-play en los últimos 10 segundos
+      player.stream.position.listen((pos) {
+        position.value = pos;
+        checkAutoPlayTrigger(pos);
+        
+        // Guardar progreso cada 5 segundos si el video no ha terminado
+        if (pos.inSeconds % 5 == 0 && duration.value.inMilliseconds > 0) {
+          // Si faltan más de 30s para terminar guarda posición, si no resetea a 0
+          final isNearEnd = (duration.value - pos).inSeconds < 30;
+          _storage.savePosition(videoPath, isNearEnd ? 0 : pos.inMilliseconds);
+        }
       }),
 
       player.stream.volume.listen((val) => volume.value = val),
@@ -171,6 +201,8 @@ class MediaPlayerController extends GetxController
     }, time: const Duration(seconds: 1));
   }
 
+
+
   //+ Reproducción
   /// Alterna entre reproducir y pausar el video.
   void togglePlayPause() {
@@ -190,7 +222,17 @@ class MediaPlayerController extends GetxController
     player.seek(clampedPos);
     showOSD(seconds > 0 ? '+${seconds}s' : '${seconds}s');
   }
+
+  /// Saltos porcentuales (Tecla 0-9 -> 0% a 90%)
+  void seekToPercentage(int percentage) {
+    if (duration.value == Duration.zero) return;
+    final targetMs = (duration.value.inMilliseconds * (percentage / 100)).toInt();
+    seekTo(Duration(milliseconds: targetMs));
+    showOSD('Salto: $percentage%');
+  }
   //!+
+
+
 
   //+ Navegación
   /// Salir del reproductor, deteniendo la reproducción y cerrando la pantalla.
@@ -205,7 +247,21 @@ class MediaPlayerController extends GetxController
     await player.pause();
     Get.back();
   }
+
+  /// Cambiar al siguiente episodio.
+  void goToNextEpisode() {
+    playNextEpisode();
+    videoPath = playlist[currentIndex].path;
+  }
+
+  /// Cambiar al episodio anterior.
+  void goToPreviousEpisode() {
+    playPreviousEpisode();
+    videoPath = playlist[currentIndex].path;
+  }
   //!+
+
+
 
   /// Método auxiliar para centralizar el guardado en disco
   @override
@@ -219,6 +275,8 @@ class MediaPlayerController extends GetxController
       audioTrackId: savedAudioTrackId,
     );
   }
+
+
 
   //+ Getters para widgets de UI
   double get getMediaMaxDuration {

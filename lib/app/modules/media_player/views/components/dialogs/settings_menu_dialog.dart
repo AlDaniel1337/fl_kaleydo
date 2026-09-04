@@ -22,11 +22,7 @@ void showSettingsMenu(BuildContext context, MediaPlayerController controller) {
     color: AppColors.cardBackground.withValues(alpha: 0.80),
     elevation: 8,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(16),
-        topRight: Radius.circular(16),
-        bottomLeft: Radius.circular(16),
-      ),
+      borderRadius: BorderRadius.circular(16),
       side: BorderSide(color: AppColors.cardBorder.withValues(alpha: 0.80)),
     ),
     items: [

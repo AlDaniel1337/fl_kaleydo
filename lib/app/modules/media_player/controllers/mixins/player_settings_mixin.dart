@@ -1,11 +1,15 @@
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 
+/// Mixin que proporciona funcionalidades relacionadas con la configuración del reproductor, como velocidad de reproducción, brillo y ajustes avanzados de MPV.
 mixin PlayerSettingsMixin on GetxController {
+
+  //: Referencias necesarias
   Player get player;
   void showOSD(String text);
   void saveAllSettings();
 
+  //: Variables reactivas de configuración
   // Estados de ajustes de velocidad y brillo
   final RxDouble playbackSpeed = 1.0.obs;
   final RxDouble brightness = 1.0.obs;
@@ -15,6 +19,8 @@ mixin PlayerSettingsMixin on GetxController {
 
   // Estado del Filtro de Nitidez / Escalado HD
   final RxBool isHdEnhancerEnabled = false.obs;
+
+
 
   //+ Velocidad de reproducción
   /// Establece la velocidad de reproducción del video.

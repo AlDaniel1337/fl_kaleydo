@@ -1,18 +1,23 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
+/// Mixin que proporciona funcionalidades relacionadas con la interfaz de usuario del reproductor, como pantalla completa, OSD y temporizadores.
 mixin PlayerUIMixin on GetxController {
+  
+  //: Referencias necesarias
   RxBool get isPlaying;
 
-  // Estados de configuración y UI (OSD / controles)
+  //: Estados de configuración y UI (OSD / controles)
   final RxBool isFullScreen = false.obs;
   final RxBool isControlsVisible = true.obs;
   final RxString osdText = ''.obs;
 
+  //: Temporizadores de UI (OSD / controles)
   Timer? osdTimer;
   Timer? hideTimer;
+
+
 
   //+ Gestión de UI (pantalla completa, OSD y temporizadores)
   /// Alterna el estado de pantalla completa del reproductor.
@@ -41,7 +46,7 @@ mixin PlayerUIMixin on GetxController {
   void showOSD(String text) {
     osdText.value = text;
     osdTimer?.cancel();
-    osdTimer = Timer(const Duration(milliseconds: 1200), () {
+    osdTimer = Timer(const Duration(milliseconds: 600), () {
       osdText.value = '';
     });
   }

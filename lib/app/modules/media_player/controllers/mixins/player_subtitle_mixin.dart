@@ -1,12 +1,15 @@
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 
+/// Mixin que proporciona funcionalidades relacionadas con los subtítulos del reproductor.
 mixin PlayerSubtitleMixin on GetxController {
+  
+  //: Referencias necesarias
   Player get player;
   void showOSD(String text);
   void saveAllSettings();
-
-  // Estados de subtítulos
+  
+  //: Estados de subtítulos
   final RxList<SubtitleTrack> availableSubtitles = <SubtitleTrack>[].obs;
   final Rx<SubtitleTrack> currentSubtitle = SubtitleTrack.no().obs;
   SubtitleTrack lastSelectedSubtitle = SubtitleTrack.no();

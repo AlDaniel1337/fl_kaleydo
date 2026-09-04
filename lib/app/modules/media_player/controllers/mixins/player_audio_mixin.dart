@@ -4,18 +4,24 @@ import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:kaleydo/app/data/services/local_storage_service.dart';
 
+
+/// Mixin que proporciona funcionalidades relacionadas con el audio del reproductor.
 mixin PlayerAudioMixin on GetxController {
+  
+  //: Referencias
   // Referencias necesarias del controlador principal
   Player get player;
   PlayerStorageService get storage;
   void showOSD(String text);
   void saveAllSettings();
 
-  // Estados de audio
+  //: Variables
+  // Estados de audio (volumen, boost, límite máximo)
   final RxDouble volume = 100.0.obs;
   double previousVolume = 0.0;
   final RxBool isVolumeBoostEnabled = false.obs;
   final RxDouble maxVolumeLimit = 100.0.obs;
+  double _previousVolumeBeforeMute = 100.0;
 
   // Estados de pistas de audio
   final RxList<AudioTrack> availableAudioTracks = <AudioTrack>[].obs;
@@ -52,12 +58,15 @@ mixin PlayerAudioMixin on GetxController {
   }
 
   /// Alterna el estado de silencio del reproductor.
+  // Activar / Silenciar Volumen (Tecla M)
   void toggleMute() {
-    bool isMuted = volume.value == 0;
-    setVolume(
-      isMuted ? previousVolume : 0,
-      shouldMute: !isMuted,
-    );
+    if (volume.value > 0) {
+      _previousVolumeBeforeMute = volume.value;
+      setVolume(0);
+      showOSD('Silenciado (Mute)');
+    } else {
+      setVolume(_previousVolumeBeforeMute > 0 ? _previousVolumeBeforeMute : 100.0);
+    }
   }
   //!+
 

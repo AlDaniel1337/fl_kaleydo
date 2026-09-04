@@ -20,7 +20,7 @@ void main() async {
   //: Inicialización de ventana para Windows Desktop
   await windowManager.ensureInitialized();
   WindowOptions windowOptions = const WindowOptions(
-    size: Size(1280, 800),
+    size: Size(1200, 600),
     center: true,
     backgroundColor: AppColors.background,
     skipTaskbar: false,

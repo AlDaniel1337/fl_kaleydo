@@ -185,7 +185,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
         controller: controller.animeScrollController, // Vinculación del ScrollController
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         itemCount: episodes.length,
-        itemBuilder: (ctx, idx) => _buildAnimeTile(episodes[idx]),
+        itemBuilder: (ctx, idx) => _buildAnimeTile(episodes[idx], idx),
       );
     }
 
@@ -289,7 +289,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
     );
   }
 
-  Widget _buildAnimeTile(FranchiseItemModel episode) {
+  Widget _buildAnimeTile(FranchiseItemModel episode, int index) {
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 8),
@@ -302,7 +302,13 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
         onTap: () {
           FocusManager.instance.primaryFocus?.unfocus();
           // Navega al reproductor pasando la ruta absoluta del video .mp4/.mkv
-          Get.toNamed(MediaPlayerView.route, arguments: episode.path);
+          Get.toNamed(
+            MediaPlayerView.route, 
+            arguments: {
+              'playlist': controller.filteredAnimeEpisodes, // Lista ordenada
+              'currentIndex': index,                        // Posición actual
+            },
+          );
         },
       ),
     );
