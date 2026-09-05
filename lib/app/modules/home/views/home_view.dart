@@ -88,9 +88,9 @@ class HomeView extends GetView<HomeController> {
 
         if ( controller.isRandomTabSelected ) return const SizedBox.shrink();
 
-        return Paginador(
-          current: current, 
-          total: total, 
+        return CustomPaginador(
+          currentPage: current, 
+          totalPages: total, 
           onPageChanged: (page) => controller.changePage(page),
         );
       }),
