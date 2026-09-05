@@ -14,6 +14,7 @@ void main() async {
   await GetStorage.init();
   await Get.putAsync(() => PlayerStorageService().init());
   await Get.putAsync<LibraryStateService>(() => LibraryStateService().init());
+  await Get.putAsync<ReaderStorageService>(() => ReaderStorageService().init());
   
 
   //: Inicializa los binarios nativos de libmpv

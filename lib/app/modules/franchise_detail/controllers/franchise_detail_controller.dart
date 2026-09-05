@@ -125,6 +125,15 @@ class FranchiseDetailController extends GetxController {
 
     return allEpisodes.where((ep) => ep.seasonName == selectedAnimeSeason.value).toList();
   }
+
+  List<FranchiseItemModel> get mangaChapters {
+    return mediaContent[FranchiseMediaType.manga] ?? [];
+  }
+
+  /// Retorna la lista de Libros / Novelas Ligeras
+  List<FranchiseItemModel> get bookItems {
+    return mediaContent[FranchiseMediaType.libros] ?? [];
+  }
   //!+
 
 

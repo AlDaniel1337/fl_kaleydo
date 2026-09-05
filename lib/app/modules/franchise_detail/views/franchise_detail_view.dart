@@ -186,7 +186,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       return ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         itemCount: items.length,
-        itemBuilder: (ctx, idx) => _buildBookOrMangaTile(items[idx], tab == FranchiseMediaType.libros),
+        itemBuilder: (ctx, idx) => _buildBookOrMangaTile(items[idx], tab == FranchiseMediaType.libros, idx)
       );
     }
 
@@ -275,7 +275,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
     );
   }
 
-  Widget _buildBookOrMangaTile(FranchiseItemModel item, bool isBook) {
+  Widget _buildBookOrMangaTile(FranchiseItemModel item, bool isBook, int index) {
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 8),
@@ -288,14 +288,25 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
         subtitle: Text(
           isBook
               ? 'Novela Ligera / Libro'
-              : (item.pagePaths.first.endsWith('.pdf')
+              : (item.pagePaths.isNotEmpty && item.pagePaths.first.endsWith('.pdf')
                   ? 'Documento PDF'
                   : '${item.pagePaths.length} Páginas'),
           style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
         trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
         onTap: () {
-          // Navegación al Lector de Libros/Manga
+          // Seleccionamos la lista según el medio actual (Libro vs Manga)
+          final List<FranchiseItemModel> currentList = isBook 
+              ? controller.bookItems 
+              : controller.mangaChapters;
+
+          Get.toNamed(
+            '/reader',
+            arguments: {
+              'chapterList': currentList, // Lista completa de capítulos del mapa
+              'currentIndex': index,      // Posición actual
+            },
+          );
         },
       ),
     );
