@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:kaleydo/app/config/routes/app_pages.dart';
 import 'package:media_kit/media_kit.dart';
-import 'app/data/services/local_storage_service.dart';
+import 'app/data/services/local_storage_service/player_storage_service.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:window_manager/window_manager.dart';
 

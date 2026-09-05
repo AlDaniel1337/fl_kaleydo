@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
-import 'package:kaleydo/app/data/services/local_storage_service.dart';
+import 'package:kaleydo/app/data/services/local_storage_service/player_storage_service.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:window_manager/window_manager.dart';
