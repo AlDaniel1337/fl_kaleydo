@@ -7,13 +7,15 @@ import 'package:kaleydo/app/core/utils/natural_sort.dart';
 import 'package:kaleydo/app/data/models/media_item_model.dart';
 import 'package:kaleydo/app/data/models/sidebar_category_model.dart';
 import 'package:kaleydo/app/data/providers/scanner_provider.dart';
+import 'package:kaleydo/app/data/services/local_storage_service/library_state_service.dart';
 import 'package:kaleydo/app/modules/settings/controllers/config_controller.dart';
 import 'package:path/path.dart' as p;
 
 
 
+//: Pestañas
 /// Pestañas de vista disponibles en la interfaz principal.
-enum ViewTab { todo, favoritos, random }
+enum ViewTab { todo, inProcess, favoritos, random }
 
 
 
@@ -24,6 +26,9 @@ class HomeController extends GetxController {
   //: Proveedores y controladores necesarios para el escaneo y la configuración.
   final ScannerProvider _scannerProvider = ScannerProvider();
   final ConfigController _configController = Get.find<ConfigController>();
+
+  //: Servicios de almacenamiento local para la configuración del reproductor y el estado de la biblioteca.
+  final LibraryStateService libraryState = Get.find<LibraryStateService>();
 
   //: Estados reactivos de carga y listas
   final RxBool isScanning = false.obs;
@@ -50,11 +55,12 @@ class HomeController extends GetxController {
 
 
 
-  ///+ [Inicialización] - Métodos de inicialización y escaneo de la biblioteca.
+  //+ [Inicialización]
+  /// Inicializa el controlador y establece los observadores para los filtros y la escaneo de la biblioteca.
   @override
   void onInit() {
     super.onInit();
-    //: Escuchar cambios en la búsqueda o categorías para re-filtrar
+    // Escuchar cambios en la búsqueda o categorías para re-filtrar
     ever(selectedCategoryRaw, (_) => applyFilters());
     ever(searchQuery, (_) => applyFilters());
     ever(_configController.config, (_) => scanLibrary());
@@ -72,20 +78,20 @@ class HomeController extends GetxController {
 
 
 
-
-  ///+ [Escaneo] - Escaneo de la carpeta raíz
+  //+ [Escaneo]
+  /// Escaneo de la carpeta raíz
   Future<void> scanLibrary() async {
     final rootPath = _configController.rootPath;
     if (rootPath.isEmpty) return;
 
-    //: Verificar si la ruta raíz está configurada antes de escanear.
+    // Verificar si la ruta raíz está configurada antes de escanear.
     try {
       isScanning.value = true;
 
-      //: 1. Escanear carpetas del Sidebar
+      // 1. Escanear carpetas del Sidebar
       await _detectSidebarCategories(rootPath);
 
-      //: 2. Escanear contenidos multimedia
+      // 2. Escanear contenidos multimedia
       final items = await _scannerProvider.scanRootFolder(_configController.config.value);
       allMediaItems.assignAll(items);
       applyFilters();
@@ -103,21 +109,22 @@ class HomeController extends GetxController {
 
 
 
-  ///+ [Random Items] Generar / Reordenar 12 elementos aleatorios respetando la categoría actual
+  //+ [Random Items] 
+  /// Generar / Reordenar 12 elementos aleatorios respetando la categoría actual
   void loadRandomItems() {
     List<MediaItemModel> sourceList = List.from(allMediaItems);
 
-    //: Si hay una categoría seleccionada en el sidebar (diferente a 'all'), filtramos primero
+    // Si hay una categoría seleccionada en el sidebar (diferente a 'all'), filtramos primero
     if (selectedCategoryRaw.value != 'all') {
       sourceList = sourceList.where((item) {
         return p.basename(p.dirname(item.path)) == selectedCategoryRaw.value;
       }).toList();
     }
 
-    //: Mezclar la lista
+    // Mezclar la lista
     sourceList.shuffle();
 
-    //: Tomar máximo 12 elementos
+    // Tomar máximo 12 elementos
     final count = sourceList.length < 12 ? sourceList.length : 12;
     randomMediaItems.assignAll(sourceList.take(count).toList());
   }
@@ -125,7 +132,16 @@ class HomeController extends GetxController {
 
 
 
-  ///+ [Filtros] - Aplica los filtros de Categoría, Búsqueda y Favoritos
+  //+ [Filtros]
+  /// Método auxiliar para detectar si la ruta pertenece a una carpeta oculta
+  bool _isHiddenFolder(String path) {
+    // Separa la ruta por los separadores de directorio (/ o \) y evalúa si alguna carpeta inicia con "__"
+    final segments = path.split(RegExp(r'[/\\]'));
+    return segments.any((segment) => segment.startsWith('__'));
+  }
+
+
+  /// Aplica los filtros de Categoría, Búsqueda y Estado (Favoritos / En Proceso)
   void applyFilters() {
     if (selectedTab.value == ViewTab.random) {
       loadRandomItems();
@@ -134,12 +150,28 @@ class HomeController extends GetxController {
 
     List<MediaItemModel> temp = List.from(allMediaItems);
 
-    //: 1. Filtro por Pestaña, mostrar solo los elementos correspondientes a la pestaña seleccionada.
-    if (selectedTab.value == ViewTab.favoritos) {
-      temp = temp.where((item) => item.isFavorite).toList();
+    // 1. Filtro por Pestaña, mostrar solo los elementos correspondientes a la pestaña seleccionada.
+    switch (selectedTab.value) {
+      case ViewTab.inProcess:
+        temp = temp.where((item) => libraryState.isInProcess(item.path)).toList();
+        break;
+      case ViewTab.favoritos:
+        temp = temp.where((item) => libraryState.isFavorite(item.path)).toList();
+        break;
+      case ViewTab.todo:
+      default:
+        break;
     }
 
-    //: 2. Filtro por Categoría Seleccionada en Sidebar, mostrar solo los elementos que pertenecen a la categoría seleccionada.
+    // 2. Condición especial: Ocultar carpetas con "__" SOLO si estamos en "Todo" superior Y "Todo" lateral ('all')
+    final bool isGlobalAllView = selectedTab.value == ViewTab.todo && 
+                                 selectedCategoryRaw.value == 'all';
+
+    if (isGlobalAllView) {
+      temp = temp.where((item) => !_isHiddenFolder(item.path)).toList();
+    }
+
+    // 3. Filtro por Categoría Seleccionada en Sidebar, mostrar solo los elementos que pertenecen a la categoría seleccionada.
     if (selectedCategoryRaw.value != 'all') {
       temp = temp.where((item) {
         // Coincidencia con la ruta de la carpeta uni-medio
@@ -147,18 +179,18 @@ class HomeController extends GetxController {
       }).toList();
     }
 
-    //: 3. Actualizar el título de la categoría seleccionada, eliminando "_" del nombre raw
+    // 4. Actualizar el título de la categoría seleccionada, eliminando "_" del nombre raw
     selectedCategoryTitle.value = selectedCategoryRaw.value == 'all'
       ? 'Mostrar todo'
       : capitalizeText(selectedCategoryRaw.value.replaceAll('_', ''));
 
-    //: 4. Filtro por Búsqueda, mostrar solo los elementos cuyo título contiene la consulta de búsqueda.
+    // 5. Filtro por Búsqueda, mostrar solo los elementos cuyo título contiene la consulta de búsqueda.
     if (searchQuery.value.isNotEmpty) {
       final query = searchQuery.value.toLowerCase();
       temp = temp.where((item) => item.title.toLowerCase().contains(query)).toList();
     }
 
-    //: 5. Actualizar la lista filtrada y la paginación.
+    // 6. Actualizar la lista filtrada y la paginación.
     filteredMediaItems.assignAll(temp);
     totalPages.value = (filteredMediaItems.length / itemsPerPage).ceil();
     if (totalPages.value == 0) totalPages.value = 1;
@@ -168,7 +200,8 @@ class HomeController extends GetxController {
 
 
 
-  ///+ [Paginación] - Obtener los elementos de la página actual
+  //+ [Paginación]
+  /// Obtener los elementos de la página actual
   List<MediaItemModel> get paginatedItems {
     final startIndex = (currentPage.value - 1) * itemsPerPage;
     if (startIndex >= filteredMediaItems.length) return [];
@@ -179,11 +212,9 @@ class HomeController extends GetxController {
       endIndex > filteredMediaItems.length ? filteredMediaItems.length : endIndex,
     );
   }
-  //!+
 
 
-
-  ///+ [Paginación] - Cambiar de página
+  /// Cambiar de página
   void changePage(int page) {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page;
@@ -193,28 +224,34 @@ class HomeController extends GetxController {
 
 
 
-  /// [Sidebar] - Seleccionar categoría
+  //+ [Sidebar]
+  /// Seleccionar categoría
   void selectCategory(String rawCategoryName) => selectedCategoryRaw.value = rawCategoryName;
 
 
 
-  ///+ [Sidebar] - Detectar categorías dinámicas en el sistema de archivos
+  /// Detectar categorías dinámicas en el sistema de archivos
   Future<void> _detectSidebarCategories(String rootPath) async {
-    //: Verificar que el directorio raíz exista antes de continuar.
+    // Verificar que el directorio raíz exista antes de continuar.
     final rootDir = Directory(rootPath);
     if (!await rootDir.exists()) return;
 
     final List<SidebarCategoryModel> detected = [];
     final List<FileSystemEntity> entities = await rootDir.list().toList();
 
-    //: Listar todas las entidades dentro del directorio raíz y procesar solo las carpetas que inician con "_".
+    // Listar todas las entidades dentro del directorio raíz y procesar solo las carpetas que inician con "_".
     for (var entity in entities) {
       if (entity is Directory) {
         final folderName = p.basename(entity.path);
         
-        //: Solo procesar carpetas que inician con "_"
+        // Solo procesar carpetas que inician con "_"
         if (folderName.startsWith('_')) {
-          final cleanName = folderName.substring(1).toLowerCase();
+          String cleanName = folderName.substring(1).toLowerCase();
+
+          if (cleanName.startsWith('_')) {
+            cleanName = cleanName.substring(1).toLowerCase();
+          }
+
 
           final icon = AppMediaType.values.firstWhere(
             (e){ 
@@ -232,8 +269,8 @@ class HomeController extends GetxController {
             orElse: () => AppMediaType.unknownCategoryIcon,
           );
 
-          //: Formatear nombre: elimina "_" y capitaliza
-          final displayName = capitalizeText(folderName.substring(1));
+          // Formatear nombre: elimina "_" y capitaliza
+          final displayName = capitalizeText(cleanName.replaceAll('_', ''));
 
           detected.add(SidebarCategoryModel(
             rawFolderName: folderName,
@@ -245,7 +282,7 @@ class HomeController extends GetxController {
       }
     }
 
-    //: Ordenar categorías alfabéticamente
+    // Ordenar categorías alfabéticamente
     detected.sort((a, b) => naturalSortCompare(a.displayName, b.displayName));
     dynamicCategories.assignAll(detected);
   }
@@ -253,11 +290,12 @@ class HomeController extends GetxController {
 
 
 
-  /// [Header] - Verificar si la pestaña seleccionada es "Aleatoria"
+  //+ [Header] 
+  /// Verificar si la pestaña seleccionada es "Aleatoria"
   bool get isRandomTabSelected => selectedTab.value == ViewTab.random;
 
 
-
-  /// [Header] - Seleccionar pestaña
+  /// Seleccionar pestaña
   void selectTab(ViewTab tab) => selectedTab.value = tab;
+  //!+
 }

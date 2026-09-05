@@ -30,6 +30,8 @@ class KaleydoHeader extends GetView<HomeController> {
             children: [
               _buildTabButton('Todo', ViewTab.todo),
               const SizedBox(width: 20),
+              _buildTabButton('En Proceso', ViewTab.inProcess),
+              const SizedBox(width: 20),
               _buildTabButton('Favoritos', ViewTab.favoritos),
               const SizedBox(width: 20),
               _buildTabButton('Aleatorio', ViewTab.random),

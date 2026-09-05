@@ -5,6 +5,7 @@ import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
 import 'package:kaleydo/app/modules/franchise_detail/controllers/franchise_detail_controller.dart';
 import 'package:kaleydo/app/modules/media_player/views/media_player_view.dart';
+import 'package:kaleydo/app/shared/shared_widgets.index.dart';
 
 class FranchiseDetailView extends GetView<FranchiseDetailController> {
   static const String route = "/franchise-detail";
@@ -79,6 +80,17 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
             onPressed: () => Get.back(),
           ),
         ),
+
+        // Botón de Favorito y En Proceso
+        Positioned(
+          top: 16,
+          right: 16,
+          child: MediaActionButtons(
+            itemPath: controller.mediaItem.path,
+          )
+        ),
+            
+
 
         // Título de la Franquicia
         Positioned(
