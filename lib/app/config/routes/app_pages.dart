@@ -27,7 +27,7 @@ class AppPages {
       binding: MediaPlayerBinding(),
     ),
     GetPage(
-      name: '/reader',
+      name: ReaderView.route,
       page: () => const ReaderView(),
       binding: ReaderBinding(),
     ),

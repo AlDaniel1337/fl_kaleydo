@@ -1,153 +1,165 @@
-// lib/app/modules/reader/controllers/reader_controller.dart
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/data.models.index.dart';
-import 'package:kaleydo/app/data/models/franchise_model.dart';
+
+import 'mixins/chapter_scanner_mixin.dart';
+import 'mixins/window_management_mixin.dart';
 
 enum ReadingMode { scroll, page }
 
-class ReaderController extends GetxController {
-  final ReaderStorageService storage = Get.find<ReaderStorageService>();
+/// Controlador para gestionar la lectura de capítulos (manga/novelas),
+/// controlando modos de visualización, guardado de progreso y navegación.
+class ReaderController extends GetxController with WindowManagementMixin, ChapterScannerMixin {
+  
+  //+ VARIABLES
+  // Servicios
+  @override
+  late final ReaderStorageService storage;
 
+  // Controladores de UI
+  final ScrollController scrollController = ScrollController();
+  final PageController pageController = PageController();
+
+  // Modelos y Estados de Navegación
   late FranchiseItemModel currentChapter;
+  bool _isChapterInitialized = false;
+
   List<FranchiseItemModel> chapterList = [];
   int currentChapterIndex = 0;
 
   final RxList<String> imagePaths = <String>[].obs;
+
+  // Estados Observables
   final RxBool isLoading = true.obs;
   final RxBool isControlsVisible = true.obs;
   final RxBool isFullScreen = false.obs;
+  final RxBool isChapterReady = false.obs;
 
-  // Estado del lector
   final Rx<ReadingMode> readingMode = ReadingMode.scroll.obs;
   final RxInt currentPage = 1.obs;
+  //!+
 
-  // Controladores de Scroll y PageView
-  final ScrollController scrollController = ScrollController();
-  final PageController pageController = PageController();
 
+
+  //+ CICLO DE VIDA
   @override
   void onInit() {
     super.onInit();
+    _initializeServices();
+    initWindowSettings();
     _loadArguments();
 
-    // Cargar modo de lectura guardado
-    readingMode.value = storage.readingMode == 'page' 
-        ? ReadingMode.page 
-        : ReadingMode.scroll;
+    if (Get.isRegistered<ReaderStorageService>()) {
+      readingMode.value = storage.readingMode == 'page'
+          ? ReadingMode.page
+          : ReadingMode.scroll;
+    }
 
-    // Listener para actualizar la página actual según el Scroll continuo
     scrollController.addListener(_onScrollPositionChanged);
   }
 
   @override
   void onClose() {
+    restoreWindowBounds();
+    scrollController.removeListener(_onScrollPositionChanged);
     scrollController.dispose();
     pageController.dispose();
     super.onClose();
   }
+  //!+
 
-  void _loadArguments() {
-    final args = Get.arguments;
 
-    if (args is Map<String, dynamic>) {
-      chapterList = args['chapterList'] as List<FranchiseItemModel>? ?? [];
-      currentChapterIndex = args['currentIndex'] as int? ?? 0;
-      
-      if (chapterList.isNotEmpty) {
-        currentChapter = chapterList[currentChapterIndex];
-      }
-    }
 
-    _scanChapterImages();
+  //+ GETTERS Y CONTROLES DE VISTA
+  /// Retorna el nombre del archivo de la página actualmente visible.
+  String get currentFileName {
+    if (imagePaths.isEmpty) return '';
+    final index = (currentPage.value - 1).clamp(0, imagePaths.length - 1);
+    return imagePaths[index].split(RegExp(r'[/\\]')).last;
   }
 
-  void _scanChapterImages() {
-    isLoading.value = true;
-    imagePaths.clear();
-
-    final Directory dir = Directory(currentChapter.path);
-
-    if (dir.existsSync()) {
-      final List<FileSystemEntity> entities = dir.listSync();
-      final List<String> files = entities
-          .whereType<File>()
-          .map((e) => e.path)
-          .where((path) {
-            final ext = path.toLowerCase();
-            return ext.endsWith('.png') ||
-                  ext.endsWith('.jpg') ||
-                  ext.endsWith('.jpeg') ||
-                  ext.endsWith('.webp');
-          })
-          .toList();
-
-      // ORDENAMIENTO NATURAL CORREGIDO
-      files.sort(_naturalCompare);
-      imagePaths.assignAll(files);
+  /// Alterna entre el modo continuo (scroll) y paginado.
+  void toggleReadingMode(ReadingMode mode) {
+    readingMode.value = mode;
+    if (Get.isRegistered<ReaderStorageService>()) {
+      storage.setReadingMode(mode == ReadingMode.page ? 'page' : 'scroll');
     }
-
-    // Cargar posición guardada
-    final savedPage = storage.getPagePosition(currentChapter.path);
-    if (savedPage > 0 && savedPage <= imagePaths.length) {
-      currentPage.value = savedPage;
-    } else {
-      currentPage.value = 1;
-    }
-
-    isLoading.value = false;
-
-    // Reiniciar la posición de scroll/pageview a la página correspondiente
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _resetViewPosition();
-    });
   }
 
-  void _resetViewPosition() {
-    final targetIndex = currentPage.value - 1;
+  /// Visibilidad de la barra de controles y superposiciones.
+  void toggleControls() {
+    isControlsVisible.value = !isControlsVisible.value;
+  }
+  //!+
+
+
+
+  //+ MANEJO DE LECTURA Y PÁGINAS
+  /// Salta directamente a una página específica del capítulo.
+  void jumpToPage(int pageNumber) {
+    if (pageNumber < 1 || pageNumber > imagePaths.length) return;
+    currentPage.value = pageNumber;
+    _registerCurrentReadProgress();
+
+    final targetIndex = pageNumber - 1;
 
     if (readingMode.value == ReadingMode.scroll && scrollController.hasClients) {
-      if (targetIndex == 0) {
-        scrollController.jumpTo(0.0);
+      final maxScroll = scrollController.position.maxScrollExtent;
+      if (maxScroll > 0 && imagePaths.length > 1) {
+        final double targetOffset =
+            (maxScroll / (imagePaths.length - 1)) * targetIndex;
+        scrollController.jumpTo(targetOffset.clamp(0.0, maxScroll));
       }
-    } else if (readingMode.value == ReadingMode.page && pageController.hasClients) {
+    } else if (readingMode.value == ReadingMode.page &&
+        pageController.hasClients) {
       pageController.jumpToPage(targetIndex);
     }
   }
 
-  void toggleReadingMode(ReadingMode mode) {
-    readingMode.value = mode;
-    storage.setReadingMode(mode == ReadingMode.page ? 'page' : 'scroll');
-  }
-
-  void toggleControls() {
-    isControlsVisible.value = !isControlsVisible.value;
-  }
-
-  void _onScrollPositionChanged() {
-    if (!scrollController.hasClients || imagePaths.isEmpty) return;
-
-    final maxScroll = scrollController.position.maxScrollExtent;
-    final currentScroll = scrollController.position.pixels;
-
-    if (maxScroll > 0) {
-      final double progress = (currentScroll / maxScroll).clamp(0.0, 1.0);
-      final int calculatedPage = ((progress * (imagePaths.length - 1)) + 1).round();
-      
-      if (currentPage.value != calculatedPage) {
-        currentPage.value = calculatedPage;
-        storage.savePagePosition(currentChapter.path, calculatedPage);
-      }
-    }
-  }
-
+  /// Callback invocado al cambiar de página en modo paginado.
   void onPageChanged(int index) {
     currentPage.value = index + 1;
-    storage.savePagePosition(currentChapter.path, currentPage.value);
+    _registerCurrentReadProgress();
   }
 
+  /// Vuelve a escanear las imágenes del capítulo actual.
+  void reloadChapter() {
+    _scanChapterImages();
+    Get.snackbar(
+      'Capítulo recargado',
+      'Se actualizó el contenido del capítulo.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.cardBackground,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 2),
+    );
+  }
+
+  /// Desplaza la vista al inicio del capítulo o primera página.
+  void scrollToTop() {
+    if (readingMode.value == ReadingMode.scroll && scrollController.hasClients) {
+      scrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    } else if (readingMode.value == ReadingMode.page &&
+        pageController.hasClients) {
+      pageController.animateToPage(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+  //!+
+
+
+
+  //+ NAVEGACIÓN
+  /// Avanza al siguiente capítulo en la lista si existe.
   void goToNextChapter() {
     if (currentChapterIndex + 1 < chapterList.length) {
       currentChapterIndex++;
@@ -156,6 +168,7 @@ class ReaderController extends GetxController {
     }
   }
 
+  /// Retrocede al capítulo anterior en la lista si existe.
   void goToPreviousChapter() {
     if (currentChapterIndex - 1 >= 0) {
       currentChapterIndex--;
@@ -164,34 +177,146 @@ class ReaderController extends GetxController {
     }
   }
 
-  int _naturalCompare(String a, String b) {
-    // Extraer solo el nombre de archivo sin la ruta completa (ej: "01.jpeg" o "10.jpg")
-    final String fileNameA = a.split(RegExp(r'[/\\]')).last;
-    final String fileNameB = b.split(RegExp(r'[/\\]')).last;
+  /// Cierra el lector, restableciendo el estado de la ventana y liberando caché.
+  Future<void> exitReader() async {
+    PaintingBinding.instance.imageCache.clear();
+    PaintingBinding.instance.imageCache.clearLiveImages();
+    await restoreWindowBounds();
+    Get.back();
+  }
+  //!+
 
-    final RegExp regExp = RegExp(r'(\d+|\D+)');
-    final Iterable<Match> matchesA = regExp.allMatches(fileNameA);
-    final Iterable<Match> matchesB = regExp.allMatches(fileNameB);
 
-    final Iterator<Match> itA = matchesA.iterator;
-    final Iterator<Match> itB = matchesB.iterator;
 
-    while (itA.moveNext() && itB.moveNext()) {
-      final String tokenA = itA.current.group(0)!;
-      final String tokenB = itB.current.group(0)!;
+  //+ CARGA Y GESTIÓN DE DATOS
+  /// Escanea y carga las imágenes desde el sistema de archivos para el capítulo actual.
+  Future<void> _scanChapterImages() async {
+    if (!_isChapterInitialized) return;
 
-      final int? numA = int.tryParse(tokenA);
-      final int? numB = int.tryParse(tokenB);
+    isLoading.value = true;
+    isChapterReady.value = false;
+    imagePaths.clear();
 
-      if (numA != null && numB != null) {
-        final int numCompare = numA.compareTo(numB);
-        if (numCompare != 0) return numCompare;
-      } else {
-        final int strCompare = tokenA.toLowerCase().compareTo(tokenB.toLowerCase());
-        if (strCompare != 0) return strCompare;
+    final files = await scanChapterDirectory(currentChapter.path);
+    imagePaths.assignAll(files);
+
+    _initializeChapterState();
+    isLoading.value = false;
+  }
+
+  /// Restablece la posición de lectura guardada e inicializa los visores.
+  void _initializeChapterState() {
+    final savedPage = Get.isRegistered<ReaderStorageService>()
+        ? storage.getPagePosition(currentChapter.path)
+        : 1;
+
+    currentPage.value =
+        (savedPage > 0 && savedPage <= imagePaths.length) ? savedPage : 1;
+
+    isChapterReady.value = true;
+    _registerCurrentReadProgress();
+
+    if (currentPage.value > 1) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        jumpToPage(currentPage.value);
+      });
+    }
+  }
+
+  /// Registra en almacenamiento local la última posición leída.
+  void _registerCurrentReadProgress() {
+    if (!_isChapterInitialized || !Get.isRegistered<ReaderStorageService>()) {
+      return;
+    }
+
+    final pathSegments = currentChapter.path.split(RegExp(r'[/\\]'));
+    String detectedMediaType = 'manga';
+
+    for (final segment in pathSegments) {
+      if (segment.startsWith('_')) {
+        detectedMediaType = segment;
+        break;
       }
     }
 
-    return fileNameA.length.compareTo(fileNameB.length);
+    String franchiseName = 'Desconocida';
+    if (pathSegments.length >= 3) {
+      franchiseName = pathSegments[pathSegments.length - 3];
+    }
+
+    storage.saveRecentMedia(
+      mediaType: detectedMediaType,
+      franchiseName: franchiseName,
+      franchisePath: currentChapter.path.substring(
+        0,
+        currentChapter.path.lastIndexOf(Platform.pathSeparator),
+      ),
+      chapterPath: currentChapter.path,
+      chapterTitle: currentChapter.title,
+      pageIndex: currentPage.value,
+    );
   }
+  //!+
+
+
+
+  //+ MÉTODOS AUXILIARES
+  /// Garantiza la inicialización segura del servicio de almacenamiento.
+  void _initializeServices() {
+    if (Get.isRegistered<ReaderStorageService>()) {
+      storage = Get.find<ReaderStorageService>();
+    }
+  }
+
+  /// Valida e inicializa los argumentos pasados a la vista.
+  void _loadArguments() {
+    final args = Get.arguments;
+
+    if (args is Map<String, dynamic>) {
+      chapterList =
+          (args['chapterList'] as List?)?.cast<FranchiseItemModel>() ?? [];
+      currentChapterIndex = args['currentIndex'] as int? ?? 0;
+
+      if (chapterList.isNotEmpty &&
+          currentChapterIndex < chapterList.length) {
+        currentChapter = chapterList[currentChapterIndex];
+        _isChapterInitialized = true;
+      }
+    }
+
+    if (_isChapterInitialized) {
+      _scanChapterImages();
+    } else {
+      Get.snackbar('Error', 'No se pudo cargar la lista de capítulos.');
+    }
+  }
+
+  /// Sincroniza la página activa con la posición actual del scroll.
+  void _onScrollPositionChanged() {
+    if (!scrollController.hasClients || imagePaths.isEmpty) return;
+
+    final double currentScroll = scrollController.position.pixels;
+    final double maxScroll = scrollController.position.maxScrollExtent;
+
+    if (maxScroll <= 0) return;
+
+    final double viewportHeight =
+        scrollController.position.viewportDimension;
+    final double totalContentHeight = maxScroll + viewportHeight;
+    final double estimatedPageHeight = totalContentHeight / imagePaths.length;
+
+    if (estimatedPageHeight > 0) {
+      final int calculatedPage =
+          ((currentScroll + (viewportHeight / 3)) / estimatedPageHeight)
+                  .floor()
+                  .clamp(0, imagePaths.length - 1) +
+              1;
+
+      if (currentPage.value != calculatedPage) {
+        currentPage.value = calculatedPage;
+        _registerCurrentReadProgress();
+      }
+    }
+  }
+  //!+
 }

@@ -7,6 +7,7 @@ export './widgets/text_button_with_colored_container.dart';
 export './widgets/custom_slider.dart';
 export './widgets/full_screen_button.dart';
 export './widgets/custom_icon_button.dart';
+export './widgets/custom_text_icon_button.dart';
 
 export './widgets/tiles/settings_tile.dart';
 

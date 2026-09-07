@@ -11,7 +11,7 @@ typedef FranchiseItemModelList = List<FranchiseItemModel>;
 
 /// Servicio para escanear archivos de anime dentro de un directorio.
 class AnimeScannerService {
-
+  
   static const _videoExtensions = {'.mp4', '.mkv', '.avi'};
 
   /// Método principal de escaneo de episodios de anime.

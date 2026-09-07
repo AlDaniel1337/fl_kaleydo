@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/header/components/tab_button.dart';
+import 'package:kaleydo/app/modules/home/views/widgets/storage_inspector_dialog/storage_inspector_dialog.dart';
 import 'components/header_title.dart';
 import 'components/global_search_bar.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
@@ -65,6 +66,12 @@ class KaleydoHeader extends GetView<HomeController> {
             icon: const Icon(Icons.settings_outlined, color: AppColors.textSecondary),
             tooltip: 'Configuración',
             onPressed: () {},
+          ),
+
+          IconButton(
+            icon: const Icon(Icons.storage_rounded, color: Colors.white70),
+            tooltip: 'Gestionar Almacenamiento',
+            onPressed: () => showStorageInspectorModal(context),
           ),
         ],
       ),

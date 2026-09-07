@@ -33,9 +33,13 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
             if (controller.showAnimeSeasonTabs())
               _buildSeasonSelector(),
 
-            // 4. Vista de Contenido Dinámica
+            // 4. Banner de "Continuar" (Nuevo)
+            _buildResumeBanner(),
+
+            // 5. Vista de Contenido Dinámica
             Expanded(child: _buildMainContent()),
           ],
+          
         );
       }),
     );
@@ -346,5 +350,65 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       case FranchiseMediaType.anime:   return 'Anime';
       case FranchiseMediaType.resumen: return 'Resumen';
     }
+  }
+
+  /// Widget del banner para continuar la lectura o reproducción
+  Widget _buildResumeBanner() {
+    return Obx(() {
+      final progress = controller.latestProgress.value;
+      if (progress == null) return const SizedBox.shrink();
+
+      final String title = progress['lastChapterTitle'] ?? progress['lastVideoTitle'] ?? 'Continuar';
+
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.primaryAccent.withOpacity(0.2), AppColors.cardBackground],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.primaryAccent.withOpacity(0.4)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.play_circle_filled_rounded, color: AppColors.primaryAccent, size: 30),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Progreso guardado en esta categoría',
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    title,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryAccent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+              ),
+              icon: const Icon(Icons.arrow_forward_rounded, size: 14),
+              label: const Text('Continuar', style: TextStyle(fontSize: 12)),
+              onPressed: () => controller.resumeLastProgress(),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
