@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/modules/reader/controllers/reader_controller.dart';
-import 'widgets/reader_footer.dart';
-import 'widgets/reader_header.dart';
-import 'widgets/reader_page_view.dart';
-import 'widgets/reader_scroll_view.dart';
+import 'widgets/reader_footer/reader_footer.dart';
+import 'widgets/reader_header/reader_header.dart';
+import 'widgets/reader_page_view/reader_page_view.dart';
+import 'widgets/reader_scroll_view/reader_scroll_view.dart';
 
 class ReaderView extends GetView<ReaderController> {
+
   static const String route = "/reader";
 
   const ReaderView({super.key});
@@ -25,6 +26,7 @@ class ReaderView extends GetView<ReaderController> {
           );
         }
 
+        //: Si no hay imágenes, mostrar un mensaje de error
         if (controller.imagePaths.isEmpty) {
           return Scaffold(
             appBar: AppBar(backgroundColor: Colors.transparent),
@@ -41,14 +43,15 @@ class ReaderView extends GetView<ReaderController> {
           onTap: controller.toggleControls,
           child: Stack(
             children: [
-              // 1. ÁREA DE LECTURA
+              
+              //: ÁREA DE LECTURA
               Positioned.fill(
                 child: controller.readingMode.value == ReadingMode.scroll
                     ? ReaderScrollView(controller: controller)
                     : ReaderPageView(controller: controller),
               ),
 
-              // 2. HEADER SUPERIOR FLOTANTE
+              //: HEADER SUPERIOR FLOTANTE
               Positioned(
                 top: 0,
                 left: 0,
@@ -65,7 +68,7 @@ class ReaderView extends GetView<ReaderController> {
                 ),
               ),
 
-              // 3. FOOTER INFERIOR FLOTANTE
+              //: FOOTER INFERIOR FLOTANTE
               Positioned(
                 bottom: 0,
                 left: 0,

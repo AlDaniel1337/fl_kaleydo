@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:kaleydo/app/modules/reader/controllers/reader_controller.dart';
 import 'package:kaleydo/app/shared/shared_widgets.index.dart';
 
+/// Widget que representa el footer del lector, mostrando información y controles de navegación.
 class ReaderFooter extends StatelessWidget {
 
-  
   final ReaderController controller;
 
   const ReaderFooter({

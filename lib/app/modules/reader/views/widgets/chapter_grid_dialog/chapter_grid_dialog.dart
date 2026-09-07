@@ -4,6 +4,7 @@ import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/modules/reader/controllers/reader_controller.dart';
 import 'components/components.index.dart';
 
+/// Diálogo que muestra un grid de miniaturas de las páginas del capítulo actual.
 class ChapterGridDialog extends StatelessWidget {
 
   final ReaderController controller;

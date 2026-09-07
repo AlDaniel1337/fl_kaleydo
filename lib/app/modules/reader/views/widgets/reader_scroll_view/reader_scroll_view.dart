@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/modules/reader/controllers/reader_controller.dart';
 
+/// Widget que representa la vista de desplazamiento del lector, mostrando todas las imágenes del capítulo actual en un ListView.
 class ReaderScrollView extends StatelessWidget {
   
   final ReaderController controller;
@@ -31,10 +32,12 @@ class ReaderScrollView extends StatelessWidget {
               filterQuality: FilterQuality.medium,
               cacheWidth: 1200,
               frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+
                 if (wasSynchronouslyLoaded || frame != null) return child;
+
                 return Container(
                   height: 900,
-                  color: AppColors.cardBackground.withOpacity(0.3),
+                  color: AppColors.cardBackground.withValues(alpha: 0.3),
                   child: const Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primaryAccent,
@@ -42,6 +45,7 @@ class ReaderScrollView extends StatelessWidget {
                     ),
                   ),
                 );
+
               },
             ),
           ),

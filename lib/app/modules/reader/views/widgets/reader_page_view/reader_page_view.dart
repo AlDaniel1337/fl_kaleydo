@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:kaleydo/app/modules/reader/controllers/reader_controller.dart';
 
+/// Widget que representa la vista de páginas del lector, permitiendo navegar entre las imágenes del capítulo actual mediante un PageView.
 class ReaderPageView extends StatelessWidget {
   
   final ReaderController controller;
