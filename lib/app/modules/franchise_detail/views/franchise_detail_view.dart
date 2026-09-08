@@ -297,58 +297,67 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
   /// Widget del banner para continuar la lectura o reproducción
   Widget _buildResumeBanner() {
     return Obx(() {
+
       final progress = controller.latestProgress.value;
+
       if (progress == null) return const SizedBox.shrink();
 
       final String title = progress['lastChapterTitle'] ?? progress['lastVideoTitle'] ?? 'Continuar';
-
-      return Container(
+      
+      return Card(
+        color: AppColors.cardBackground,
         margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.primaryAccent.withOpacity(0.2), AppColors.cardBackground],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.primaryAccent.withOpacity(0.4)),
+          side: BorderSide(
+            color: AppColors.primaryAccent.withOpacity(0.4),
+          ),
         ),
-        child: Row(
-          children: [
-            const Icon(Icons.play_circle_filled_rounded, color: AppColors.primaryAccent, size: 30),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Progreso guardado en esta categoría',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    title,
-                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          leading: const Icon(
+            Icons.play_circle_filled_rounded,
+            color: AppColors.primaryAccent,
+            size: 30,
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: const Text(
+            'Progreso guardado en esta categoría',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          trailing: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryAccent,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
               ),
             ),
-            const SizedBox(width: 8),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryAccent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-              ),
-              icon: const Icon(Icons.arrow_forward_rounded, size: 14),
-              label: const Text('Continuar', style: TextStyle(fontSize: 12)),
-              onPressed: () => controller.resumeLastProgress(),
-            ),
-          ],
+            icon: const Icon(Icons.arrow_forward_rounded, size: 14),
+            label: const Text('Continuar', style: TextStyle(fontSize: 12)),
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              controller.resumeLastProgress();
+            },
+          ),
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+            controller.resumeLastProgress();
+          },
         ),
       );
     });
@@ -381,7 +390,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Obx(() => ToggleButtons(
                   isSelected: [!controller.isMangaGridView.value, controller.isMangaGridView.value],
@@ -442,9 +451,9 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
   /// Widget de Cuadrícula para los capítulos de Manga
   Widget _buildMangaGridView(List<FranchiseItemModel> chapters) {
     return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5, // 5 columnas de capítulos
+        crossAxisCount: 6, //  columnas de capítulos
         childAspectRatio: 0.7, // Proporción vertical típica de manga
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,

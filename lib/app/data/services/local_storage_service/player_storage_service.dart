@@ -12,7 +12,7 @@ class PlayerStorageService extends GetxService {
   late final GetStorage _box;
 
   //: Claves de almacenamiento
-  static const String _kSettings    = 'player_settings';
+  static const String _kSettings    = 'settings_player';
   static const String _kPositions   = 'player_video_positions';
   static const String _kRecentMedia = 'player_recent_video_history';
   //!+

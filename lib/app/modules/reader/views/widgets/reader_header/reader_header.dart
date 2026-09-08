@@ -89,6 +89,7 @@ class ReaderHeader extends StatelessWidget {
             onPressed: controller.scrollToTop,
           ),
 
+          //: Menú principal del lector
           HeaderMainMenu(controller: controller)
         ],
       ),

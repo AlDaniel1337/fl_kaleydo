@@ -11,7 +11,7 @@ class ReaderStorageService extends GetxService {
   late final GetStorage _box;
 
   // Claves de almacenamiento
-  static const String _kSettings        = 'reader_settings';
+  static const String _kSettings        = 'settings_reader';
   static const String _kReaderPositions = 'reader_chapter_positions';
   static const String _kRecentMedia     = 'reader_recent_media_history';
   //!+

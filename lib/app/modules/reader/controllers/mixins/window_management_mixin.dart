@@ -9,11 +9,7 @@ mixin WindowManagementMixin on GetxController {
   //+ VARIABLES
   ReaderStorageService get storage;
 
-  final Map<double, String> windowWidthOptions = {
-    500.0: 'Manhwa (500px)',
-    600.0: 'Manga (600px)',
-    700.0: 'Estrecho (700px)',
-  };
+  final Map<double, String> windowWidthOptions = [500,600,700,800,900].asMap().map((index, width) => MapEntry(width.toDouble(), '${width.toInt()} px'));
 
   final RxDouble currentWindowWidth = 1000.0.obs;
   Rect? _previousWindowBounds;
