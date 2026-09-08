@@ -12,12 +12,13 @@ class PlayerProgressBar extends GetView<MediaPlayerController> {
     return Obx(() {
       return SliderTheme(
         data: SliderThemeData(
-          trackHeight: 3,
+          trackHeight: 2,
           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
           activeTrackColor: AppColors.primaryAccent,
           inactiveTrackColor: Colors.white24,
           thumbColor: AppColors.primaryAccent,
           overlayColor: AppColors.primaryAccent.withValues(alpha: 0.2),
+          overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
         ),
         child: Slider(
           min: 0.0,

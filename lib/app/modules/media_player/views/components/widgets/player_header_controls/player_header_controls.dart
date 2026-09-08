@@ -5,7 +5,7 @@ import 'package:kaleydo/app/modules/media_player/controllers/media_player_contro
 import 'package:kaleydo/app/shared/shared_widgets.index.dart';
 
 /// Presets predeterminados para la velocidad de reproducción.
-const List<double> _kSpeedPresets = [1.0, 2.0, 3.0];
+const List<double> _kSpeedPresets = [1.0, 1.5, 2.0, 3.0];
 
 /// Controles del encabezado del reproductor: botón de retroceso y presets de velocidad.
 class PlayerHeaderControls extends GetView<MediaPlayerController> {

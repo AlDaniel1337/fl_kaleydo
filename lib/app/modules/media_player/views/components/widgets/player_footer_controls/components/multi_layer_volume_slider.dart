@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/modules/media_player/controllers/media_player_controller.dart';
-import 'package:kaleydo/app/shared/shared_widgets.index.dart';
+import 'package:kaleydo/app/shared/widgets/custom_slider/hover_custom_slider.dart';
 
 /// Control deslizante de volumen con múltiples capas que permite ajustar el volumen y el aumento de volumen.
 class MultiLayerVolumeSlider extends GetView<MediaPlayerController> {
@@ -19,6 +19,7 @@ class MultiLayerVolumeSlider extends GetView<MediaPlayerController> {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+
           HoverCustomSlider(
             icon: Icons.volume_up_rounded,
             mainColor: volumeConfig.activeColor,
@@ -31,6 +32,7 @@ class MultiLayerVolumeSlider extends GetView<MediaPlayerController> {
               _handleVolumeChange(segmentValue, vol, isBoostEnabled);
             },
           ),
+
           if (vol > 100)
             Padding(
               padding: const EdgeInsets.only(left: 4.0),

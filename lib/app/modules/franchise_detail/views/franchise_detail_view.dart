@@ -48,7 +48,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
     return Stack(
       children: [
         Container(
-          height: 150,
+          height: 130,
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
@@ -93,12 +93,10 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
           )
         ),
             
-
-
         // Título de la Franquicia
         Positioned(
-          bottom: 16,
-          left: 24,
+          top: 70,
+          left: 34,
           child: Text(
             controller.mediaItem.title,
             style: const TextStyle(

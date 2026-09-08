@@ -19,8 +19,8 @@ mixin PlayerAudioMixin on GetxController {
   // Estados de audio (volumen, boost, límite máximo)
   final RxDouble volume = 100.0.obs;
   double previousVolume = 0.0;
-  final RxBool isVolumeBoostEnabled = false.obs;
-  final RxDouble maxVolumeLimit = 100.0.obs;
+  final RxBool isVolumeBoostEnabled = true.obs;
+  final RxDouble maxVolumeLimit = 300.0.obs;
   double _previousVolumeBeforeMute = 100.0;
 
   // Estados de pistas de audio

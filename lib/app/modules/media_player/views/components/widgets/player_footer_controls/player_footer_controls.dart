@@ -4,6 +4,7 @@ import 'package:kaleydo/app/modules/media_player/views/components/components.ind
 import 'package:kaleydo/app/modules/media_player/views/components/widgets/player_footer_controls/components/media_duration_badge.dart';
 import 'package:kaleydo/app/modules/media_player/views/components/widgets/player_footer_controls/components/multi_layer_volume_slider.dart';
 import 'package:kaleydo/app/modules/media_player/views/components/widgets/player_footer_controls/components/player_progress_bar.dart';
+import 'package:kaleydo/app/shared/widgets/custom_slider/hover_custom_slider.dart';
 import 'package:media_kit/media_kit.dart';
 
 import 'package:kaleydo/app/config/theme/app_colors.dart';
@@ -24,7 +25,7 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
 
           //: Barra de progreso del reproductor
           const PlayerProgressBar(),
-          const SizedBox(height: 4),
+          const SizedBox(height: 16),
 
           Row(
             children: [
@@ -51,14 +52,18 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
               ),
               const SizedBox(width: 12),
 
-              //: Controles de Audio y Tiempo
+              //: Controles de Audio
               const MultiLayerVolumeSlider(),
               const SizedBox(width: 12),
+              
+              //: Duración del Video
               const MediaDurationBadge(),
               const SizedBox(width: 12),
 
               //: Control de Velocidad
-              Obx(() => HoverCustomSlider(
+              Obx(() => Row(
+                children: [
+                  HoverCustomSlider(
                     icon: Icons.speed,
                     mainColor: AppColors.primaryAccent,
                     sliderValue: controller.playbackSpeed.value,
@@ -68,7 +73,13 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
                     divisions: 39,
                     expandedWidth: 200,
                     label: '${controller.playbackSpeed.value.toStringAsFixed(1)}x',
-                  )),
+                  ),
+                  Text(
+                    '${controller.playbackSpeed.value.toStringAsFixed(1)}x',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ],
+              )),
               const Spacer(),
 
               //: Subtítulos
