@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
 import 'package:kaleydo/app/modules/franchise_detail/controllers/franchise_detail_controller.dart';
-import 'package:kaleydo/app/modules/media_player/views/media_player_view.dart';
 import 'package:kaleydo/app/shared/shared_widgets.index.dart';
 
 class FranchiseDetailView extends GetView<FranchiseDetailController> {
@@ -49,7 +48,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
     return Stack(
       children: [
         Container(
-          height: 220,
+          height: 150,
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
@@ -166,50 +165,6 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
     );
   }
 
-  Widget _buildMainContent() {
-    final tab = controller.selectedTab.value;
-    final items = controller.mediaContent[tab] ?? [];
-
-    // Vista Grid para Juegos y Novelas Visuales
-    if (tab == FranchiseMediaType.juegos || tab == FranchiseMediaType.novelas) {
-      return GridView.builder(
-        padding: const EdgeInsets.all(24),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          childAspectRatio: 1.2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
-        itemCount: items.length,
-        itemBuilder: (ctx, idx) => _buildGameCard(items[idx], tab == FranchiseMediaType.novelas),
-      );
-    }
-
-    // Vista de Lista para Manga y Novelas Ligeras / Libros
-    if (tab == FranchiseMediaType.manga || tab == FranchiseMediaType.libros) {
-      return ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        itemCount: items.length,
-        itemBuilder: (ctx, idx) => _buildBookOrMangaTile(items[idx], tab == FranchiseMediaType.libros, idx)
-      );
-    }
-
-    // Vista de Lista para Anime
-    if (tab == FranchiseMediaType.anime) {
-      final episodes = controller.filteredAnimeEpisodes;
-      return ListView.builder(
-        controller: controller.animeScrollController, // Vinculación del ScrollController
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        itemCount: episodes.length,
-        itemBuilder: (ctx, idx) => _buildAnimeTile(episodes[idx], idx),
-      );
-    }
-
-    return const Center(
-      child: Text('Vista de Resumen en Markdown', style: TextStyle(color: AppColors.textSecondary)),
-    );
-  }
-
   Widget _buildGameCard(FranchiseItemModel game, bool isNovel) {
     return Container(
       decoration: BoxDecoration(
@@ -304,13 +259,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
               ? controller.bookItems 
               : controller.mangaChapters;
 
-          Get.toNamed(
-            '/reader',
-            arguments: {
-              'chapterList': currentList, // Lista completa de capítulos del mapa
-              'currentIndex': index,      // Posición actual
-            },
-          );
+          controller.openReaderForChapter(currentList, index);
         },
       ),
     );
@@ -328,14 +277,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
         trailing: const Icon(Icons.play_arrow_rounded, color: Colors.white),
         onTap: () {
           FocusManager.instance.primaryFocus?.unfocus();
-          // Navega al reproductor pasando la ruta absoluta del video .mp4/.mkv
-          Get.toNamed(
-            MediaPlayerView.route, 
-            arguments: {
-              'playlist': controller.filteredAnimeEpisodes, // Lista ordenada
-              'currentIndex': index,                        // Posición actual
-            },
-          );
+          controller.openPlayerForEpisode(controller.filteredAnimeEpisodes, index);
         },
       ),
     );
@@ -410,5 +352,162 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
         ),
       );
     });
+  }
+
+  Widget _buildMainContent() {
+    final tab = controller.selectedTab.value;
+    final items = controller.mediaContent[tab] ?? [];
+
+    // Vista Grid para Juegos y Novelas Visuales
+    if (tab == FranchiseMediaType.juegos || tab == FranchiseMediaType.novelas) {
+      return GridView.builder(
+        padding: const EdgeInsets.all(24),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 1.2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        itemCount: items.length,
+        itemBuilder: (ctx, idx) => _buildGameCard(items[idx], tab == FranchiseMediaType.novelas),
+      );
+    }
+
+    // Vista de Manga con opción de alternar entre Lista y Grid
+    if (tab == FranchiseMediaType.manga) {
+      return Column(
+        children: [
+          // Barra superior con botón para cambiar la vista (Lista / Grid)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Obx(() => ToggleButtons(
+                  isSelected: [!controller.isMangaGridView.value, controller.isMangaGridView.value],
+                  onPressed: (_) => controller.toggleMangaView(),
+                  color: AppColors.textSecondary,
+                  selectedColor: Colors.white,
+                  fillColor: AppColors.primaryAccent.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8),
+                  constraints: const BoxConstraints(minHeight: 32, minWidth: 40),
+                  children: const [
+                    Tooltip(message: 'Vista de lista', child: Icon(Icons.list_rounded, size: 18)),
+                    Tooltip(message: 'Vista de cuadrícula', child: Icon(Icons.grid_view_rounded, size: 18)),
+                  ],
+                )),
+              ],
+            ),
+          ),
+          
+          // Contenido dinámico (Grid o Lista)
+          Expanded(
+            child: Obx(() => controller.isMangaGridView.value
+                ? _buildMangaGridView(controller.mangaChapters)
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                    itemCount: items.length,
+                    itemBuilder: (ctx, idx) => _buildBookOrMangaTile(items[idx], false, idx),
+                  )),
+          ),
+        ],
+      );
+    }
+
+    // Vista de Lista para Libros (Novelas Ligeras)
+    if (tab == FranchiseMediaType.libros) {
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        itemCount: items.length,
+        itemBuilder: (ctx, idx) => _buildBookOrMangaTile(items[idx], true, idx),
+      );
+    }
+
+    // Vista de Lista para Anime
+    if (tab == FranchiseMediaType.anime) {
+      final episodes = controller.filteredAnimeEpisodes;
+      return ListView.builder(
+        controller: controller.animeScrollController,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        itemCount: episodes.length,
+        itemBuilder: (ctx, idx) => _buildAnimeTile(episodes[idx], idx),
+      );
+    }
+
+    return const Center(
+      child: Text('Vista de Resumen en Markdown', style: TextStyle(color: AppColors.textSecondary)),
+    );
+  }
+
+  /// Widget de Cuadrícula para los capítulos de Manga
+  Widget _buildMangaGridView(List<FranchiseItemModel> chapters) {
+    return GridView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 5, // 5 columnas de capítulos
+        childAspectRatio: 0.7, // Proporción vertical típica de manga
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: chapters.length,
+      itemBuilder: (ctx, idx) {
+        final chapter = chapters[idx];
+        final String? firstImage = chapter.pagePaths.isNotEmpty ? chapter.pagePaths.first : null;
+
+        return InkWell(
+          onTap: () {
+            Get.toNamed(
+              '/reader',
+              arguments: {
+                'chapterList': chapters,
+                'currentIndex': idx,
+              },
+            );
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.cardBackground,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Imagen de la primera página como miniatura
+                Expanded(
+                  child: firstImage != null
+                      ? Image.file(
+                          File(firstImage),
+                          fit: BoxFit.cover,
+                          cacheWidth: 300,
+                        )
+                      : Container(
+                          color: Colors.black26,
+                          child: const Icon(Icons.broken_image_rounded, color: Colors.white54),
+                        ),
+                ),
+                // Título del capítulo
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  color: AppColors.cardBackground,
+                  child: Text(
+                    chapter.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

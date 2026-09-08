@@ -230,22 +230,14 @@ class ReaderController extends GetxController with WindowManagementMixin, Chapte
     }
 
     final pathSegments = currentChapter.path.split(RegExp(r'[/\\]'));
-    String detectedMediaType = 'manga';
-
-    for (final segment in pathSegments) {
-      if (segment.startsWith('_')) {
-        detectedMediaType = segment;
-        break;
-      }
-    }
-
+   
     String franchiseName = 'Desconocida';
     if (pathSegments.length >= 3) {
       franchiseName = pathSegments[pathSegments.length - 3];
     }
 
     storage.saveRecentMedia(
-      mediaType: detectedMediaType,
+      mediaType: "comic",
       franchiseName: franchiseName,
       franchisePath: currentChapter.path.substring(
         0,

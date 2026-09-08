@@ -30,6 +30,13 @@ class FranchiseDetailController extends GetxController {
 
   final RxBool isLoading = true.obs;
   final Rxn<Map<String, dynamic>> latestProgress = Rxn<Map<String, dynamic>>();
+
+  // Variable para controlar si el manga se muestra en Grid o Lista
+  final RxBool isMangaGridView = false.obs;
+
+  void toggleMangaView() {
+    isMangaGridView.value = !isMangaGridView.value;
+  }
   //!+
 
 
@@ -139,42 +146,39 @@ class FranchiseDetailController extends GetxController {
 
 
   /// Navega al último progreso guardado según el tipo de contenido seleccionado (manga o anime).
-  void resumeLastProgress() {
+  Future<void> resumeLastProgress() async {
     final progress = latestProgress.value;
+
     if (progress == null) return;
 
-    final currentTab = selectedTab.value;
-
-    // Manga
-    if (_isMediaAReadItem(currentTab)) {
-      
-      final chapterPath = progress['lastChapterPath'] as String? ?? '';
-      if (chapterPath.isEmpty) return;
-
-      // Calcula el índice del capítulo actual en la lista correspondiente
-      final currentList = currentTab == FranchiseMediaType.manga ? mangaChapters : bookItems;
-      final index = currentList.indexWhere((item) => item.path == chapterPath);
-
-      Get.toNamed(
-        ReaderView.route,
-        arguments: {
-          'chapterList': currentList,
-          'currentIndex': index != -1 ? index : 0,
-          'chapterPath': chapterPath,
-        },
-      );
-    }
+    final String mediaType = progress['mediaType'] ?? '';
     
-    // Anime
-    else if (currentTab == FranchiseMediaType.anime) {
-      final videoPath = progress['lastVideoPath'] as String? ?? '';
-      if (videoPath.isNotEmpty) {
-        Get.toNamed(
-          MediaPlayerView.route, 
-          arguments: videoPath
+    if (mediaType.contains('comic')) {
+      int index = mangaChapters.indexWhere((chapter) => chapter.path == progress['lastChapterPath']);
+      if (index != -1) {
+        openReaderForChapter(mangaChapters, index);
+      }
+      else {
+        Get.snackbar('Error', 'No se encontró el capítulo guardado en la lista de manga.');
+      }
+    } 
+
+    else if (mediaType.contains('video')) {
+      int index = filteredAnimeEpisodes.indexWhere((episode) => episode.path == progress['lastVideoPath']);
+      if (index != -1) {
+        openPlayerForEpisode(
+          filteredAnimeEpisodes, 
+          index,
         );
       }
+      else {
+        Get.snackbar('Error', 'No se encontró el episodio guardado en la lista de anime.');
+      }
+
     }
+
+    await Future.delayed(const Duration(milliseconds: 150));
+    checkProgressForCurrentTab();
   }
   //!+
 
@@ -279,5 +283,32 @@ class FranchiseDetailController extends GetxController {
     return mediaType == FranchiseMediaType.anime;
   }
   //!+
+
+  /// Abre el lector de manga/libros y actualiza el progreso al volver
+  Future<void> openReaderForChapter(List<FranchiseItemModel> chapterList, int index) async {
+    await Get.toNamed(
+      ReaderView.route, 
+      arguments: {
+        'chapterList': chapterList,
+        'currentIndex': index,
+      },
+    );
+    await Future.delayed(const Duration(milliseconds: 100));
+    checkProgressForCurrentTab();
+  }
+
+  /// Abre el reproductor de anime y actualiza el progreso al volver
+  Future<void> openPlayerForEpisode(List<FranchiseItemModel> playlist, int index) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    await Get.toNamed(
+      MediaPlayerView.route,
+      arguments: {
+        'playlist': playlist,
+        'currentIndex': index,
+      },
+    );
+    await Future.delayed(const Duration(milliseconds: 150));
+    checkProgressForCurrentTab();
+  }
 
 }

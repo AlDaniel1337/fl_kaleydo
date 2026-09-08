@@ -142,6 +142,11 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
       await windowManager.setFullScreen(false);
     }
 
+    // Guardar el progreso de forma explícita e inmediata antes de salir
+    if (position.value.inMilliseconds > 0) {
+      _saveCurrentProgress(position.value.inMilliseconds);
+    }
+
     await player.pause();
     Get.back();
   }
@@ -212,14 +217,7 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
     if (videoPath.isEmpty) return;
 
     final pathSegments = videoPath.split(RegExp(r'[/\\]'));
-    String detectedMediaType = 'anime';
 
-    for (final segment in pathSegments) {
-      if (segment.startsWith('_')) {
-        detectedMediaType = segment;
-        break;
-      }
-    }
 
     String franchiseName = 'Desconocida';
     String franchisePath = '';
@@ -243,7 +241,7 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
     }
 
     _storage.savePosition(
-      mediaType: detectedMediaType,
+      mediaType: "video",
       franchiseName: franchiseName,
       franchisePath: franchisePath,
       videoPath: videoPath,
