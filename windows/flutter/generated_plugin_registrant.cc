@@ -8,6 +8,7 @@
 
 #include <media_kit_libs_windows_video/media_kit_libs_windows_video_plugin_c_api.h>
 #include <media_kit_video/media_kit_video_plugin_c_api.h>
+#include <pdfx/pdfx_plugin.h>
 #include <screen_retriever/screen_retriever_plugin.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 #include <volume_controller/volume_controller_plugin_c_api.h>
@@ -18,6 +19,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("MediaKitLibsWindowsVideoPluginCApi"));
   MediaKitVideoPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("MediaKitVideoPluginCApi"));
+  PdfxPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("PdfxPlugin"));
   ScreenRetrieverPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("ScreenRetrieverPlugin"));
   UrlLauncherWindowsRegisterWithRegistrar(

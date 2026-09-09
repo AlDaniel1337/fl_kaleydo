@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/data.models.index.dart';
+import 'package:kaleydo/app/data/services/pdf_cache_service/pdf_cache_service.dart';
 
 import 'mixins/chapter_scanner_mixin.dart';
 import 'mixins/window_management_mixin.dart';
@@ -36,16 +37,20 @@ class ReaderController extends GetxController with WindowManagementMixin, Chapte
   final RxBool isControlsVisible = true.obs;
   final RxBool isFullScreen = false.obs;
   final RxBool isChapterReady = false.obs;
+  final RxBool isLoadingPosition = true.obs;
+
 
   final Rx<ReadingMode> readingMode = ReadingMode.scroll.obs;
   final RxInt currentPage = 1.obs;
+
+  final Map<int, double> _pageOffsets = {};
+  final Map<int, GlobalKey> pageKeys = {};
   //!+
 
 
 
   //+ CICLO DE VIDA
-  @override
-  void onInit() {
+  @override  void onInit() {
     super.onInit();
     _initializeServices();
     initWindowSettings();
@@ -106,14 +111,18 @@ class ReaderController extends GetxController with WindowManagementMixin, Chapte
     final targetIndex = pageNumber - 1;
 
     if (readingMode.value == ReadingMode.scroll && scrollController.hasClients) {
-      final maxScroll = scrollController.position.maxScrollExtent;
-      if (maxScroll > 0 && imagePaths.length > 1) {
-        final double targetOffset =
-            (maxScroll / (imagePaths.length - 1)) * targetIndex;
-        scrollController.jumpTo(targetOffset.clamp(0.0, maxScroll));
+      final targetKey = pageKeys[targetIndex];
+      
+      // Si la llave existe y ya está montada en la pantalla, saltamos a ella
+      if (targetKey != null && targetKey.currentContext != null) {
+        Scrollable.ensureVisible(
+          targetKey.currentContext!,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          alignment: 0.0, // Alinea el tope de la imagen con el tope de la pantalla
+        );
       }
-    } else if (readingMode.value == ReadingMode.page &&
-        pageController.hasClients) {
+    } else if (readingMode.value == ReadingMode.page && pageController.hasClients) {
       pageController.jumpToPage(targetIndex);
     }
   }
@@ -196,9 +205,20 @@ class ReaderController extends GetxController with WindowManagementMixin, Chapte
     isLoading.value = true;
     isChapterReady.value = false;
     imagePaths.clear();
+    pageKeys.clear();
 
-    final files = await scanChapterDirectory(currentChapter.path);
-    imagePaths.assignAll(files);
+    if (currentChapter.path.toLowerCase().endsWith('.pdf')) {
+      final List<String> pageImages = await PdfCacheService.getOrExtractPdfPages(currentChapter.path);
+      imagePaths.assignAll(pageImages);
+    } else {
+      final files = await scanChapterDirectory(currentChapter.path);
+      imagePaths.assignAll(files);
+    }
+
+    // Generamos una llave única para cada página
+    for (int i = 0; i < imagePaths.length; i++) {
+      pageKeys[i] = GlobalKey();
+    }
 
     _initializeChapterState();
     isLoading.value = false;
@@ -209,17 +229,25 @@ class ReaderController extends GetxController with WindowManagementMixin, Chapte
     final savedPage = Get.isRegistered<ReaderStorageService>()
         ? storage.getPagePosition(currentChapter.path)
         : 1;
-
-    currentPage.value =
-        (savedPage > 0 && savedPage <= imagePaths.length) ? savedPage : 1;
+  
+    currentPage.value = (savedPage > 0 && savedPage <= imagePaths.length) ? savedPage : 1;
 
     isChapterReady.value = true;
     _registerCurrentReadProgress();
 
     if (currentPage.value > 1) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      isLoadingPosition.value = true; // Mostramos el loader de salto
+      
+      Future.delayed(const Duration(milliseconds: 1500), () {
         jumpToPage(currentPage.value);
+        
+        Future.delayed(const Duration(milliseconds: 300), () {
+          isLoadingPosition.value = false;
+        });
       });
+
+    } else {
+      isLoadingPosition.value = false;
     }
   }
 
@@ -265,6 +293,19 @@ class ReaderController extends GetxController with WindowManagementMixin, Chapte
     final args = Get.arguments;
 
     if (args is Map<String, dynamic>) {
+      // Soporte si se abren imágenes precargadas directamente
+      if (args.containsKey('preloadedImages') && args.containsKey('chapterPath')) {
+        final preloaded = args['preloadedImages'] as List<String>? ?? [];
+        imagePaths.assignAll(preloaded);
+        currentChapter = FranchiseItemModel(
+          path: args['chapterPath'],
+          title: args['chapterTitle'] ?? 'Capítulo PDF',
+        );
+        _isChapterInitialized = true;
+        _initializeChapterState();
+        return;
+      }
+
       chapterList =
           (args['chapterList'] as List?)?.cast<FranchiseItemModel>() ?? [];
       currentChapterIndex = args['currentIndex'] as int? ?? 0;
@@ -289,6 +330,9 @@ class ReaderController extends GetxController with WindowManagementMixin, Chapte
 
     final double currentScroll = scrollController.position.pixels;
     final double maxScroll = scrollController.position.maxScrollExtent;
+    
+    // Guardamos de forma estimada/exacta el offset actual para esta página
+    _pageOffsets[currentPage.value - 1] = currentScroll;
 
     if (maxScroll <= 0) return;
 

@@ -1,11 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // <-- No olvides importar Get para Obx
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/modules/reader/controllers/reader_controller.dart';
 
-/// Widget que representa la vista de desplazamiento del lector, mostrando todas las imágenes del capítulo actual en un ListView.
 class ReaderScrollView extends StatelessWidget {
-  
   final ReaderController controller;
 
   const ReaderScrollView({
@@ -15,42 +14,67 @@ class ReaderScrollView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: controller.scrollController,
-      padding: const EdgeInsets.symmetric(vertical: 60),
-      addAutomaticKeepAlives: true,
-      addRepaintBoundaries: true,
-      itemCount: controller.imagePaths.length,
-      itemBuilder: (context, index) {
-        return Center(
-          child: Container(
-            width: double.infinity,
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Image.file(
-              File(controller.imagePaths[index]),
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.medium,
-              cacheWidth: 1200,
-              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+    // El Stack envuelve al Scroll para limitar su tamaño a la pantalla visible
+    return Stack(
+      children: [
+        // Capa inferior: El contenido desplazable
+        SingleChildScrollView(
+          controller: controller.scrollController,
+          child: Column(
+            children: controller.imagePaths.asMap().entries.map((entry) {
+              final index = entry.key;
+              final imagePath = entry.value;
 
-                if (wasSynchronouslyLoaded || frame != null) return child;
+              return Container(
+                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                key: controller.pageKeys[index],
+                child: Image.file(
+                  File(imagePath),
+                  fit: BoxFit.fitWidth,
+                  width: double.infinity,
+                  frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
 
-                return Container(
-                  height: 900,
-                  color: AppColors.cardBackground.withValues(alpha: 0.3),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primaryAccent,
-                      strokeWidth: 2,
+                    if (wasSynchronouslyLoaded) return child;
+
+                    // Placeholder
+                    return AnimatedOpacity(
+                      opacity: frame == null ? 0 : 1,
+                      duration: const Duration(milliseconds: 300),
+                      child: child,
+                    );
+
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+
+        // Capa superior: El indicador flotante (cubre toda la vista y bloquea toques accidentales)
+        Obx(
+          () => controller.isLoadingPosition.value
+              ? Container(
+                  color: AppColors.background, // Usa el fondo sólido o con opacidad (.withOpacity(0.9))
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(
+                          color: AppColors.primaryAccent,
+                          strokeWidth: 4,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Reanudando última página',
+                          style: const TextStyle(color: Colors.white70, fontSize: 14),
+                        ),
+                      ],
                     ),
                   ),
-                );
-
-              },
-            ),
-          ),
-        );
-      },
+                )
+              : const SizedBox.shrink(),
+        ),
+      ],
     );
   }
 }

@@ -41,14 +41,58 @@ mixin WindowManagementMixin on GetxController {
   Future<void> _applyWindowSize(double targetWidth) async {
     if (!GetPlatform.isDesktop) return;
 
+    final Rect currentBounds = await windowManager.getBounds();
+
+    // Obtenemos la pantalla principal como respaldo y la lista de pantallas
     final Display primaryDisplay = await screenRetriever.getPrimaryDisplay();
-    final Size workArea = primaryDisplay.visibleSize ?? primaryDisplay.size;
+    final List<Display> displays = await screenRetriever.getAllDisplays();
+    
+    Display currentDisplay = primaryDisplay;
+
+    // Identificamos en qué pantalla se encuentra el centro actual de la ventana
+    for (final display in displays) {
+      final Offset visiblePos = display.visiblePosition ?? Offset.zero;
+      final Size size = display.size;
+      
+      final Rect screenRect = Rect.fromLTWH(
+        visiblePos.dx,
+        visiblePos.dy,
+        size.width,
+        size.height,
+      );
+      
+      if (screenRect.contains(currentBounds.center)) {
+        currentDisplay = display;
+        break;
+      }
+    }
+
+    final Size workArea = currentDisplay.visibleSize ?? currentDisplay.size;
+    final Offset screenPosition = currentDisplay.visiblePosition ?? Offset.zero;
 
     final double validWidth = targetWidth.clamp(500.0, workArea.width);
-    final double centerX = (workArea.width - validWidth) / 2;
+
+    // Calculamos la nueva posición X centrada respecto a la posición actual de la ventana
+    double newX = currentBounds.center.dx - (validWidth / 2);
+
+    // Delimitadores basados en el área visible de la pantalla actual
+    final double minX = screenPosition.dx;
+    final double maxX = minX + workArea.width;
+
+    // Evitamos que la ventana se desborde fuera de los límites de este monitor
+    if (newX < minX) {
+      newX = minX;
+    } else if (newX + validWidth > maxX) {
+      newX = maxX - validWidth;
+    }
 
     await windowManager.setBounds(
-      Rect.fromLTWH(centerX, 0, validWidth, workArea.height),
+      Rect.fromLTWH(
+        newX,
+        currentBounds.top, // Conserva la posición vertical exacta donde está
+        validWidth,
+        currentBounds.height, // Conserva la altura actual de la ventana
+      ),
     );
   }
 
@@ -56,6 +100,23 @@ mixin WindowManagementMixin on GetxController {
   Future<void> _saveCurrentWindowBounds() async {
     if (GetPlatform.isDesktop) {
       _previousWindowBounds = await windowManager.getBounds();
+    }
+  }
+
+  /// Cambia el ancho de la ventana del lector en función del valor actual y las opciones disponibles.
+  void changeWindowWidth(bool increase) {
+
+    final currentIndex = windowWidthOptions.keys.toList().indexOf(currentWindowWidth.value);
+
+    if (currentIndex == -1) return;
+
+    if (currentIndex == 0 && !increase) return;
+    if (currentIndex == windowWidthOptions.length - 1 && increase) return;
+
+    final newIndex = increase ? currentIndex + 1 : currentIndex - 1;
+    
+    if (newIndex >= 0 && newIndex < windowWidthOptions.length) {
+      setWindowWidth(windowWidthOptions.keys.toList()[newIndex]);
     }
   }
 }

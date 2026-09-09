@@ -6,7 +6,6 @@ import 'mode_chip.dart';
 import 'custom_popup_menu.dart';
 
 class HeaderMainMenu extends StatelessWidget {
-  
   const HeaderMainMenu({
     super.key,
     required this.controller,
@@ -23,38 +22,78 @@ class HeaderMainMenu extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.cardBorder),
       ),
-      child: Obx(
-        () => Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            //: Modo de lectura: Scroll
-            ModeChip(
-              label: 'Scroll',
-              icon: Icons.unfold_more_rounded,
-              isSelected: controller.readingMode.value == ReadingMode.scroll,
-              onTap: () => controller.toggleReadingMode(ReadingMode.scroll),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          
+          //: Modo de lectura: Scroll & Página
+          Obx(
+            () => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ModeChip(
+                  label: 'Scroll',
+                  icon: Icons.unfold_more_rounded,
+                  isSelected: controller.readingMode.value == ReadingMode.scroll,
+                  onTap: () => controller.toggleReadingMode(ReadingMode.scroll),
+                ),
+                ModeChip(
+                  label: 'Página',
+                  icon: Icons.menu_book_rounded,
+                  isSelected: controller.readingMode.value == ReadingMode.page,
+                  onTap: () => controller.toggleReadingMode(ReadingMode.page),
+                ),
+              ],
             ),
-    
-            //: Modo de lectura: Página
-            ModeChip(
-              label: 'Página',
-              icon: Icons.menu_book_rounded,
-              isSelected: controller.readingMode.value == ReadingMode.page,
-              onTap: () => controller.toggleReadingMode(ReadingMode.page),
-            ),
-    
-            //: Menu desplegable para cambiar el ancho de la ventana
-            CustomPopupMenu(controller: controller),
-    
-            //: Botón de recarga del capítulo
-            IconButton(
-              icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-              tooltip: 'Recargar capítulo',
-              onPressed: controller.reloadChapter,
-            ),
-          ],
-        ),
+          ),
+
+          //+ Cambio de ancho de la ventana con botones, menú y etiqueta reactiva
+          Stack(
+            alignment: Alignment.center,
+            children: [
+
+              //: Botones de cambio de ancho de la ventana y menú desplegable
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () => controller.changeWindowWidth(false),
+                    icon: const Icon(Icons.arrow_left_rounded, color: Colors.white),
+                  ),
+                  CustomPopupMenu(controller: controller),
+                  IconButton(
+                    onPressed: () => controller.changeWindowWidth(true),
+                    icon: const Icon(Icons.arrow_right_rounded, color: Colors.white),
+                  ),
+                ],
+              ),
+
+              //: Texto que muestra el ancho actual de la ventana
+              Positioned(
+                bottom: 0,
+                child: Obx(
+                  () => Text(
+                    controller.currentWindowWidth.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          //: Botón de recarga del capítulo
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+            tooltip: 'Recargar capítulo',
+            onPressed: controller.reloadChapter,
+          ),
+        ],
       ),
+      //!+
+
     );
   }
 }
