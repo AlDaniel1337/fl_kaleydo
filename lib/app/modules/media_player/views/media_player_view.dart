@@ -27,21 +27,21 @@ class MediaPlayerView extends GetView<MediaPlayerController> {
                 onHover: (_) => controller.onMouseMove(),
                 child: Stack(
                   children: [
-                    // 1. Capa de Video
+                    //: 1. Capa de Video
                     Center(
                       child: Video(controller: controller.videoController),
                     ),
 
-                    // 2. Capa Interactiva Base (Play/Pause + Overlay de Brillo)
+                    //: 2. Capa Interactiva Base (Play/Pause + Overlay de Brillo)
                     _BrightnessOverlay(controller: controller),
 
-                    // 3. OSD Overlay
+                    //: 3. OSD Overlay
                     const PlayerOsd(),
 
-                    // 4. Controles principales (HUD Header & Footer)
+                    //: 4. Controles principales (HUD Header & Footer)
                     _VideoPlayerControls(controller: controller),
 
-                    // 5. Banners de Navegación de Episodios
+                    //: 5. Banners de Navegación de Episodios
                     _EpisodeBanner(controller: controller, isNext: false),
                     _EpisodeBanner(controller: controller, isNext: true),
                   ],
