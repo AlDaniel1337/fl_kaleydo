@@ -18,11 +18,13 @@ class CatalogGrid extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-
+      
+      // Indicador de escaneo en curso
       if (controller.isScanning.value) {
         return LoadingWidget();
       }
 
+      // Mensaje cuando no hay elementos filtrados
       if (controller.filteredMediaItems.isEmpty) {
         return const NoMultimediaMessage();
       }
@@ -36,27 +38,58 @@ class CatalogGrid extends GetView<HomeController> {
       return Column(
         children: [
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 6, // Número de columnas en el grid
-                childAspectRatio: 0.60, // Relación de aspecto de cada tarjeta de medios (ancho/alto)
-                crossAxisSpacing: 18, // Espacio horizontal entre las tarjetas de medios
-                mainAxisSpacing: 18, // Espacio vertical entre las tarjetas de medios
-              ),
-              itemCount: displayItems.length,
-              itemBuilder: (context, index) {
-                final item = displayItems[index];
-                return MediaCard(item: item);
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                const double minItemWidth = 160.0;
+                const double maxItemWidth = 160.0;
+                const double spacing = 18.0;
+                const double paddingHorizontal = 16.0;
+
+                final availableWidth = constraints.maxWidth - (paddingHorizontal * 2);
+
+                int crossAxisCount = ((availableWidth + spacing) / (minItemWidth + spacing)).floor();
+                if (crossAxisCount < 1) crossAxisCount = 1;
+
+                double itemWidth = (availableWidth - (spacing * (crossAxisCount - 1))) / crossAxisCount;
+
+                if (itemWidth > maxItemWidth) {
+                  itemWidth = maxItemWidth;
+                }
+
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12, 
+                    horizontal: paddingHorizontal,
+                  ),
+                  // Align fuerza a que todo el contenido se pegue a la izquierda del scroll
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Wrap(
+                      spacing: spacing,
+                      runSpacing: spacing,
+                      alignment: WrapAlignment.start, // Alinea tarjetas a la izquierda de la fila
+                      runAlignment: WrapAlignment.start, // Alinea filas hacia arriba
+                      crossAxisAlignment: WrapCrossAlignment.start, // Alinea items en el eje vertical
+                      children: displayItems.map((item) {
+                        return SizedBox(
+                          width: itemWidth,
+                          child: AspectRatio(
+                            aspectRatio: 0.60,
+                            child: MediaCard(item: item),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                );
               },
             ),
           ),
-
-          // Botón para recargar aleatorios cuando se está en el modo Random
           if (isRandomMode)
-          LoadRandomElementsBtn(onPressed: controller.loadRandomItems),
+            LoadRandomElementsBtn(onPressed: controller.loadRandomItems),
         ],
       );
+
     });
   }
 }

@@ -73,24 +73,37 @@ class ReaderHeader extends StatelessWidget {
           ),
 
           //: Cuadrícula y botón de ir al comienzo
-          IconButton(
-            icon: const Icon(Icons.grid_view_rounded, color: Colors.white),
-            tooltip: 'Vista de cuadrícula',
-            onPressed: () => ChapterGridDialog.show(context, controller),
-          ),
+          Obx(() {
+            if (controller.isTooSmallValue) {
+              return const SizedBox.shrink(); // Retorna un widget vacío si es pequeño
+            }
 
-          //: Botón de ir al comienzo
-          IconButton(
-            icon: const Icon(
-              Icons.upgrade_rounded, 
-              color: Colors.white
-            ),
-            tooltip: 'Ir al comienzo',
-            onPressed: controller.scrollToTop,
-          ),
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Vista de cuadrícula
+                IconButton(
+                  icon: const Icon(Icons.grid_view_rounded, color: Colors.white),
+                  tooltip: 'Vista de cuadrícula',
+                  onPressed: () => ChapterGridDialog.show(context, controller),
+                ),
+
+                // Botón de ir al comienzo
+                IconButton(
+                  icon: const Icon(
+                    Icons.arrow_upward_rounded, 
+                    color: Colors.white,
+                  ),
+                  tooltip: 'Ir al comienzo',
+                  onPressed: controller.scrollToTop,
+                ),
+              ],
+            );
+          }),
 
           //: Menú principal del lector
           HeaderMainMenu(controller: controller)
+          
         ],
       ),
     );

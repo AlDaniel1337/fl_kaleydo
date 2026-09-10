@@ -8,22 +8,18 @@ import 'package:kaleydo/app/modules/reader/controllers/reader_controller.dart';
 /// Visor paginado para la lectura de cómics/mangas integrando la lógica
 /// de eventos e interacción desacoplada en `SinglePageManagementMixin`.
 class ReaderPageView extends StatefulWidget {
-  //+ VARIABLES
   final ReaderController controller;
 
   const ReaderPageView({
     super.key,
     required this.controller,
   });
-  //!+
 
   @override
   State<ReaderPageView> createState() => _ReaderPageViewState();
 }
 
 class _ReaderPageViewState extends State<ReaderPageView> with SinglePageManagementMixin {
-
-  //+ ESTRUCTURA UI
   @override
   Widget build(BuildContext context) {
     return Focus(
@@ -59,5 +55,4 @@ class _ReaderPageViewState extends State<ReaderPageView> with SinglePageManageme
       ),
     );
   }
-  //!+
 }

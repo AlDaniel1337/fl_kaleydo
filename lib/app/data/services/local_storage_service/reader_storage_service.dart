@@ -29,10 +29,12 @@ class ReaderStorageService extends GetxService {
   void saveSettings({
     required String readingMode,
     required double readerWidth,
+    bool readerIsTooSmall = false,
   }) {
     final settings = {
       'readingMode': readingMode,
       'readerWidth': readerWidth,
+      'readerIsTooSmall': readerIsTooSmall,
     };
     _box.write(_kSettings, settings);
   }
@@ -43,12 +45,18 @@ class ReaderStorageService extends GetxService {
   /// Establece el ancho personalizado del visor de lectura.
   void setReaderWidth(double width) => _saveSettingValue('readerWidth', width);
 
+  /// Establece si el lector es demasiado pequeño.
+  void setReaderIsTooSmall(bool isTooSmall) => _saveSettingValue('readerIsTooSmall', isTooSmall);
+
   // Getters con parseo seguro
   String get readingMode =>
       _getSettingsMap()['readingMode'] as String? ?? 'scroll';
 
   double get readerWidth =>
       _asDouble(_getSettingsMap()['readerWidth'], defaultValue: 1000.0);
+      
+  bool get readerIsTooSmall =>
+      _getSettingsMap()['readerIsTooSmall'] as bool? ?? false;
   //!+
 
   //+ GESTIÓN DE POSICIONES E HISTORIAL

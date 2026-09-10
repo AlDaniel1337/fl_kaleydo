@@ -6,23 +6,27 @@ enum AppMediaType {
   // Opciones disponibles
   unknownCategoryIcon (icon: Icons.folder_special_rounded),
 
-  anime (icon: Icons.live_tv_rounded),
+  anime  (icon: Icons.live_tv_rounded),
   animes (icon: Icons.live_tv_rounded),
-  animeHentai (icon: Icons.tv_off_rounded),
+  animeHentai  (icon: Icons.tv_off_rounded),
   animesHentai (icon: Icons.tv_off_rounded),
 
-  manga (icon: Icons.menu_book_rounded),
-  mangas (icon: Icons.menu_book_rounded),
-  mangaHentai (icon: Icons.bookmark_add_rounded),
+  manga   (icon: Icons.menu_book_rounded),
+  mangas  (icon: Icons.menu_book_rounded),
+  manhwa  (icon: Icons.menu_book_rounded),
+  manhwas (icon: Icons.menu_book_rounded),
+  mangaHentai  (icon: Icons.bookmark_add_rounded),
   mangasHentai (icon: Icons.bookmark_add_rounded),
 
   hentai (icon: Icons.explicit_rounded),
 
-  juego (icon: Icons.sports_esports_rounded),
+  juego  (icon: Icons.sports_esports_rounded),
   juegos (icon: Icons.sports_esports_rounded),
+  juegoHentai (icon: Icons.sports_esports_rounded),
 
-  novela (icon: Icons.book_rounded),
+  novela  (icon: Icons.book_rounded),
   novelas (icon: Icons.book_rounded),
+  libros  (icon: Icons.book_rounded),
 
   novelasVisuales (icon: Icons.my_library_books_rounded),
 

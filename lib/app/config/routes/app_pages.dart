@@ -7,6 +7,7 @@ import 'package:kaleydo/app/modules/media_player/views/media_player_view.dart';
 import 'package:kaleydo/app/modules/media_player/bindings/media_player_binding.dart';
 import 'package:kaleydo/app/modules/reader/views/reader_view.dart';
 import 'package:kaleydo/app/modules/reader/bindings/reader_binding.dart';
+
 class AppPages {
   static const initial = HomeView.route;
 

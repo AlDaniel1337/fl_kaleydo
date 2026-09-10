@@ -3,6 +3,7 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+/// Controlador para inspeccionar y manipular el almacenamiento local usando GetStorage.
 class StorageInspectorController extends GetxController {
   final GetStorage _box = GetStorage();
   
@@ -15,6 +16,7 @@ class StorageInspectorController extends GetxController {
     loadStorageData();
   }
 
+  /// Carga los datos actuales del almacenamiento local en las variables reactivas `storedKeys` y `storedData`.
   void loadStorageData() {
     final keys = _box.getKeys();
     if (keys != null) {

@@ -5,27 +5,27 @@ abstract class ValidFolderNamesConstants {
   // Privatizar el constructor evita instanciar la clase innecesariamente
   ValidFolderNamesConstants._();
 
-  //: Nombres válidos de las subcarpetas del tipo Anime
+  //: Anime
   static const List<String> validAnimeFolders = [
     'anime', 'animes', 'video', 'videos', 'a', 'h',
   ];
 
-  //: Nombres válidos de las subcarpetas del tipo Manga
+  //: Manga
   static const List<String> validMangaFolders = [
     'manga', 'mangas', 'comic', 'comics', 'manhwa', 'webtoon', 'm',
   ];
 
-  //: Nombres válidos de las subcarpetas del tipo Juegos
+  //: Juegos
   static const List<String> validGamesFolders = [
     'juegos', 'juego', 'game', 'games', 'j',
   ];
 
-  //: Nombres válidos de las subcarpetas del tipo Novelas Visuales
+  //: Novelas Visuales
   static const List<String> validVisualNovelsFolders = [
-    'novela visual', 'novelas visuales', 'visual novels', 'vn', 'n',
+    'novela visual', 'novelas visuales', 'visual novels', 'vn', 'n', 'nv',
   ];
 
-  //: Nombres válidos de las subcarpetas del tipo Libros
+  //: Libros
   static const List<String> validBooksFolders = [
     'libro', 'libros', 'book', 'books', 'b', 'novela', 'novelas',
   ];

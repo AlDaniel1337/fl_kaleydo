@@ -9,9 +9,12 @@ mixin WindowManagementMixin on GetxController {
   //+ VARIABLES
   ReaderStorageService get storage;
 
-  final Map<double, String> windowWidthOptions = [500,600,700,800,900].asMap().map((index, width) => MapEntry(width.toDouble(), '${width.toInt()} px'));
+  final Map<double, String> windowWidthOptions = [300,400,500,600,700,800,900].asMap().map((index, width) => MapEntry(width.toDouble(), '${width.toInt()} px'));
 
   final RxDouble currentWindowWidth = 1000.0.obs;
+  final double minComunSize = 500.0;
+  final RxBool _isTooSmall = false.obs;
+  bool get isTooSmallValue => _isTooSmall.value;
   Rect? _previousWindowBounds;
   //!+
 
@@ -20,6 +23,7 @@ mixin WindowManagementMixin on GetxController {
   void initWindowSettings() {
     _saveCurrentWindowBounds();
     currentWindowWidth.value = storage.readerWidth;
+    _isTooSmall.value = storage.readerIsTooSmall;
     _applyWindowSize(currentWindowWidth.value);
   }
 
@@ -33,7 +37,9 @@ mixin WindowManagementMixin on GetxController {
   /// Establece el ancho de la ventana del lector y lo guarda en el almacenamiento local.
   Future<void> setWindowWidth(double width) async {
     currentWindowWidth.value = width;
+    _isTooSmall.value = width < minComunSize;
     storage.setReaderWidth(width);
+    storage.setReaderIsTooSmall(_isTooSmall.value);
     await _applyWindowSize(width);
   }
 
@@ -70,7 +76,7 @@ mixin WindowManagementMixin on GetxController {
     final Size workArea = currentDisplay.visibleSize ?? currentDisplay.size;
     final Offset screenPosition = currentDisplay.visiblePosition ?? Offset.zero;
 
-    final double validWidth = targetWidth.clamp(500.0, workArea.width);
+    final double validWidth = targetWidth.clamp(windowWidthOptions.keys.first, workArea.width);
 
     // Calculamos la nueva posición X centrada respecto a la posición actual de la ventana
     double newX = currentBounds.center.dx - (validWidth / 2);

@@ -27,8 +27,10 @@ class HeaderMainMenu extends StatelessWidget {
         children: [
           
           //: Modo de lectura: Scroll & Página
-          Obx(
-            () => Row(
+          Obx(() {
+            if (controller.isTooSmallValue) return const SizedBox.shrink();
+            
+            return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ModeChip(
@@ -44,8 +46,8 @@ class HeaderMainMenu extends StatelessWidget {
                   onTap: () => controller.toggleReadingMode(ReadingMode.page),
                 ),
               ],
-            ),
-          ),
+            );
+          }),
 
           //+ Cambio de ancho de la ventana con botones, menú y etiqueta reactiva
           Stack(
@@ -82,13 +84,6 @@ class HeaderMainMenu extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-
-          //: Botón de recarga del capítulo
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-            tooltip: 'Recargar capítulo',
-            onPressed: controller.reloadChapter,
           ),
         ],
       ),

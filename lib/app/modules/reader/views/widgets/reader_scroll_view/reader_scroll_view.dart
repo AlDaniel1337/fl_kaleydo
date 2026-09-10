@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // <-- No olvides importar Get para Obx
-import 'package:kaleydo/app/config/theme/app_colors.dart';
+import 'package:get/get.dart';
 import 'package:kaleydo/app/modules/reader/controllers/reader_controller.dart';
+import 'package:kaleydo/app/modules/reader/views/widgets/reader_scroll_view/components/resuming_indicator.dart';
 
 class ReaderScrollView extends StatelessWidget {
   final ReaderController controller;
@@ -14,35 +14,35 @@ class ReaderScrollView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // El Stack envuelve al Scroll para limitar su tamaño a la pantalla visible
     return Stack(
       children: [
-        // Capa inferior: El contenido desplazable
+        //: Capa inferior: El contenido desplazable
         SingleChildScrollView(
           controller: controller.scrollController,
+          padding: EdgeInsets.zero,
           child: Column(
             children: controller.imagePaths.asMap().entries.map((entry) {
               final index = entry.key;
               final imagePath = entry.value;
 
-              return Container(
-                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-                key: controller.pageKeys[index],
+              return Transform.translate(
+                // Superpone 0.5 píxeles cada imagen sobre la anterior para tapar la brecha
+                offset: Offset(0, index == 0 ? 0 : -0.8), 
                 child: Image.file(
                   File(imagePath),
+                  key: controller.pageKeys[index],
                   fit: BoxFit.fitWidth,
                   width: double.infinity,
+                  // Ayuda a que los bordes de la imagen no tengan suavizado transparente
+                  filterQuality: FilterQuality.low, 
                   frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-
                     if (wasSynchronouslyLoaded) return child;
 
-                    // Placeholder
                     return AnimatedOpacity(
                       opacity: frame == null ? 0 : 1,
                       duration: const Duration(milliseconds: 300),
                       child: child,
                     );
-
                   },
                 ),
               );
@@ -50,29 +50,10 @@ class ReaderScrollView extends StatelessWidget {
           ),
         ),
 
-        // Capa superior: El indicador flotante (cubre toda la vista y bloquea toques accidentales)
-        Obx(
-          () => controller.isLoadingPosition.value
-              ? Container(
-                  color: AppColors.background, // Usa el fondo sólido o con opacidad (.withOpacity(0.9))
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const CircularProgressIndicator(
-                          color: AppColors.primaryAccent,
-                          strokeWidth: 4,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Reanudando última página',
-                          style: const TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : const SizedBox.shrink(),
+        //: Capa superior: El indicador flotante (cubre toda la vista y bloquea toques accidentales)
+        Obx( () => controller.isLoadingPosition.value
+          ? const ResumingIndicator()
+          : const SizedBox.shrink(),
         ),
       ],
     );
