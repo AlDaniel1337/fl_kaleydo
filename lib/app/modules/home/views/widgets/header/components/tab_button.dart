@@ -18,29 +18,38 @@ class TabButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      borderRadius: BorderRadius.circular(12),
       onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text( label,
-            style: TextStyle(
-              color: isSelected 
-                ? AppColors .textPrimary 
-                : AppColors.textSecondary,
-              fontWeight: isSelected 
-                ? FontWeight.bold 
-                : FontWeight.normal,
-              fontSize: 14,
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.cardBackground : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text( label,
+              style: TextStyle(
+                color: isSelected 
+                  ? AppColors .textPrimary 
+                  : AppColors.textSecondary,
+                fontWeight: isSelected 
+                  ? FontWeight.bold 
+                  : FontWeight.normal,
+                fontSize: 14,
+              ),
             ),
-          ),
-          if (isSelected)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              height: 2,
-              width: 24,
-              color: AppColors.primaryAccent,
-            ),
-        ],
+            if (isSelected)
+              Container(
+                margin: const EdgeInsets.only(top: 4),
+                height: 2,
+                width: 24,
+                color: AppColors.primaryAccent,
+              ),
+          ],
+        ),
       ),
     );
   }
