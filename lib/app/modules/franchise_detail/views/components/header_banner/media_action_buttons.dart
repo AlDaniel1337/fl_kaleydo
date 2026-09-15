@@ -14,7 +14,7 @@ class MediaActionButtons extends StatelessWidget {
     super.key,
     required this.itemPath,
     this.iconSize = 24.0,
-    this.activeColor = AppColors.primaryAccent, // Sustituir por AppColors.primaryAccent si está en scope
+    this.activeColor = AppColors.primaryAccent, 
     this.inactiveColor = Colors.white54,
   });
 
@@ -25,7 +25,8 @@ class MediaActionButtons extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Botón Favoritos
+
+        //: Botón Favoritos
         Obx(() {
           final isFav = libraryState.isFavorite(itemPath);
           return IconButton(
@@ -38,7 +39,7 @@ class MediaActionButtons extends StatelessWidget {
           );
         }),
 
-        // Botón En Proceso
+        //: Botón En Proceso
         Obx(() {
           final inProc = libraryState.isInProcess(itemPath);
           return IconButton(
@@ -50,6 +51,7 @@ class MediaActionButtons extends StatelessWidget {
             onPressed: () => libraryState.toggleInProcess(itemPath),
           );
         }),
+        
       ],
     );
   }

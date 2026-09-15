@@ -24,7 +24,7 @@ class HomeController extends GetxController {
 
   //+ Variables, dependencias y controladores.
   //: Proveedores y controladores necesarios para el escaneo y la configuración.
-  final ScannerProvider _scannerProvider = ScannerProvider();
+  final ScannerMainFolderProvider _scannerProvider = ScannerMainFolderProvider();
   final ConfigController _configController = Get.find<ConfigController>();
 
   //: Servicios de almacenamiento local para la configuración del reproductor y el estado de la biblioteca.

@@ -25,13 +25,14 @@ void main() async {
   WindowOptions windowOptions = const WindowOptions(
     size: Size(1200, 600),
     center: true,
-    backgroundColor: AppColors.background,
+    titleBarStyle: TitleBarStyle.normal,
     skipTaskbar: false,
     title: 'Kaleydo',
   );
   
   //: Configuración de la ventana
   windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.setTitleBarStyle(TitleBarStyle.normal);
     await windowManager.show();
     await windowManager.focus();
   });

@@ -6,7 +6,7 @@ import 'package:kaleydo/app/data/models/config_model.dart';
 import 'package:kaleydo/app/data/models/media_item_model.dart';
 
 /// Explora el sistema de archivos buscando las carpetas con prefijo _
-class ScannerProvider {
+class ScannerMainFolderProvider {
 
   ///+ Escanea la carpeta raíz y devuelve una lista de elementos multimedia.
   Future<List<MediaItemModel>> scanRootFolder(ConfigModel config) async {

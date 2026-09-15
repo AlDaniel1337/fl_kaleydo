@@ -30,6 +30,10 @@ class FranchiseDetailController extends GetxController {
 
   final RxBool isLoading = true.obs;
   final Rxn<Map<String, dynamic>> latestProgress = Rxn<Map<String, dynamic>>();
+ 
+  final RxInt currentMangaPageIndex = 0.obs;
+  final int _comicsPerPageSize = 25;
+  int get comicsPerPageSize => _comicsPerPageSize;
 
   // Variable para controlar si el manga se muestra en Grid o Lista
   final RxBool isMangaGridView = false.obs;
@@ -114,6 +118,29 @@ class FranchiseDetailController extends GetxController {
 
   List<FranchiseItemModel> get bookItems =>
       mediaContent[FranchiseMediaType.libros] ?? [];
+
+  /// Genera una lista paginada de capítulos de manga según el índice de página y el tamaño de página.
+  List<FranchiseItemModel> paginatedMangaChapters({required int pageIndex, bool getAll = false}) {
+
+    final allChapters = mangaChapters;
+
+    if (getAll || allChapters.length <= _comicsPerPageSize) return allChapters;
+    final startIndex = pageIndex * _comicsPerPageSize;
+    final endIndex = ((pageIndex + 1) * _comicsPerPageSize).clamp(0, allChapters.length);
+    return allChapters.sublist(startIndex, endIndex);
+  }
+
+  /// Generar total de índices de páginas para los capítulos.
+  int totalMangaPages() {
+    if (mangaChapters.length <= _comicsPerPageSize) return 1;
+    return (mangaChapters.length / _comicsPerPageSize).ceil();
+  }
+
+  /// Cambia la página actual de manga y desplaza la vista al inicio.
+  void changeMangaPage(int pageIndex) {
+    currentMangaPageIndex.value = pageIndex;
+    moveScrollToTop();
+  }
   //!+
 
 

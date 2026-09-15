@@ -10,7 +10,9 @@ class AppColors {
   static const Color cardBorder = Color(0xFF25223A);
   
   static const Color primaryAccent = Color(0xFFFF7597); // Pink/Salmon highlight
-  static const Color secondaryAccent = Color(0xFF8B5CF6); // Purple
+  static const Color primaryAccentComplementaryColor = Color.fromARGB(255, 109, 40, 57); // Complementary dark color for primary accent
+  static const Color secondaryAccent = Color(0xFF6EE7FF); // Light blue/purple blend
+  static const Color tertiary = Color(0xFFFFD700); // Gold highlight
   
   static const Color textPrimary = Color(0xFFF1F1F9);
   static const Color textSecondary = Color(0xFF8E8BAE);

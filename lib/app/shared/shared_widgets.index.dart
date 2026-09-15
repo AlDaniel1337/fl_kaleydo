@@ -10,5 +10,3 @@ export './widgets/custom_icon_button.dart';
 export './widgets/custom_text_icon_button.dart';
 
 export './widgets/tiles/settings_tile.dart';
-
-export './global_widgets/media_action_buttons.dart';
