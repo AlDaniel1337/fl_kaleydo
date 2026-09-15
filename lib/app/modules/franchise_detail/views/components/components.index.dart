@@ -6,6 +6,6 @@ export './main_content/video/video_list_view.dart';
 export './tab_selector/tab_selector.dart';
 export 'main_content/book/book_paginator/book_paginator.dart';
 export 'main_content/game/game_card/game_card.dart';
-export 'main_content/game/season_selector/season_selector.dart';
+export 'main_content/video/season_selector/season_selector.dart';
 export 'resume_banner/resume_banner.dart';
 export 'main_content/book/book_sub_header/book_sub_header.dart';
