@@ -31,8 +31,8 @@ class CatalogGrid extends GetView<HomeController> {
 
       final isRandomMode = controller.selectedTab.value == ViewTab.random;
       final displayItems = isRandomMode
-          ? controller.randomMediaItems
-          : controller.paginatedItems;
+          ? controller.randomMediaItems.toList()
+          : controller.paginatedItems.toList();
 
       //: Construir el GridView con los elementos paginados
       return Column(
