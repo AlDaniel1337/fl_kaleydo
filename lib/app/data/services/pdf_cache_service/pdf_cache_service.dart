@@ -82,4 +82,38 @@ class PdfCacheService {
     }
     return nameA.compareTo(nameB);
   }
+
+  /// Elimina todo el caché generado de los PDFs procesados para liberar espacio
+  static Future<void> clearAllPdfCache() async {
+    try {
+      final appSupportDir = await getApplicationSupportDirectory();
+      final cacheDir = Directory('${appSupportDir.path}/pdf_cache');
+      
+      if (await cacheDir.exists()) {
+        await cacheDir.delete(recursive: true);
+      }
+    } catch (e) {
+      print('Error al limpiar caché de PDFs: $e');
+    }
+  }
+
+  /// Retorna el tamaño aproximado en MB del caché de PDFs
+  static Future<double> getPdfCacheSizeInMB() async {
+    try {
+      final appSupportDir = await getApplicationSupportDirectory();
+      final cacheDir = Directory('${appSupportDir.path}/pdf_cache');
+      
+      if (!await cacheDir.exists()) return 0.0;
+
+      int totalBytes = 0;
+      await for (var entity in cacheDir.list(recursive: true, followLinks: false)) {
+        if (entity is File) {
+          totalBytes += await entity.length();
+        }
+      }
+      return totalBytes / (1024 * 1024);
+    } catch (e) {
+      return 0.0;
+    }
+  }
 }

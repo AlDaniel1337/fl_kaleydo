@@ -1,7 +1,9 @@
 // lib/app/modules/main/controllers/storage_inspector_controller.dart
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:kaleydo/app/data/services/pdf_cache_service/pdf_cache_service.dart';
 
 /// Controlador para inspeccionar y manipular el almacenamiento local usando GetStorage.
 class StorageInspectorController extends GetxController {
@@ -69,5 +71,32 @@ class StorageInspectorController extends GetxController {
   void clearAllStorage() {
     _box.erase();
     loadStorageData();
+  }
+
+
+  /// Limpia la caché de PDFs almacenada localmente. Muestra un diálogo de confirmación al usuario antes de realizar la acción.
+  Future<void> limpiarCacheDePdfs() async {
+    double size = await PdfCacheService.getPdfCacheSizeInMB();
+    
+    // Puedes mostrar un diálogo de confirmación al usuario
+    Get.defaultDialog(
+      title: 'Limpiar Caché de PDFs',
+      middleText: 'Esto liberará aproximadamente ${size.toStringAsFixed(2)} MB en disco.\nLos PDFs se volverán a procesar la próxima vez que los abras.',
+      textConfirm: 'Limpiar',
+      textCancel: 'Cancelar',
+      confirmTextColor: Colors.black,
+      onConfirm: () async {
+        await PdfCacheService.clearAllPdfCache();
+        Get.back();
+        Get.snackbar('Éxito', 'Caché de PDFs limpiada correctamente.');
+      },
+    );
+  }
+
+
+  /// Obtiene el tamaño total de la caché de PDFs almacenada localmente en megabytes (MB) como una cadena formateada.
+  Future<String> get getTotalPdfCacheSize async {
+    double size = await PdfCacheService.getPdfCacheSizeInMB();
+    return size.toStringAsFixed(2);
   }
 }

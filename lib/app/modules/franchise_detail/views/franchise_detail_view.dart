@@ -60,6 +60,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
             )
           : null,
       onBackPressed: () => Get.back(),
+      onRefresh: () => controller.refreshFranchiseContent(),
       itemPath: controller.mediaItem.path,
       title: controller.mediaItem.title,
     );

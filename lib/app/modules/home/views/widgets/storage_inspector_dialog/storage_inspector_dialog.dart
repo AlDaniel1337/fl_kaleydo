@@ -41,57 +41,67 @@ class _StorageInspectorView extends GetView<StorageInspectorController> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+    return FutureBuilder<String>(
+      future: controller.getTotalPdfCacheSize,
+      builder: (context, snapshot) {
+        
+        final totalCache = snapshot.data ?? '';
 
-        //: CABECERA
-        StorageInspectorHeader(
-          onClose: () => Get.back(),
-        ),
-        const Divider(color: AppColors.cardBorder),
-        const SizedBox(height: 8),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
 
-        //: LISTA DINÁMICA DE DATOS
-        Expanded(
-          child: Obx(() {
-            if (controller.storedKeys.isEmpty) {
-              return const Center(
-                child: Text(
-                  'No hay datos almacenados actualmente.',
-                  style: TextStyle(color: Colors.white54),
-                ),
-              );
-            }
+            //: CABECERA
+            StorageInspectorHeader(
+              onClose: () => Get.back(),
+            ),
+            const Divider(color: AppColors.cardBorder),
+            const SizedBox(height: 8),
 
-            return ListView.builder(
-              itemCount: controller.storedKeys.length,
-              itemBuilder: (context, index) {
-                final key = controller.storedKeys[index];
-                final value = controller.storedData[key];
-                return StorageKeyCard(
-                  keyName: key,
-                  value: value,
-                  onRemoveKey: () => controller.removeKey(key),
-                  onRemoveListItem: (i) => controller.removeListItem(key, i),
-                  onRemoveMapKey: (k) => controller.removeMapKey(key, k),
+            //: LISTA DINÁMICA DE DATOS
+            Expanded(
+              child: Obx(() {
+                if (controller.storedKeys.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No hay datos almacenados actualmente.',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: controller.storedKeys.length,
+                  itemBuilder: (context, index) {
+                    final key = controller.storedKeys[index];
+                    final value = controller.storedData[key];
+                    return StorageKeyCard(
+                      keyName: key,
+                      value: value,
+                      onRemoveKey: () => controller.removeKey(key),
+                      onRemoveListItem: (i) => controller.removeListItem(key, i),
+                      onRemoveMapKey: (k) => controller.removeMapKey(key, k),
+                    );
+                  },
                 );
-              },
-            );
-          }),
-        ),
-        //!+
+              }),
+            ),
+            //!+
 
-        const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-        //: FOOTER
-        StorageInspectorFooter(
-          onClearAll: () => showClearConfirmationDialog(
-            context, 
-            () => controller.clearAllStorage()
-          ),
-        ),
-      ],
+            //: FOOTER
+            StorageInspectorFooter(
+              onClearAll: () => showClearConfirmationDialog(
+                context, 
+                () => controller.clearAllStorage()
+              ),
+              onClearPdfCache: () => controller.limpiarCacheDePdfs(),
+              totalCache: totalCache,
+            ),
+          ],
+        );
+      },
     );
   }
 }

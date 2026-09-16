@@ -6,6 +6,7 @@ class HeaderBanner extends StatelessWidget {
 
   final DecorationImage? coverImage;
   final VoidCallback? onBackPressed;
+  final VoidCallback? onRefresh; 
   final String title; 
   final String itemPath; 
    
@@ -13,6 +14,7 @@ class HeaderBanner extends StatelessWidget {
     super.key,
     this.coverImage,
     this.onBackPressed,
+    this.onRefresh,
     required this.itemPath,
     required this.title,
   });
@@ -64,6 +66,21 @@ class HeaderBanner extends StatelessWidget {
             itemPath: itemPath,
           )
         ),
+
+        //: Botón de recargar
+        Positioned(
+          top: 16,
+          right: 130, 
+          child: CircleAvatar(
+            backgroundColor: AppColors.cardBackground.withValues(alpha: 0.1),
+            child: IconButton(
+              icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
+              tooltip: 'Re-escanear contenido',
+              onPressed: onRefresh,
+            ),
+          ),
+        ),
+
             
         //: Título de la Franquicia
         Positioned(

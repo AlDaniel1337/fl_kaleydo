@@ -49,10 +49,7 @@ class HomeView extends GetView<HomeController> {
                           Obx(() => DynamicCategoryTitle(
                             title: controller.selectedCategoryTitle.value,
                           )),
-        
-                          //: Desplegable de filtro rápido
-                          const QuickFilterDropdown(),
-
+      
                         ],
                       ),
                     ),

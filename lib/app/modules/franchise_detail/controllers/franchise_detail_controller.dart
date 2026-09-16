@@ -265,6 +265,26 @@ class FranchiseDetailController extends GetxController {
       latestProgress.value = null;
     }
   }
+
+
+  /// Vuelve a escanear el directorio de la franquicia actual para reflejar nuevos archivos
+  Future<void> refreshFranchiseContent() async {
+    isLoading.value = true;
+    try {
+      // Vuelve a ejecutar la lógica de escaneo/carga que usas en el onInit
+      await loadFranchiseDetails(); 
+      
+      Get.snackbar(
+        'Contenido actualizado',
+        'Se han escaneado nuevos elementos.',
+        snackPosition: SnackPosition.BOTTOM,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
   //!+
 
 
