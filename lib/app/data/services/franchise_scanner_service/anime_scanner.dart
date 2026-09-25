@@ -29,9 +29,6 @@ class AnimeScannerService {
       final seasonEpisodes = await _processSeasonDirectories(categorized.seasonDirs);
       episodes.addAll(seasonEpisodes);
     }
-
-    // Ordenamiento natural final por título
-    episodes.sort((a, b) => naturalSortCompare(a.title, b.title));
     return episodes;
   }
 
@@ -100,6 +97,9 @@ class AnimeScannerService {
         ));
       }
     }
+
+    // Ordenamiento natural final por título dentro de la temporada
+    seasonEpisodes.sort((a, b) => naturalSortCompare(a.title, b.title));
 
     return seasonEpisodes;
   }

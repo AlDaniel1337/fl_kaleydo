@@ -143,6 +143,7 @@ class HomeController extends GetxController {
 
   /// Aplica los filtros de Categoría, Búsqueda y Estado (Favoritos / En Proceso)
   void applyFilters() {
+    
     if (selectedTab.value == ViewTab.random) {
       loadRandomItems();
       return;
@@ -150,7 +151,7 @@ class HomeController extends GetxController {
 
     List<MediaItemModel> temp = List.from(allMediaItems);
 
-    // 1. Filtro por Pestaña, mostrar solo los elementos correspondientes a la pestaña seleccionada.
+    // Filtro por Pestaña, mostrar solo los elementos correspondientes a la pestaña seleccionada.
     switch (selectedTab.value) {
       case ViewTab.inProcess:
         temp = temp.where((item) => libraryState.isInProcess(item.path)).toList();
@@ -163,7 +164,7 @@ class HomeController extends GetxController {
         break;
     }
 
-    // 2. Condición especial: Ocultar carpetas con "__" SOLO si estamos en "Todo" superior Y "Todo" lateral ('all')
+    // Condición especial: Ocultar carpetas con "__" SOLO si estamos en "Todo" superior Y "Todo" lateral ('all')
     final bool isGlobalAllView = selectedTab.value == ViewTab.todo && 
                                  selectedCategoryRaw.value == 'all';
 
@@ -171,7 +172,7 @@ class HomeController extends GetxController {
       temp = temp.where((item) => !_isHiddenFolder(item.path)).toList();
     }
 
-    // 3. Filtro por Categoría Seleccionada en Sidebar, mostrar solo los elementos que pertenecen a la categoría seleccionada.
+    // Filtro por Categoría Seleccionada en Sidebar, mostrar solo los elementos que pertenecen a la categoría seleccionada.
     if (selectedCategoryRaw.value != 'all') {
       temp = temp.where((item) {
         // Coincidencia con la ruta de la carpeta uni-medio
@@ -179,18 +180,18 @@ class HomeController extends GetxController {
       }).toList();
     }
 
-    // 4. Actualizar el título de la categoría seleccionada, eliminando "_" del nombre raw
+    // Actualizar el título de la categoría seleccionada, eliminando "_" del nombre raw
     selectedCategoryTitle.value = selectedCategoryRaw.value == 'all'
       ? 'Mostrar todo'
       : capitalizeText(selectedCategoryRaw.value.replaceAll('_', ''));
 
-    // 5. Filtro por Búsqueda, mostrar solo los elementos cuyo título contiene la consulta de búsqueda.
+    // Filtro por Búsqueda, mostrar solo los elementos cuyo título contiene la consulta de búsqueda.
     if (searchQuery.value.isNotEmpty) {
       final query = searchQuery.value.toLowerCase();
-      temp = temp.where((item) => item.title.toLowerCase().contains(query)).toList();
+      temp = allMediaItems.where((item) => item.title.toLowerCase().contains(query)).toList();
     }
 
-    // 6. Actualizar la lista filtrada y la paginación.
+    // Actualizar la lista filtrada y la paginación.
     filteredMediaItems.assignAll(temp);
     totalPages.value = (filteredMediaItems.length / itemsPerPage).ceil();
     if (totalPages.value == 0) totalPages.value = 1;

@@ -70,6 +70,7 @@ class FranchiseDetailController extends GetxController {
   /// GET: Filtra los episodios de anime según la temporada seleccionada.
   List<FranchiseItemModel> get filteredAnimeEpisodes {
     final allEpisodes = mediaContent[FranchiseMediaType.anime] ?? [];
+    
     if (selectedAnimeSeason.value == 'Completo') return allEpisodes;
 
     return allEpisodes
