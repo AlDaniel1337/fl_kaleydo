@@ -218,7 +218,6 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
 
     final pathSegments = videoPath.split(RegExp(r'[/\\]'));
 
-
     String franchiseName = 'Desconocida';
     String franchisePath = '';
     if (pathSegments.length >= 3) {
@@ -256,12 +255,14 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
   void _initializeArguments() {
     final args = Get.arguments;
 
+    
     if (args is Map<String, dynamic>) {
       playlist = (args['playlist'] as List?)?.cast<FranchiseItemModel>() ?? [];
       currentIndex = args['currentIndex'] as int? ?? 0;
 
       if (playlist.isNotEmpty && currentIndex < playlist.length) {
         videoPath = playlist[currentIndex].path;
+        currentEpisodeTitle.value = playlist[currentIndex].title;
         _isArgsInitialized = true;
       }
     } else if (args is String && args.isNotEmpty) {

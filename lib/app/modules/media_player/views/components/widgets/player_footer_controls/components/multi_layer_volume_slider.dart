@@ -21,7 +21,8 @@ class MultiLayerVolumeSlider extends GetView<MediaPlayerController> {
         children: [
 
           HoverCustomSlider(
-            icon: Icons.volume_up_rounded,
+            onIconTap: () => controller.toggleMute(),
+            icon: vol == 0 ? Icons.volume_off_rounded : Icons.volume_up_rounded,
             mainColor: volumeConfig.activeColor,
             backgroundColor: volumeConfig.backgroundTrackColor,
             sliderValue: volumeConfig.segmentValue,

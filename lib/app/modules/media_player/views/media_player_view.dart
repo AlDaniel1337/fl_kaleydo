@@ -25,6 +25,7 @@ class MediaPlayerView extends GetView<MediaPlayerController> {
               onPointerSignal: _handlePointerSignal,
               child: MouseRegion(
                 onHover: (_) => controller.onMouseMove(),
+                onExit: (event) => controller.onMouseExit(),
                 child: Stack(
                   children: [
                     //: 1. Capa de Video
@@ -120,7 +121,9 @@ class _VideoPlayerControls extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 
-                const PlayerHeaderControls(),
+                PlayerHeaderControls(
+                  videoTitle: controller.currentEpisodeTitle.value,
+                ),
 
                 // Área central vacía que retransmite el tap para Play/Pause
                 Expanded(
@@ -174,8 +177,8 @@ class _EpisodeBanner extends StatelessWidget {
         isVisible: isVisible,
         episodeTitle: targetEpisode?.title ?? '',
         onTap: isNext
-            ? controller.playNextEpisode
-            : controller.playPreviousEpisode,
+            ? controller.goToNextEpisode
+            : controller.goToPreviousEpisode,
         onHoverChanged: (hovering) {
           if (isNext) {
             controller.showNextEpisodeBanner.value = hovering;

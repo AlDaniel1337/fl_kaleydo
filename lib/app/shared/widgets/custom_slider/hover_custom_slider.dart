@@ -99,7 +99,7 @@ class _HoverCustomSliderState extends State<HoverCustomSlider> {
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 150),
         curve: Curves.easeInOut,
         width: targetWidth,
         height: targetHeight,
@@ -158,7 +158,7 @@ class _AnimatedSliderContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 150),
       curve: Curves.easeInOut,
       width: isVertical ? 36 : (shouldExpand ? expandedWidth : 0),
       height: isVertical ? (shouldExpand ? expandedWidth : 0) : 36,

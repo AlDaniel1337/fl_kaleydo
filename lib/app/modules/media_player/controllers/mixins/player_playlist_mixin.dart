@@ -24,6 +24,8 @@ mixin PlayerPlaylistMixin on GetxController {
   final RxInt autoPlayCountdown = 10.obs;
   Timer? autoPlayTimer;
 
+  // Título del episodio actual
+  final RxString currentEpisodeTitle = ''.obs;
 
 
   //+ Autoplay
@@ -78,6 +80,8 @@ mixin PlayerPlaylistMixin on GetxController {
     if (currentIndex + 1 < playlist.length) {
       currentIndex++;
       final nextEp = playlist[currentIndex];
+      currentEpisodeTitle.value = nextEp.title;
+      
 
       final savedMs = storage.getPosition(nextEp.path);
       final startPos = (storage.autoResumeEnabled && savedMs > 0)
@@ -99,6 +103,7 @@ mixin PlayerPlaylistMixin on GetxController {
     if (currentIndex - 1 >= 0) {
       currentIndex--;
       final prevEp = playlist[currentIndex];
+      currentEpisodeTitle.value = prevEp.title;
 
       final savedMs = storage.getPosition(prevEp.path);
       final startPos = (storage.autoResumeEnabled && savedMs > 0)
@@ -110,4 +115,5 @@ mixin PlayerPlaylistMixin on GetxController {
     }
   }
   //!+
+
 }

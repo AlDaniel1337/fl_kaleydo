@@ -35,7 +35,7 @@ class EpisodeNavigationBanner extends StatelessWidget {
         onEnter: (_) => onHoverChanged(true),
         onExit: (_) => onHoverChanged(false),
         child: SizedBox(
-          width: 250,
+          width: 200,
           child: IgnorePointer(
             ignoring: !isVisible,
             child: AnimatedOpacity(
@@ -48,7 +48,7 @@ class EpisodeNavigationBanner extends StatelessWidget {
                   padding: padding,
                   child: EpisodeCardWidget(
                     label: episodeTitle,
-                    title: isNext ? 'Siguiente Episodio' : 'Episodio Previo',
+                    title: isNext ? 'Siguiente' : 'Previo',
                     icon: isNext ? Icons.skip_next_rounded : Icons.skip_previous_rounded,
                     onPressed: onTap,
                     iconPosition: isNext ? IconPosition.right : IconPosition.left,

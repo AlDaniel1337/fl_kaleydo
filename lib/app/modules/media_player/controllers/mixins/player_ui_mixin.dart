@@ -32,6 +32,13 @@ mixin PlayerUIMixin on GetxController {
     startHideControlsTimer();
   }
 
+  /// Oculta los controles del reproductor cuando el ratón sale del área del video.
+  void onMouseExit() {
+    if (!isPlaying.value) return;
+    isControlsVisible.value = false;
+    hideTimer?.cancel();
+  }
+
   /// Inicia un temporizador para ocultar los controles del reproductor después de un período de inactividad del ratón.
   void startHideControlsTimer() {
     hideTimer?.cancel();

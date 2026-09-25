@@ -11,7 +11,8 @@ import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/modules/media_player/controllers/media_player_controller.dart';
 import 'package:kaleydo/app/shared/shared_widgets.index.dart';
 
-
+/// Presets predeterminados para la velocidad de reproducción.
+const List<double> _kSpeedPresets = [1.3, 1.5, 1.7, 2.0];
 class PlayerFooterControls extends GetView<MediaPlayerController> {
   const PlayerFooterControls({super.key});
 
@@ -73,6 +74,7 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
                     divisions: 39,
                     expandedWidth: 200,
                     label: '${controller.playbackSpeed.value.toStringAsFixed(1)}x',
+                    onIconTap: () => controller.setSpeed(1.0),
                   ),
                   Text(
                     '${controller.playbackSpeed.value.toStringAsFixed(1)}x',
@@ -81,6 +83,37 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
                 ],
               )),
               const Spacer(),
+
+              //: Presets de velocidad
+              Obx(() {
+                final currentSpeed = controller.playbackSpeed.value;
+
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _kSpeedPresets.map((speed) {
+                    final isSelected = (currentSpeed - speed).abs() < 0.05;
+                    final speedLabel = speed % 1 == 0 
+                        ? '${speed.toInt()}x' 
+                        : '${speed.toStringAsFixed(1)}x';
+
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 6.0),
+                      child: TextButtonWithColoredContainer(
+                        isSelected: isSelected,
+                        text: speedLabel,
+                        onTap: () {
+                          if (!isSelected) {
+                            controller.setSpeed(speed);
+                          } else {
+                            controller.setSpeed(1.0);
+                          }
+                        },
+                      ),
+                    );
+                  }).toList(),
+                );
+              }),
+              const SizedBox(width: 20),
 
               //: Subtítulos
               Obx(() {
