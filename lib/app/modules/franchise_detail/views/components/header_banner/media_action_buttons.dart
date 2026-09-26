@@ -36,6 +36,7 @@ class MediaActionButtons extends StatelessWidget {
               color: isFav ? activeColor : inactiveColor,
             ),
             onPressed: () => libraryState.toggleFavorite(itemPath),
+            tooltip: isFav ? 'Quitar de Favoritos' : 'Agregar a Favoritos',
           );
         }),
 
@@ -49,6 +50,7 @@ class MediaActionButtons extends StatelessWidget {
               color: inProc ? activeColor : inactiveColor,
             ),
             onPressed: () => libraryState.toggleInProcess(itemPath),
+            tooltip: inProc ? 'Marcar como no iniciado' : 'Marcar como en proceso',
           );
         }),
         

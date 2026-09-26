@@ -63,6 +63,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       onRefresh: () => controller.refreshFranchiseContent(),
       itemPath: controller.mediaItem.path,
       title: controller.mediaItem.title,
+      onOpenFolder: () => controller.openFranchiseFolder(controller.mediaItem.path),
     );
   }
 

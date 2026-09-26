@@ -7,6 +7,7 @@ class HeaderBanner extends StatelessWidget {
   final DecorationImage? coverImage;
   final VoidCallback? onBackPressed;
   final VoidCallback? onRefresh; 
+  final VoidCallback? onOpenFolder; 
   final String title; 
   final String itemPath; 
    
@@ -15,6 +16,7 @@ class HeaderBanner extends StatelessWidget {
     this.coverImage,
     this.onBackPressed,
     this.onRefresh,
+    this.onOpenFolder,
     required this.itemPath,
     required this.title,
   });
@@ -61,7 +63,7 @@ class HeaderBanner extends StatelessWidget {
         //: Botón de Favorito y En Proceso
         Positioned(
           top: 16,
-          right: 16,
+          right: 150,
           child: MediaActionButtons(
             itemPath: itemPath,
           )
@@ -70,14 +72,24 @@ class HeaderBanner extends StatelessWidget {
         //: Botón de recargar
         Positioned(
           top: 16,
-          right: 130, 
-          child: CircleAvatar(
-            backgroundColor: AppColors.cardBackground.withValues(alpha: 0.1),
-            child: IconButton(
-              icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
-              tooltip: 'Re-escanear contenido',
-              onPressed: onRefresh,
-            ),
+          right: 20, 
+          child: IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
+            tooltip: 'Re-escanear contenido',
+            onPressed: onRefresh,
+          ),
+        ),
+        
+        
+        //: Botón 
+        Positioned(
+          top: 16,
+          right: 60, 
+          child: IconButton(
+            icon: const Icon(Icons.folder_open_rounded),
+            tooltip: 'Abrir ubicación del archivo',
+            color: Colors.white,
+            onPressed: onOpenFolder,
           ),
         ),
 
