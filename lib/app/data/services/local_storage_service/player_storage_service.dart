@@ -38,6 +38,7 @@ class PlayerStorageService extends GetxService {
     required bool fastSeeking,
     required double brightness,
     String? audioTrackId,
+    bool? autoPlay,
   }) {
     final settings = {
       'speed': speed,
@@ -47,6 +48,7 @@ class PlayerStorageService extends GetxService {
       'brightness': brightness,
       'audioTrackId': audioTrackId ?? '',
       'autoResume': autoResumeEnabled,
+      'autoPlay': autoPlay ?? true,
     };
     _box.write(_kSettings, settings);
   }
@@ -54,6 +56,11 @@ class PlayerStorageService extends GetxService {
   /// Habilita o deshabilita la reanudación automática del reproductor.
   void setAutoResume(bool enabled) {
     _saveSettingValue('autoResume', enabled);
+  }
+
+  /// Habilita o deshabilita la reproducción automática del reproductor.
+  void setAutoPlay(bool enabled) {
+    _saveSettingValue('autoPlay', enabled);
   }
 
   // Getters con parseo numérico seguro
@@ -64,6 +71,7 @@ class PlayerStorageService extends GetxService {
   bool get isFastSeeking     => _getSettingsMap()['fastSeeking'] as bool? ?? true;
   double get brightness      => _asDouble(_getSettingsMap()['brightness'], defaultValue: 1.0);
   bool get autoResumeEnabled => _getSettingsMap()['autoResume'] as bool? ?? true;
+  bool get autoPlayEnabled   => _getSettingsMap()['autoPlay'] as bool? ?? true;
   //!+
 
   //+ GESTIÓN DE POSICIONES E HISTORIAL

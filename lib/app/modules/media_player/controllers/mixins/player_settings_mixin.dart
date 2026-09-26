@@ -13,6 +13,7 @@ mixin PlayerSettingsMixin on GetxController {
   // Estados de ajustes de velocidad y brillo
   final RxDouble playbackSpeed = 1.0.obs;
   final RxDouble brightness = 1.0.obs;
+  final RxBool autoPlayEnabled = true.obs;
 
   // Estados de configuración avanzada MPV
   final RxBool isFastSeekingEnabled = true.obs;
@@ -45,6 +46,17 @@ mixin PlayerSettingsMixin on GetxController {
   /// Ajusta el brillo en función del delta proporcionado.
   void adjustBrightness(double delta) {
     setBrightness(brightness.value + delta);
+  }
+  //!+
+
+
+
+  //+ Reproducción automática
+  /// Establece si la reproducción automática está habilitada.
+  void setAutoPlay(bool enabled) {
+    autoPlayEnabled.value = enabled;
+    saveAllSettings();
+    showOSD('Reproducción automática: ${enabled ? 'Activada' : 'Desactivada'}');
   }
   //!+
 

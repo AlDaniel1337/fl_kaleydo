@@ -9,7 +9,7 @@ import 'player_dialog_helper.dart';
 /// Muestra un menú emergente con las opciones de mejoras disponibles para el reproductor de medios.
 void showImprovementsMenu(BuildContext context, MediaPlayerController controller) {
 
-  final position = PlayerDialogHelper.getButtonPosition(context, verticalOffset: 150);
+  final position = PlayerDialogHelper.getButtonPosition(context, verticalOffset: 200);
 
   showMenu(
     context: context,
@@ -68,6 +68,21 @@ void showImprovementsMenu(BuildContext context, MediaPlayerController controller
           trailing: Obx(() => _buildStatusChip(
             value: controller.isFastSeekingEnabled.value,
             onTap: () => controller.toggleFastSeeking(),
+          )),
+          showArrow: false,
+        ),
+      ),
+
+      
+      //: Auto play
+      PopupMenuItem(
+        enabled: false,
+        child: SettingsTile(
+          icon: Icons.play_circle_fill_rounded,
+          title: 'Auto play',
+          trailing: Obx(() => _buildStatusChip(
+            value: controller.autoPlayEnabled.value,
+            onTap: () => controller.setAutoPlay,
           )),
           showArrow: false,
         ),

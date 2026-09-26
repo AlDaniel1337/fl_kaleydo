@@ -113,7 +113,7 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
                   }).toList(),
                 );
               }),
-              const SizedBox(width: 20),
+              const SizedBox(width: 40),
 
               //: Subtítulos
               Obx(() {

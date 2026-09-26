@@ -168,6 +168,8 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
   }
   //!+
 
+
+
   //+ CARGA Y GESTIÓN DE DATOS
   /// Abre el archivo de video inicial aplicando las configuraciones locales.
   Future<void> _startPlayer() async {
@@ -197,6 +199,7 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
       fastSeeking: isFastSeekingEnabled.value,
       brightness: brightness.value,
       audioTrackId: savedAudioTrackId,
+      autoPlay: autoPlayEnabled.value,
     );
   }
 
@@ -209,6 +212,7 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
     isFastSeekingEnabled.value = _storage.isFastSeeking;
     brightness.value = _storage.brightness;
     savedAudioTrackId = _storage.audioTrackId;
+    autoPlayEnabled.value = _storage.autoPlayEnabled;
   }
 
 
@@ -250,6 +254,8 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
   }
   //!+
 
+
+
   //+ MÉTODOS AUXILIARES Y LISTENERS
   /// Valida e inicializa los argumentos pasados por GetX.
   void _initializeArguments() {
@@ -279,8 +285,11 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
   /// Escucha los streams del reproductor para actualizar los estados reactivos.
   void _listenToStreams() {
     _subscriptions.addAll([
+
+      // Escucha si el reproductor está reproduciendo o en pausa.
       player.stream.playing.listen((val) => isPlaying.value = val),
 
+      // Escucha la duración total del video para actualizar el estado reactivo.
       player.stream.duration.listen((dur) {
         duration.value = dur;
         if (!_hasRestoredPosition && dur.inMilliseconds > 0) {
@@ -294,14 +303,22 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
         }
       }),
 
+      // Escucha la posición actual del reproductor para actualizar el estado reactivo.
       player.stream.position.listen((pos) {
         position.value = pos;
-        checkAutoPlayTrigger(pos);
+
+        if (autoPlayEnabled.value) {
+          checkAutoPlayTrigger(pos);
+        }
       }),
 
+      // Escucha la posición actual del reproductor para actualizar el estado reactivo.
       player.stream.volume.listen((val) => volume.value = val),
+      
+      // Escucha el volumen actual del reproductor para actualizar el estado reactivo.
       player.stream.rate.listen((val) => playbackSpeed.value = val),
 
+      // Escucha los cambios en las pistas de subtítulos y audio disponibles.
       player.stream.tracks.listen((tracks) {
         if (_isDisposed) return;
 
@@ -311,7 +328,8 @@ class MediaPlayerController extends GetxController with PlayerAudioMixin, Player
         _restoreSubtitles(tracks.subtitle);
         _restoreAudioTrack(tracks.audio);
       }),
-
+      
+      // Escucha los cambios en la pista de subtítulos y audio actualmente seleccionada.
       player.stream.track.listen((track) {
         if (_isDisposed) return;
         currentSubtitle.value = track.subtitle;
