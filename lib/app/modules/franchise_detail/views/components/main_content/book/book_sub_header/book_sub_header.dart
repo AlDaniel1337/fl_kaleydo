@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 
 class BookSubHeader extends StatelessWidget {
-
   final bool isMangaGridView;
   final VoidCallback onToggleView;
   final Widget? pageSelector;
@@ -23,18 +22,19 @@ class BookSubHeader extends StatelessWidget {
         children: [
           ToggleButtons(
             isSelected: [!isMangaGridView, isMangaGridView],
-            onPressed: (_) => onToggleView(),
+            onPressed: (index) => onToggleView(), 
             color: AppColors.textSecondary,
             selectedColor: Colors.white,
             fillColor: AppColors.primaryAccent.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8),
             constraints: const BoxConstraints(minHeight: 32, minWidth: 40),
             children: const [
-              Tooltip(message: 'Vista de lista', child: Icon(Icons.list_rounded, size: 18)),
-              Tooltip(message: 'Vista de cuadrícula', child: Icon(Icons.grid_view_rounded, size: 18)),
+              Icon(Icons.list_rounded, size: 18),
+              Icon(Icons.grid_view_rounded, size: 18),
             ],
           ),
 
+          // Corrección de sintaxis para agregar un widget opcional en una lista:
           ?pageSelector,
           
         ],

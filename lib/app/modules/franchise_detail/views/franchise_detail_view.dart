@@ -144,7 +144,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       );
     }
 
-    // Vista de Manga con opción de alternar entre Lista y Grid
+    //: Manga
     if (tab == FranchiseMediaType.manga) {
       final paginatedChapters = controller.paginatedMangaChapters(
         pageIndex: controller.currentMangaPageIndex.value,
@@ -177,6 +177,20 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
                 ),
             ),
         ],
+      );
+    }
+    
+    if (tab == FranchiseMediaType.mangah) {
+      final paginatedChapters = controller.paginatedMangaChapters(
+        pageIndex: controller.currentMangaPageIndex.value,
+        getAllH: true,
+      );
+
+      return BookGridView(
+        items: paginatedChapters, 
+        onTap: (index) {
+          controller.openReaderForChapter(controller.mangaHChapters, index);
+        },
       );
     }
 

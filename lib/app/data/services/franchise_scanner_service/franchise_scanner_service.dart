@@ -60,6 +60,10 @@ class FranchiseScannerService {
           result[FranchiseMediaType.manga] = await scanManga(entity);
         } 
         
+        else if (ValidFolderNamesConstants.validMangaHFolders.contains(folderName)) {
+          result[FranchiseMediaType.mangah] = await scanManga(entity);
+        } 
+        
         //: Anime
         else if (ValidFolderNamesConstants.validAnimeFolders.contains(folderName)) {
           result[FranchiseMediaType.anime] = await scanAnime(entity);

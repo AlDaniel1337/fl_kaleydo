@@ -3,7 +3,7 @@ import 'dart:io';
 
 
 /// Modelo que representa un ítem de franquicia en la aplicación.
-enum FranchiseMediaType { juegos, novelas, libros, manga, manhwa, anime, resumen, videos}
+enum FranchiseMediaType { juegos, novelas, libros, manga, mangah, manhwa, anime, resumen, videos}
 
 
 

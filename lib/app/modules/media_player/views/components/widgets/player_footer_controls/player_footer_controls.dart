@@ -82,7 +82,7 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
                   ),
                 ],
               )),
-              const Spacer(),
+              const SizedBox(width: 40),
 
               //: Presets de velocidad
               Obx(() {
@@ -113,7 +113,7 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
                   }).toList(),
                 );
               }),
-              const SizedBox(width: 40),
+              const Spacer(),
 
               //: Subtítulos
               Obx(() {

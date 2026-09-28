@@ -19,7 +19,7 @@ class BookGridView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 6, //  columnas de capítulos
-        childAspectRatio: 0.7, // Proporción vertical típica de manga
+        childAspectRatio: 0.6, // Proporción vertical típica de manga
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),

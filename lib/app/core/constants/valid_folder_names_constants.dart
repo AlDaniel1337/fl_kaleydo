@@ -29,4 +29,9 @@ abstract class ValidFolderNamesConstants {
   static const List<String> validBooksFolders = [
     'libro', 'libros', 'book', 'books', 'b', 'novela', 'novelas',
   ];
+
+  //: Manga erótico
+  static const List<String> validMangaHFolders = [
+    'mangah',"manga h", 'mangas h', 'comic h', 'comics h', 'manhwa h', 'webtoon h', 'mh',
+  ];
 }

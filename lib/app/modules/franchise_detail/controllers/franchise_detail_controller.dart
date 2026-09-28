@@ -117,24 +117,25 @@ class FranchiseDetailController extends GetxController {
   List<FranchiseItemModel> get mangaChapters =>
       mediaContent[FranchiseMediaType.manga] ?? [];
 
+  List<FranchiseItemModel> get mangaHChapters =>
+      mediaContent[FranchiseMediaType.mangah] ?? [];
+
   List<FranchiseItemModel> get bookItems =>
       mediaContent[FranchiseMediaType.libros] ?? [];
 
   /// Genera una lista paginada de capítulos de manga según el índice de página y el tamaño de página.
-  List<FranchiseItemModel> paginatedMangaChapters({required int pageIndex, bool getAll = false}) {
+  List<FranchiseItemModel> paginatedMangaChapters({
+    required int pageIndex, 
+    bool getAll = false,
+    bool getAllH = false,
+  }) {
 
-    final allChapters = mangaChapters;
+    final allChapters = getAllH ? mangaHChapters : mangaChapters;
 
-    if (getAll || allChapters.length <= _comicsPerPageSize) return allChapters;
+    if (getAll || getAllH || allChapters.length <= _comicsPerPageSize) return allChapters;
     final startIndex = pageIndex * _comicsPerPageSize;
     final endIndex = ((pageIndex + 1) * _comicsPerPageSize).clamp(0, allChapters.length);
     return allChapters.sublist(startIndex, endIndex);
-  }
-
-  /// Generar total de índices de páginas para los capítulos.
-  int totalMangaPages() {
-    if (mangaChapters.length <= _comicsPerPageSize) return 1;
-    return (mangaChapters.length / _comicsPerPageSize).ceil();
   }
 
   /// Cambia la página actual de manga y desplaza la vista al inicio.

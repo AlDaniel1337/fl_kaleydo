@@ -53,6 +53,7 @@ class TabSelector extends StatelessWidget {
     switch (type) {
       case FranchiseMediaType.juegos:  return 'Juegos';
       case FranchiseMediaType.manga:   return 'Manga';
+      case FranchiseMediaType.mangah:  return 'Manga H';
       case FranchiseMediaType.manhwa:  return 'Manhwa';
       case FranchiseMediaType.anime:   return 'Anime';
       case FranchiseMediaType.videos:  return 'Videos';
