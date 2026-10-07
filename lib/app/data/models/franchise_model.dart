@@ -14,8 +14,6 @@ class FranchiseItemModel {
   final String path;
   final String? coverPath;
   final String? executablePath; // .exe o .lnk
-  final String? guidePath;      // guia.md
-  final String? cgsFolderPath;  // carpeta /cgs
   final String? seasonName;     // Ej: "Temp 1" (para Anime)
   final List<String> pagePaths; // Para Manga (páginas o PDF)
 
@@ -24,15 +22,7 @@ class FranchiseItemModel {
     required this.path,
     this.coverPath,
     this.executablePath,
-    this.guidePath,
-    this.cgsFolderPath,
     this.seasonName,
     this.pagePaths = const [],
   });
-
-  /// Indica si la franquicia tiene una carpeta de CGS existente.
-  bool get hasCgs => cgsFolderPath != null && Directory(cgsFolderPath!).existsSync();
-  
-  /// Indica si la franquicia tiene una guía existente.
-  bool get hasGuide => guidePath != null && File(guidePath!).existsSync();
 }

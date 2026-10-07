@@ -25,3 +25,38 @@ int naturalSortCompare(String a, String b) {
 
   return matchesA.length.compareTo(matchesB.length);
 }
+
+/// Ordena una lista de elementos utilizando un orden natural basado en los números dentro de los nombres de archivo.
+List<T> naturalSort<T>(List<T> list) {
+  final sortedList = List<T>.from(list);
+  final regExp = RegExp(r'(\d+|\D+)');
+
+  sortedList.sort((a, b) {
+    final nameA = a.toString().split('/').last;
+    final nameB = b.toString().split('/').last;
+
+    final matchesA = regExp.allMatches(nameA).map((m) => m.group(0)!).toList();
+    final matchesB = regExp.allMatches(nameB).map((m) => m.group(0)!).toList();
+
+    final minLength = matchesA.length < matchesB.length ? matchesA.length : matchesB.length;
+
+    for (var i = 0; i < minLength; i++) {
+      final partA = matchesA[i];
+      final partB = matchesB[i];
+
+      if (partA != partB) {
+        final numA = int.tryParse(partA);
+        final numB = int.tryParse(partB);
+
+        if (numA != null && numB != null) {
+          return numA.compareTo(numB);
+        }
+        return partA.compareTo(partB);
+      }
+    }
+
+    return matchesA.length.compareTo(matchesB.length);
+  });
+
+  return sortedList;
+}

@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kaleydo/app/core/utils/natural_sort.dart';
 import 'package:kaleydo/app/data/data.models.index.dart';
 import 'package:kaleydo/app/modules/media_player/views/media_player_view.dart';
 import 'package:kaleydo/app/modules/reader/views/reader_view.dart';
@@ -146,8 +148,123 @@ class FranchiseDetailController extends GetxController {
   //!+
 
 
+  //+ JUEGO / NOVELAS VISUALES
+  FranchiseItemModel? selectedGameItem;
+  final RxString selectedGameItemInfo = ''.obs;
+  final RxList<String> selectedGameItemTags = <String>[].obs;
+  final RxBool hasCGsGallery = false.obs;
+  final RxList<String> selectedGameItemImages = <String>[].obs;
+  final RxList<String> randomSelectedGameItemImages = <String>[].obs;
 
-  //+ EJECUCIÓN DE COMANDOS
+  Future<void> setSelectedGameItem(FranchiseItemModel? item) async {
+    _clearSelectedGameItem();
+    selectedGameItem = item;
+
+    if (item == null) return;
+
+    final basePath = item.path;
+    final extraDir = Directory('$basePath/extra');
+
+    // I/O Asíncrono para evitar congelar la interfaz
+    if (await extraDir.exists()) {
+      await Future.wait([
+        _getInfoForSelectedGameItem(extraDir.path),
+        _getImagesForSelectedGameItem(extraDir.path),
+      ]);
+    }
+  }
+
+  /// Obtiene la información del juego de forma asíncrona.
+  Future<void> _getInfoForSelectedGameItem(String extraPath) async {
+    final infoFile = File('$extraPath/info.txt');
+    if (await infoFile.exists()) {
+      final rowInfo = await infoFile.readAsString();
+
+      final sections = rowInfo.split('---');
+      if (sections.isNotEmpty) {
+        selectedGameItemInfo.value = sections[0].trim();
+        if (sections.length > 1) {
+          final tags = sections[1]
+              .split(',')
+              .map((tag) => tag.trim())
+              .where((tag) => tag.isNotEmpty)
+              .toList();
+              
+          selectedGameItemTags.assignAll(tags);
+        }
+      }
+    }
+  }
+
+  /// Obtiene las imágenes escaneando los directorios asíncronamente.
+  Future<void> _getImagesForSelectedGameItem(String extraPath) async {
+    final cgDir = Directory('$extraPath/CGs');
+    final imagesDir = Directory('$extraPath/Images');
+
+    Directory? targetDir;
+
+    if (await cgDir.exists()) {
+      targetDir = cgDir;
+      hasCGsGallery.value = true;
+    } else if (await imagesDir.exists()) {
+      targetDir = imagesDir;
+    }
+
+    if (targetDir != null) {
+      final paths = <String>[];
+      
+      // Escaneo asíncrono vía Stream
+      await for (final entity in targetDir.list()) {
+        if (entity is File) {
+          paths.add(entity.path);
+        }
+      }
+
+      selectedGameItemImages.assignAll(naturalSort<String>(paths));
+
+      _generateRandomImages();
+    }
+  }
+
+  /// Selecciona hasta 4 imágenes aleatorias sin reordenar toda la lista.
+  void _generateRandomImages() {
+    if (selectedGameItemImages.isEmpty) return;
+
+    final totalImages = selectedGameItemImages.length;
+    final count = min(4, totalImages);
+    
+    if (count == totalImages) {
+      randomSelectedGameItemImages.assignAll(selectedGameItemImages);
+      return;
+    }
+
+    final random = Random();
+    final selectedIndices = <int>{};
+
+    while (selectedIndices.length < count) {
+      selectedIndices.add(random.nextInt(totalImages));
+    }
+
+    final randomImages = selectedIndices
+        .map((index) => selectedGameItemImages[index])
+        .toList();
+
+    randomSelectedGameItemImages.assignAll(randomImages);
+  }
+
+  /// Limpia las referencias y limpia los reactivos de GetX.
+  void _clearSelectedGameItem() {
+    selectedGameItem = null;
+    selectedGameItemInfo.value = '';
+    hasCGsGallery.value = false;
+    
+    selectedGameItemTags.clear();
+    selectedGameItemImages.clear();
+    randomSelectedGameItemImages.clear();
+  }
+
+
+
   /// Ejecuta un comando de shell en el directorio de la franquicia.
     Future<void> launchExecutable(String path) async {
     try {

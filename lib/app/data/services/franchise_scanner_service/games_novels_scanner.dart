@@ -59,22 +59,14 @@ class GamesNovelsScannerService {
     final entities = results[1] as List<FileSystemEntity>;
 
     String? executablePath;
-    String? guidePath;
-    String? cgsFolderPath;
 
     //+: Iterar sobre los archivos y carpetas para identificar ejecutables, guías y carpetas de CGs
     for (final entity in entities) {
-      final nameLower = p.basename(entity.path).toLowerCase();
-
       if (entity is File) {
         final ext = p.extension(entity.path).toLowerCase();
         if (_validExtensions.contains(ext) && executablePath == null) {
           executablePath = entity.path;
-        } else if (nameLower == 'guia.md') {
-          guidePath = entity.path;
         }
-      } else if (entity is Directory && nameLower == 'cgs') {
-        cgsFolderPath = entity.path;
       }
     }
 
@@ -83,8 +75,6 @@ class GamesNovelsScannerService {
       path: dir.path,
       coverPath: coverPath ?? defaultCoverPath,
       executablePath: executablePath,
-      guidePath: guidePath,
-      cgsFolderPath: cgsFolderPath,
     );
   }
 }

@@ -22,3 +22,25 @@ class GameTitle extends StatelessWidget {
     );
   }
 }
+
+class GameSmallTitle extends StatelessWidget {
+
+  final String title;
+   
+  const GameSmallTitle({super.key, required this.title});
+  
+  @override
+  Widget build(BuildContext context) {
+    return  Text(
+      title,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        color: AppColors.textPrimary,
+        fontWeight: FontWeight.w700,
+        fontSize: 12,
+        letterSpacing: 0.5,
+      ),
+    );
+  }
+}

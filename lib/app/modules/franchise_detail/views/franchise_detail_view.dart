@@ -5,6 +5,8 @@ import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
 import 'package:kaleydo/app/modules/franchise_detail/controllers/franchise_detail_controller.dart';
 import 'package:kaleydo/app/modules/franchise_detail/views/components/components.index.dart';
+import 'package:flutter/services.dart';
+import 'package:kaleydo/app/shared/widgets/dialogs/gallery_modal_dialog/gallery_modal_dialog.dart';
 
 class FranchiseDetailView extends GetView<FranchiseDetailController> {
   static const String route = "/franchise-detail";
@@ -39,7 +41,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
             _buildResumeBanner(),
       
             // 5. Vista de Contenido Dinámica
-            Expanded(child: _buildMainContent( paginatorSize )),
+            Expanded(child: _buildMainContent( paginatorSize, context )),
           ],
           
         );
@@ -131,16 +133,27 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
 
 
   ///: Vista Principal
-  Widget _buildMainContent( double paginatorSize ) {
+  Widget _buildMainContent( double paginatorSize, BuildContext context   ) {
     final tab = controller.selectedTab.value;
     final items = controller.mediaContent[tab] ?? [];
 
     //: Juego
     if (tab == FranchiseMediaType.juegos || tab == FranchiseMediaType.novelas) {
+
+      if(controller.selectedGameItem == null) controller.setSelectedGameItem(items.first);
+
       return GameWrapView(
         items: items,
         isNovel: tab == FranchiseMediaType.novelas,
-        launchExecutable: (executablePath) => controller.launchExecutable(executablePath),
+        onExecute: () => controller.launchExecutable(controller.selectedGameItem?.executablePath ?? ''),
+        setSelectedGameItem: (item) => controller.setSelectedGameItem(item),
+        selectedGameItemInfo: controller.selectedGameItemInfo.value,
+        selectedGameItemTags: controller.selectedGameItemTags,
+        selectedGameItemImages: controller.randomSelectedGameItemImages,
+        onShowCGsGallery: () => _openGalleryModal(
+          context: context, 
+          imageUrls: controller.selectedGameItemImages,
+        ),
       );
     }
 
@@ -221,4 +234,18 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       child: Text('Vista de Resumen en Markdown', style: TextStyle(color: AppColors.textSecondary)),
     );
   }
+}
+
+
+// Abre el modal con la galería
+void _openGalleryModal({
+  required BuildContext context,
+  required List<String> imageUrls,
+}) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return GalleryModalDialog(imageUrls: imageUrls);
+    },
+  );
 }
