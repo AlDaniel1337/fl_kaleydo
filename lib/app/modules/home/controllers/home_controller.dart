@@ -39,6 +39,8 @@ class HomeController extends GetxController {
   final RxList<SidebarCategoryModel> dynamicCategories = <SidebarCategoryModel>[].obs;
   final RxString selectedCategoryRaw = 'all'.obs; // 'all' representa la opción "Todo"
   final RxString selectedCategoryTitle = 'Todo'.obs; // 'all' representa la opción "Todo"
+  final RxString _currentDirectoryPath = ''.obs;
+  String get currentDirectoryPath => _currentDirectoryPath.value;
 
   //: Filtros de navegación
   final Rx<ViewTab> selectedTab = ViewTab.todo.obs;
@@ -226,8 +228,17 @@ class HomeController extends GetxController {
 
 
   //+ [Sidebar]
-  /// Seleccionar categoría
-  void selectCategory(String rawCategoryName) => selectedCategoryRaw.value = rawCategoryName;
+  /// Seleccionar categoría de la barra lateral
+  void selectCategory(String rawCategoryName) {
+    selectedCategoryRaw.value = rawCategoryName;
+
+    if (rawCategoryName == 'all') {
+      _currentDirectoryPath.value = '';
+      return;
+    }
+
+    _currentDirectoryPath.value = "${_configController.rootPath}/${selectedCategoryRaw.value}";
+  }
 
 
 

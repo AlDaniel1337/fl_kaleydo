@@ -7,7 +7,7 @@ abstract class ValidFolderNamesConstants {
 
   //: Anime
   static const List<String> validAnimeFolders = [
-    'anime', 'animes', 'video', 'videos', 'a', 'h',
+    'anime', 'animes', 'video', 'videos', 'a', 'h', "anime h"
   ];
 
   //: Manga

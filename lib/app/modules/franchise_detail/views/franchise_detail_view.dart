@@ -5,7 +5,6 @@ import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
 import 'package:kaleydo/app/modules/franchise_detail/controllers/franchise_detail_controller.dart';
 import 'package:kaleydo/app/modules/franchise_detail/views/components/components.index.dart';
-import 'package:flutter/services.dart';
 import 'package:kaleydo/app/shared/widgets/dialogs/gallery_modal_dialog/gallery_modal_dialog.dart';
 
 class FranchiseDetailView extends GetView<FranchiseDetailController> {
@@ -42,6 +41,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       
             // 5. Vista de Contenido Dinámica
             Expanded(child: _buildMainContent( paginatorSize, context )),
+
           ],
           
         );

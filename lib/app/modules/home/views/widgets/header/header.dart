@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kaleydo/app/modules/create_folder/presentation/widgets/create_folder_button.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/header/components/tab_button.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/storage_inspector_dialog/storage_inspector_dialog.dart';
 import 'components/header_title.dart';
@@ -46,6 +47,12 @@ class KaleydoHeader extends GetView<HomeController> {
             onChanged: (val) => controller.searchQuery.value = val,
           ),
           const SizedBox(width: 16),
+
+          //: Botón: Crear nueva carpeta en la carpeta actual
+          Obx(() => controller.currentDirectoryPath.isNotEmpty
+            ? CreateFolderButton(currentDirectoryPath: controller.currentDirectoryPath)
+            : const SizedBox.shrink(),
+          ),
 
           //: Botón: Cargar de nuevo (Refresh)
           IconButton(
