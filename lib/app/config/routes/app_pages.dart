@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
-import 'package:kaleydo/app/modules/franchise_detail/views/franchise_detail_view.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/franchise_detail_view.dart';
 import 'package:kaleydo/app/modules/home/bindings/home_binding.dart';
-import 'package:kaleydo/app/modules/franchise_detail/bindings/franchise_detail_binding.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/bindings/franchise_detail_binding.dart';
 import 'package:kaleydo/app/modules/home/views/home_view.dart';
 import 'package:kaleydo/app/modules/media_player/views/media_player_view.dart';
 import 'package:kaleydo/app/modules/media_player/bindings/media_player_binding.dart';
-import 'package:kaleydo/app/modules/reader/views/reader_view.dart';
-import 'package:kaleydo/app/modules/reader/bindings/reader_binding.dart';
+import 'package:kaleydo/app/modules/reader/presentation/views/reader_view.dart';
+import 'package:kaleydo/app/modules/reader/presentation/bindings/reader_binding.dart';
 
 class AppPages {
   static const initial = HomeView.route;

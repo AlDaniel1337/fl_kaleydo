@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/models/media_item_model.dart';
-import 'package:kaleydo/app/modules/franchise_detail/views/franchise_detail_view.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/franchise_detail_view.dart';
 import 'package:kaleydo/app/modules/home/controllers/home_controller.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/catalog_grid/components/content_type_badge.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/catalog_grid/components/cover_image.dart';
