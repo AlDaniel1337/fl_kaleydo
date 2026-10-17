@@ -2,16 +2,17 @@ import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
-import 'package:kaleydo/app/modules/franchise_detail/presentation/views/components/components.index.dart';
-import 'package:kaleydo/app/modules/franchise_detail/presentation/views/components/main_content/game/game_card/small_game_card.dart';
-import 'package:kaleydo/app/modules/franchise_detail/presentation/views/components/main_content/game/game_card/widgets/game_info_section.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/widgets/components.index.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/game_view/game_card/small_game_card.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/game_view/game_card/widgets/game_info_section.dart';
 import 'package:kaleydo/app/shared/shared_widgets.index.dart';
 
 class GameWrapView extends StatelessWidget {
   final List<FranchiseItemModel> items;
   final bool isNovel;
   final VoidCallback? onExecute;
-  final Function(FranchiseItemModel) setSelectedGameItem;
+  final Function(FranchiseItemModel, int) setSelectedGameItem;
+  final int selectedGameItemIndex;
   final String selectedGameItemInfo;
   final List<String> selectedGameItemTags;
   final List<String> selectedGameItemImages;
@@ -29,6 +30,7 @@ class GameWrapView extends StatelessWidget {
     required this.selectedGameItemImages,
     this.onShowCGsGallery,
     this.onShowGuide,
+    required this.selectedGameItemIndex,
   });
 
   @override
@@ -46,7 +48,7 @@ class GameWrapView extends StatelessWidget {
             width: 280,
             height: 430,
             child: GameCard(
-              game: items.first,
+              game: items[selectedGameItemIndex],
               isNovel: isNovel,
               onExecute: onExecute,
               onShowCGsGallery: onShowCGsGallery,
@@ -125,7 +127,7 @@ class _GameImagesGallery extends StatelessWidget {
 class _MoreGamesSection extends StatefulWidget {
   final List<FranchiseItemModel> items;
   final bool isNovel;
-  final Function(FranchiseItemModel) onSelectGame;
+  final Function(FranchiseItemModel, int) onSelectGame;
 
   const _MoreGamesSection({
     required this.items,
@@ -221,7 +223,7 @@ class _MoreGamesSectionState extends State<_MoreGamesSection> {
                       game: item,
                       isNovel: widget.isNovel,
                       showButtons: false,
-                      onTap: () => widget.onSelectGame(item),
+                      onTap: () => widget.onSelectGame(item, widget.items.indexOf(item)),
                     ),
                   );
                 }).toList(),

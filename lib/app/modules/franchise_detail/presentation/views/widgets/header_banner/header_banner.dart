@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
-import 'package:kaleydo/app/modules/franchise_detail/presentation/views/components/header_banner/media_action_buttons.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/widgets/header_banner/media_action_buttons.dart';
 
 class HeaderBanner extends StatelessWidget {
 

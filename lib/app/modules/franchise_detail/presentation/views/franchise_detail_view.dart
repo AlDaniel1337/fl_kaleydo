@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
 import 'package:kaleydo/app/modules/franchise_detail/presentation/controllers/franchise_detail_controller.dart';
-import 'package:kaleydo/app/modules/franchise_detail/presentation/views/components/components.index.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/widgets/components.index.dart';
 import 'package:kaleydo/app/shared/widgets/dialogs/gallery_modal_dialog/gallery_modal_dialog.dart';
 
 class FranchiseDetailView extends GetView<FranchiseDetailController> {
@@ -14,45 +14,40 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
 
   @override
   Widget build(BuildContext context) {
-
     final paginatorSize = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.primaryAccent));
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primaryAccent),
+          );
         }
-      
+
         return Column(
           children: [
             // 1. Banner Superior con degradado y controles
             _buildHeaderBanner(),
-      
+
             // 2. Selector de Pestañas Dinámicas
             _buildTabSelector(),
-      
-            // 3. Sub-header para Selector de Temporadas de Anime
-            if (controller.showAnimeSeasonTabs())
-              _buildSeasonSelector(),
-      
-            // 4. Banner de "Continuar" (Nuevo)
-            _buildResumeBanner(),
-      
-            // 5. Vista de Contenido Dinámica
-            Expanded(child: _buildMainContent( paginatorSize, context )),
 
+            // 3. Sub-header para Selector de Temporadas de Anime
+            if (controller.showAnimeSeasonTabs()) _buildSeasonSelector(),
+
+            // 4. Banner de "Continuar"
+            _buildResumeBanner(),
+
+            // 5. Vista de Contenido Dinámica
+            Expanded(child: _buildMainContent(paginatorSize, context)),
           ],
-          
         );
       }),
     );
-    
   }
 
-
-
-  /// Construye el banner superior con la imagen de portada, el botón de regresar y los botones de acción.
+  /// Banner superior independiente de los sub-controllers
   Widget _buildHeaderBanner() {
     return HeaderBanner(
       coverImage: controller.mediaItem.coverPath != null
@@ -65,62 +60,61 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       onRefresh: () => controller.refreshFranchiseContent(),
       itemPath: controller.mediaItem.path,
       title: controller.mediaItem.title,
-      onOpenFolder: () => controller.openFranchiseFolder(controller.mediaItem.path),
+      onOpenFolder: () =>
+          controller.openFranchiseFolder(controller.mediaItem.path),
     );
   }
 
-
-  /// Construye el selector de pestañas dinámicas basado en los tipos de medios disponibles.
+  /// Selector de pestañas delegando el scroll reset a AnimeController
   Widget _buildTabSelector() {
     return TabSelector(
-      availableTabs: controller.availableTabs,
-      selectedTab: controller.selectedTab.value,
+      availableTabs: controller.availableMediaCategories,
+      selectedTab: controller.selectedCategory.value,
       onTabSelected: (tab) {
-        controller.selectedTab.value = tab;
-        controller.moveScrollToTop();
+        controller.selectedCategory.value = tab;
+        controller.animeController.moveScrollToTop();
       },
     );
   }
 
-
-  /// Construye el selector de temporadas de anime.
+  /// Selector de temporadas delegando a `AnimeTabController`
   Widget _buildSeasonSelector() {
     return SeasonSelector(
-      animeSeasons: controller.animeSeasons,
-      selectedAnimeSeason: controller.selectedAnimeSeason.value,
-      changeAnimeSeason: (season) => controller.changeAnimeSeason(season),
+      animeSeasons: controller.animeController.animeSeasons,
+      selectedAnimeSeason: controller.animeController.selectedAnimeSeason.value,
+      changeAnimeSeason: (season) =>
+          controller.animeController.changeSeason(season),
     );
   }
 
-
-  /// Construye un selector de capítulos de manga/comic/manhwa
-  Widget _buildMangaPageSelector( double paginatorSize ) {
-
-    double margin = 150;
+  /// Paginador delegando a `MangaTabController`
+  Widget _buildMangaPageSelector(double paginatorSize) {
+    const margin = 150.0;
 
     return SizedBox(
       width: paginatorSize - margin,
       child: BookPaginator(
         totalItems: controller.mangaChapters.length,
-        itemsPerPage: controller.comicsPerPageSize,
-        selectedPageIndex: controller.currentMangaPageIndex.value,
+        itemsPerPage: controller.mangaController.pageSize,
+        selectedPageIndex: controller.mangaController.currentPageIndex.value,
         onPageSelected: (pageIndex) {
-          controller.changeMangaPage(pageIndex);
+          controller.mangaController.changePage(pageIndex, () {
+            controller.animeController.moveScrollToTop();
+          });
         },
       ),
     );
   }
 
-  
-  /// Widget del banner para continuar la lectura o reproducción
+  /// Banner para reanudar el último progreso guardado
   Widget _buildResumeBanner() {
-
     final progress = controller.latestProgress.value;
-
     if (progress == null) return const SizedBox.shrink();
 
-    final String title = progress['lastChapterTitle'] ?? progress['lastVideoTitle'] ?? 'Continuar';
-      
+    final String title = progress['lastChapterTitle'] ??
+        progress['lastVideoTitle'] ??
+        'Continuar';
+
     return ResumeBanner(
       title: title,
       onResume: () {
@@ -128,89 +122,90 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
         controller.resumeLastProgress();
       },
     );
-    
   }
 
-
-  ///: Vista Principal
-  Widget _buildMainContent( double paginatorSize, BuildContext context   ) {
-    final tab = controller.selectedTab.value;
+  /// Vista Principal según el tab activo
+  Widget _buildMainContent(double paginatorSize, BuildContext context) {
+    final tab = controller.selectedCategory.value;
     final items = controller.mediaContent[tab] ?? [];
 
-    //: Juego
-    if (tab == FranchiseMediaType.juegos || tab == FranchiseMediaType.novelas) {
+    //: Juegos / Novelas Visuales -> Usa gameController
+    if (tab == FranchiseMediaType.juegos || tab == FranchiseMediaType.novelasVisuales) {
 
-      if(controller.selectedGameItem == null) controller.setSelectedGameItem(items.first);
-
-      return GameWrapView(
+        return GameWrapView(
         items: items,
-        isNovel: tab == FranchiseMediaType.novelas,
-        onExecute: () => controller.launchExecutable(controller.selectedGameItem?.executablePath ?? ''),
-        setSelectedGameItem: (item) => controller.setSelectedGameItem(item),
-        selectedGameItemInfo: controller.selectedGameItemInfo.value,
-        selectedGameItemTags: controller.selectedGameItemTags,
-        selectedGameItemImages: controller.randomSelectedGameItemImages,
+        selectedGameItemIndex: controller.gameController.selectedGameItemIndex.value,
+        isNovel: tab == FranchiseMediaType.novelasVisuales,
+        onExecute: () => controller.gameController.launchExecutable(
+          controller.gameController.selectedGameItem?.executablePath ?? '',
+        ),
+        setSelectedGameItem: (item, index) =>
+          controller.gameController.setSelectedGameItem(item, index),
+        selectedGameItemInfo: controller.gameController.selectedGameItemInfo.value,
+        selectedGameItemTags: controller.gameController.selectedGameItemTags,
+        selectedGameItemImages: controller.gameController.randomSelectedGameItemImages,
         onShowCGsGallery: () => _openGalleryModal(
-          context: context, 
-          imageUrls: controller.selectedGameItemImages,
+          context: context,
+          imageUrls: controller.gameController.selectedGameItemImages,
         ),
       );
     }
 
-    //: Manga
+    //: Manga -> Usa mangaController
     if (tab == FranchiseMediaType.manga) {
-      final paginatedChapters = controller.paginatedMangaChapters(
-        pageIndex: controller.currentMangaPageIndex.value,
+      final paginatedChapters = controller.mangaController.getPaginatedChapters(
+        chapters: controller.mangaChapters,
+        pageIndex: controller.mangaController.currentPageIndex.value,
       );
 
       return Column(
         children: [
-          // Barra superior con botón para cambiar la vista (Lista / Grid)
           BookSubHeader(
-            isMangaGridView: controller.isMangaGridView.value,
-            onToggleView: controller.toggleMangaView,
-            pageSelector: _buildMangaPageSelector( paginatorSize ),
+            isMangaGridView: controller.mangaController.isGridView.value,
+            onToggleView: controller.mangaController.toggleViewMode,
+            pageSelector: _buildMangaPageSelector(paginatorSize),
           ),
-          
-          // Contenido dinámico (Grid o Lista)
           Expanded(
-            child: controller.isMangaGridView.value
-              ? BookGridView(
-                  items: paginatedChapters,
-                  onTap: (index) {
-                    controller.openReaderForChapter(controller.mangaChapters, index);
-                  },
-                )
-              : BookListView(
-                  items: paginatedChapters, 
-                  onTap: (index) {
-                    controller.openReaderForChapter(controller.mangaChapters, index);
-                  },
-                  isBook: false,
-                ),
-            ),
+            child: controller.mangaController.isGridView.value
+                ? BookGridView(
+                    items: paginatedChapters,
+                    onTap: (index) {
+                      controller.openReaderForChapter(
+                          controller.mangaChapters, index);
+                    },
+                  )
+                : BookListView(
+                    items: paginatedChapters,
+                    onTap: (index) {
+                      controller.openReaderForChapter(
+                          controller.mangaChapters, index);
+                    },
+                    isBook: false,
+                  ),
+          ),
         ],
       );
     }
-    
+
+    //: Manga H -> Usa mangaController
     if (tab == FranchiseMediaType.mangah) {
-      final paginatedChapters = controller.paginatedMangaChapters(
-        pageIndex: controller.currentMangaPageIndex.value,
-        getAllH: true,
+      final paginatedChapters = controller.mangaController.getPaginatedChapters(
+        chapters: controller.mangaHChapters,
+        pageIndex: controller.mangaController.currentPageIndex.value,
       );
 
       return BookGridView(
-        items: paginatedChapters, 
+        items: paginatedChapters,
         onTap: (index) {
           controller.openReaderForChapter(controller.mangaHChapters, index);
         },
       );
     }
 
-    //: Libros (Libros, Novelas Ligeras, Pdfs)
+    //: Libros / Novelas Ligeras
     if (tab == FranchiseMediaType.libros) {
       return BookListView(
-        items: items, 
+        items: items,
         onTap: (index) {
           controller.openReaderForChapter(controller.bookItems, index);
         },
@@ -218,26 +213,28 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       );
     }
 
-    //: Video (anime, películas, etc.)
+    //: Anime / Video -> Usa animeController
     if (tab == FranchiseMediaType.anime) {
       final episodes = controller.filteredAnimeEpisodes;
       return VideoListView(
-        controller: controller.animeScrollController,
-        episodes: episodes, 
+        controller: controller.animeController.animeScrollController,
+        episodes: episodes,
         onEpisodeTap: (idx) {
-          controller.openPlayerForEpisode(controller.filteredAnimeEpisodes, idx);
+          controller.openPlayerForEpisode(
+              controller.filteredAnimeEpisodes, idx);
         },
       );
     }
 
     return const Center(
-      child: Text('Vista de Resumen en Markdown', style: TextStyle(color: AppColors.textSecondary)),
+      child: Text(
+        'Vista de Resumen en Markdown',
+        style: TextStyle(color: AppColors.textSecondary),
+      ),
     );
   }
 }
 
-
-// Abre el modal con la galería
 void _openGalleryModal({
   required BuildContext context,
   required List<String> imageUrls,

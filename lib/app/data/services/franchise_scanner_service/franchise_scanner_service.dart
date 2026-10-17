@@ -43,9 +43,9 @@ class FranchiseScannerService {
         
         //: Novelas visuales
         else if (ValidFolderNamesConstants.validVisualNovelsFolders.contains(folderName)) {
-          result[FranchiseMediaType.novelas] = await scanGamesOrNovels(
+          result[FranchiseMediaType.novelasVisuales] = await scanGamesOrNovels(
             entity, 
-            FranchiseMediaType.novelas, 
+            FranchiseMediaType.novelasVisuales, 
             defaultCoverPath
           );
         } 

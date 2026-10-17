@@ -56,10 +56,11 @@ class TabSelector extends StatelessWidget {
       case FranchiseMediaType.mangah:  return 'Manga H';
       case FranchiseMediaType.manhwa:  return 'Manhwa';
       case FranchiseMediaType.anime:   return 'Anime';
+      case FranchiseMediaType.animeh:  return 'Anime H';
       case FranchiseMediaType.videos:  return 'Videos';
       case FranchiseMediaType.resumen: return 'Resumen';
       case FranchiseMediaType.libros:  return 'Libros';
-      case FranchiseMediaType.novelas: return 'Novelas Visuales';
+      case FranchiseMediaType.novelasVisuales: return 'Novelas Visuales';
     }
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
-import 'package:kaleydo/app/modules/franchise_detail/presentation/views/components/main_content/game/game_card/widgets/game_cover_image.dart';
-import 'package:kaleydo/app/modules/franchise_detail/presentation/views/components/main_content/game/game_card/widgets/game_title.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/game_view/game_card/widgets/game_cover_image.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/game_view/game_card/widgets/game_title.dart';
 
 class SmallGameCard extends StatefulWidget {
   final FranchiseItemModel game;

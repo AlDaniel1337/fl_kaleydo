@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
-import 'package:kaleydo/app/modules/franchise_detail/presentation/views/components/main_content/game/game_card/widgets/cancel_button.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/game_view/game_card/widgets/cancel_button.dart';
 
 /// Botón ejecutor reutilizable con temporizador integrado.
 class CountdownButton extends StatefulWidget {

@@ -29,7 +29,7 @@ class VideoListView extends StatelessWidget {
           leading: const Icon(Icons.play_circle_fill, color: AppColors.primaryAccent),
           title: Text(episodes[idx].title, style: const TextStyle(color: AppColors.textPrimary)),
           subtitle: Text(episodes[idx].seasonName ?? 'Anime',
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
           trailing: const Icon(Icons.play_arrow_rounded, color: Colors.white),
           onTap: () {
             FocusManager.instance.primaryFocus?.unfocus();

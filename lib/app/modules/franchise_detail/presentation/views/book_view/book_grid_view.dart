@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
-import 'package:kaleydo/app/modules/franchise_detail/presentation/views/components/main_content/book/book_grid_item/book_grid_item.dart';
+import 'package:kaleydo/app/modules/franchise_detail/presentation/views/book_view/book_grid_item/book_grid_item.dart';
 
 class BookGridView extends StatelessWidget {
 
