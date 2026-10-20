@@ -5,8 +5,10 @@ import 'package:kaleydo/app/modules/home/controllers/home_controller.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/sidebar/components/custom_nav_item.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/sidebar/components/sidebar_title.dart';
 import 'package:kaleydo/app/shared/shared_widgets.index.dart';
+import 'package:kaleydo/app/modules/courses/presentation/views/courses_dashboard_view/courses_dashboard_view.dart';
 
-/// Widget que representa la barra lateral de la aplicación Kaleydo. Contiene la lista de categorías dinámicas y la opción por defecto "Todo".
+/// Widget que representa la barra lateral de la aplicación Kaleydo. 
+/// Contiene la lista de categorías dinámicas y la opción por defecto "Todo".
 class KaleydoSidebar extends GetView<HomeController> {
 
   const KaleydoSidebar({super.key});
@@ -32,6 +34,18 @@ class KaleydoSidebar extends GetView<HomeController> {
             isSelected: controller.selectedCategoryRaw.value == 'all',
             onTap: () => controller.selectCategory('all'),
           )),
+          
+          //: Opción por defecto: Mis Cursos
+          CustomNavItem(
+            icon: Icons.school_rounded,
+            label: 'Cursos',
+            rawCategory: 'my_courses',
+            isSelected: controller.selectedCategoryRaw.value == 'my_courses',
+            onTap: () {
+              Get.back(); // Si estás en un Drawer, para cerrarlo
+              Get.toNamed(CoursesDashboardView.route);
+            },
+          ),
 
           const CustomDivider(),
 
