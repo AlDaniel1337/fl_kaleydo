@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:kaleydo/app/modules/courses/data/services/course_notes_service.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/modules/courses/data/models/course_lesson_model.dart';
 import 'package:kaleydo/app/modules/courses/data/models/course_model.dart';
@@ -10,6 +12,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 class CoursePlayerController extends GetxController {
   
   late final CourseStorageService storage;
+  late final CourseNotesService notesService;
   late final CourseModel course;
 
   // media_kit
@@ -26,12 +29,19 @@ class CoursePlayerController extends GetxController {
   final RxBool showVolumeIndicator = false.obs;
   Timer? _volumeTimer;
 
+  // Controles de notas y recursos del curso
+  final RxInt selectedTabIndex = 0.obs; // 0 = Recursos, 1 = Notas
+  final RxBool isPreviewMode = false.obs; // Modo edición vs vista previa
+  final TextEditingController notesController = TextEditingController();
+
   @override
   void onInit() {
     super.onInit();
     storage = Get.find<CourseStorageService>();
     course = Get.arguments['course'] as CourseModel;
-    
+
+    notesService = Get.find<CourseNotesService>();
+
     _initPlayer();
     _loadInitialStates();
     
@@ -39,6 +49,13 @@ class CoursePlayerController extends GetxController {
     _loadLastOrFirstLesson();
   }
 
+
+  @override
+  void onClose() {
+    player.dispose();
+    notesController.dispose();
+    super.onClose();
+  }
 
 
   void _initPlayer() {
@@ -102,6 +119,9 @@ class CoursePlayerController extends GetxController {
     if (savedPosition > 0) {
       await player.seek(Duration(seconds: savedPosition.toInt()));
     }
+
+    // Cargar notas al cambiar de lección
+    notesController.text = notesService.getLessonNotes(lesson.id);
   }
 
   void setSpeed(double speed) {
@@ -115,7 +135,11 @@ class CoursePlayerController extends GetxController {
   }
 
   void skipBackward() {
-    final newPosition = player.state.position - const Duration(seconds: 10);
+    Duration newPosition = player.state.position - const Duration(seconds: 10);
+    // Comprobamos que la nueva posición no sea negativa
+    if (newPosition < Duration.zero) {
+      newPosition = Duration.zero;
+    }
     player.seek(newPosition);
   }
 
@@ -145,12 +169,6 @@ class CoursePlayerController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    player.dispose();
-    super.onClose();
-  }
-
   void togglePlayPause() {
     player.playOrPause();
   }
@@ -169,5 +187,74 @@ class CoursePlayerController extends GetxController {
     _volumeTimer = Timer(const Duration(seconds: 2), () {
       showVolumeIndicator.value = false;
     });
+  }
+
+  //+ MÉTODOS DE NOTAS
+  void saveCurrentNotes(String text) {
+    final lesson = currentLesson.value;
+    if (lesson != null) {
+      notesService.saveLessonNotes(lesson.id, text);
+    }
+  }
+
+  Future<void> exportCourseNotes() async {
+    StringBuffer buffer = StringBuffer();
+    
+    // Formato personalizado de cabecera
+    buffer.writeln('# 📘 Curso: ${course.title}');
+    buffer.writeln('---');
+    
+    bool hasAnyNotes = false;
+
+    for (var section in course.sections) {
+      bool sectionHasNotes = false;
+      StringBuffer sectionBuffer = StringBuffer();
+      sectionBuffer.writeln('\n## 📂 ${section.title}');
+
+      for (var lesson in section.lessons) {
+        String note = notesService.getLessonNotes(lesson.id).trim();
+        if (note.isNotEmpty) {
+          sectionHasNotes = true;
+          hasAnyNotes = true;
+          sectionBuffer.writeln('\n### 📝 ${lesson.title}');
+          sectionBuffer.writeln(note);
+          sectionBuffer.writeln('\n---'); // Separador de lección
+        }
+      }
+
+      // Solo agregamos la sección si tiene al menos una lección con apuntes
+      if (sectionHasNotes) {
+        buffer.write(sectionBuffer.toString());
+      }
+    }
+
+    if (!hasAnyNotes) {
+      Get.snackbar('Aviso', 'No hay apuntes en este curso para exportar.', 
+          backgroundColor: Colors.orange, colorText: Colors.white);
+      return;
+    }
+
+    try {
+      // Guardamos el archivo .md directamente en la carpeta raíz del curso
+      final cleanTitle = course.title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+      final exportPath = '${course.path}${Platform.pathSeparator}Apuntes_$cleanTitle.md';
+      
+      final file = File(exportPath);
+      await file.writeAsString(buffer.toString());
+
+      Get.snackbar(
+        'Exportación Exitosa', 
+        'Apuntes guardados en la carpeta del curso.',
+        backgroundColor: Colors.green.shade800, 
+        colorText: Colors.white,
+      );
+      
+      // Abre la carpeta automáticamente para que veas el archivo
+      openResourceFolder(exportPath);
+      
+    } catch (e) {
+      Get.snackbar('Error', 'No se pudieron exportar los apuntes.', 
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+    }
   }
 }

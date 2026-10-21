@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:kaleydo/app/config/routes/app_pages.dart';
+import 'package:kaleydo/app/modules/courses/data/services/course_notes_service.dart';
 import 'package:kaleydo/app/modules/courses/data/services/course_storage_service.dart';
 import 'package:media_kit/media_kit.dart';
 import 'app/data/data.models.index.dart';
@@ -17,6 +18,7 @@ void main() async {
   await Get.putAsync<LibraryStateService>(()  => LibraryStateService().init());
   await Get.putAsync<ReaderStorageService>(() => ReaderStorageService().init());
   await Get.putAsync<CourseStorageService>(() => CourseStorageService().init());
+  await Get.putAsync<CourseNotesService>(()   => CourseNotesService().init());
   
 
   //: Inicializa los binarios nativos de libmpv
