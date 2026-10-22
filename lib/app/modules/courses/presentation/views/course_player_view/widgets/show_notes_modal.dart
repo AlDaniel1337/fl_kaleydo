@@ -89,8 +89,8 @@ class ShowNotesModal extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Obx(() => ToggleButtons(
-                isSelected: [!controller.isPreviewMode.value, controller.isPreviewMode.value],
-                onPressed: (index) => controller.isPreviewMode.value = index == 1,
+                isSelected: [!controller.notes.isPreviewMode.value, controller.notes.isPreviewMode.value],
+                onPressed: (index) => controller.notes.isPreviewMode.value = index == 1,
                 color: Colors.grey,
                 selectedColor: AppColors.primaryAccent,
                 fillColor: AppColors.primaryAccent.withValues(alpha: 0.1),
@@ -106,7 +106,7 @@ class ShowNotesModal extends StatelessWidget {
         ),
         Expanded(
           child: Obx(() {
-            if (controller.isPreviewMode.value) {
+            if (controller.notes.isPreviewMode.value) {
               return _Preview(controller: controller);
             } else {
               return _TakeNoteView(controller: controller);
@@ -136,7 +136,7 @@ class _TakeNoteView extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextField(
-        controller: controller.notesController,
+        controller: controller.notes.notesController,
         maxLines: null,
         expands: true,
         style: const TextStyle(color: Colors.white, height: 1.5, fontFamily: 'Consolas'),
@@ -173,9 +173,9 @@ class _Preview extends StatelessWidget {
       ),
       child: SingleChildScrollView(
         child: MarkdownBody(
-          data: controller.notesController.text.isEmpty
+          data: controller.notes.notesController.text.isEmpty
               ? '*No hay apuntes para esta lección aún.*'
-              : controller.notesController.text,
+              : controller.notes.notesController.text,
           styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(Get.context!)).copyWith(
             p: const TextStyle(color: Colors.white70),
             h1: const TextStyle(color: Colors.white),

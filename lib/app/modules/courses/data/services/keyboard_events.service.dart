@@ -13,21 +13,21 @@ class KeyboardEventsService {
     // Solo escuchamos cuando la tecla se presiona hacia abajo (KeyDownEvent)
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.space) {
-        controller.togglePlayPause();
+        controller.video.togglePlayPause();
         return KeyEventResult.handled;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-        controller.skipForward();
+        controller.video.skipForward();
         return KeyEventResult.handled;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-        controller.skipBackward();
+        controller.video.skipBackward();
         return KeyEventResult.handled;
       }
       // Puedes agregar atajos para el volumen con Flecha Arriba/Abajo si lo deseas
       else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-        controller.changeVolume(10.0);
+        controller.video.changeVolume(10.0);
         return KeyEventResult.handled;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-        controller.changeVolume(-10.0);
+        controller.video.changeVolume(-10.0);
         return KeyEventResult.handled;
       }
     }

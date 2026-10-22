@@ -9,16 +9,11 @@ import 'package:kaleydo/app/modules/courses/presentation/views/course_player_vie
 class CoursesController extends GetxController {
 
   final CoursesScannerService scanner = CoursesScannerService();
-
-  // Configuración de la ruta base (ajústala según la unidad donde guardes tus cursos)
-  final String coursesRootPath = 'H:\\_kaleydo\\cursos'; // Cambia esto por tu ruta real
+  //TODO Ajustar la ruta base según la ubicación de los cursos en tu sistema
+  final String coursesRootPath = 'H:\\_kaleydo\\cursos';
 
   final RxBool isLoading = true.obs;
-  
-  // Lista completa de categorías escaneadas
   final RxList<CourseCategoryModel> categories = <CourseCategoryModel>[].obs;
-  
-  // Estado para la navegación interna (null = viendo categorías, con datos = viendo cursos)
   final Rx<CourseCategoryModel?> selectedCategory = Rx<CourseCategoryModel?>(null);
 
   late final CourseStorageService storage;
@@ -30,6 +25,8 @@ class CoursesController extends GetxController {
     _loadCoursesData();
   }
 
+
+  /// Carga los datos de los cursos desde el directorio especificado y actualiza la lista de categorías.
   Future<void> _loadCoursesData() async {
     isLoading.value = true;
     try {
@@ -42,22 +39,35 @@ class CoursesController extends GetxController {
     }
   }
 
+
+
   //+ NAVEGACIÓN DE LA INTERFAZ
+
+  /// Selecciona una categoría específica para mostrar sus cursos.
   void selectCategory(CourseCategoryModel category) {
     selectedCategory.value = category;
   }
 
+
+  /// Vuelve a la vista de categorías desde la vista de cursos.
   void backToCategories() {
     selectedCategory.value = null;
   }
 
+
+  /// Abre la vista del reproductor para un curso específico.
   void openCourse(CourseModel course) {
     // Aquí navegaremos a la vista del reproductor (Udemy Style) que crearemos después
     Get.toNamed(CoursePlayerView.route, arguments: {'course': course});
   }
+  //!+ 
+
+
 
   //+ DATOS DE PROGRESO
+  /// Obtiene el progreso de un curso específico como un valor entre 0.0 y 1.0.
   double getCourseProgress(CourseModel course) {
     return storage.getCourseProgress(course);
   }
+  //!+
 }

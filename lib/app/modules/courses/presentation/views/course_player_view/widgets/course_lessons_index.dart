@@ -16,17 +16,19 @@ class CourseLessonsIndex extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: controller.course.sections.length,
-      
+      itemCount: controller.course.sections.length,      
       itemBuilder: (context, sectionIndex) {
 
         final section = controller.course.sections[sectionIndex];
         
+        // Verificamos si la lección actual (la que cargó la BD) está en esta sección
+        final currentLessonId = controller.currentLesson.value?.id;
+        final bool isCurrentSection = section.lessons.any((lesson) => lesson.id == currentLessonId);
+        
         return Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
-            initiallyExpanded: sectionIndex == 0, // La primera sección inicia abierta
-            title: Text(
+              initiallyExpanded: isCurrentSection || (currentLessonId == null && sectionIndex == 0),            title: Text(
               section.title,
               style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ),

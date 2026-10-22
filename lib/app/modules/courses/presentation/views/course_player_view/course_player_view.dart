@@ -27,6 +27,8 @@ class CoursePlayerView extends GetView<CoursePlayerController> {
         actions: [
           ShowNotesModal(controller: controller),
           const SizedBox(width: 16),
+          ClearCacheBtn(controller: controller),
+          const SizedBox(width: 16),
         ],
       ),
       body: Focus(
@@ -53,16 +55,16 @@ class CoursePlayerView extends GetView<CoursePlayerController> {
                         onPointerSignal: (pointerSignal) {
                           if (pointerSignal is PointerScrollEvent) {
                             if (pointerSignal.scrollDelta.dy < 0) {
-                              controller.changeVolume(10.0);
+                              controller.video.changeVolume(10.0);
                             } else {
-                              controller.changeVolume(-10.0);
+                              controller.video.changeVolume(-10.0);
                             }
                           }
                         },
                         child: Stack(
                           children: [
                             Positioned.fill(
-                              child: Video(controller: controller.videoController),
+                              child: Video(controller: controller.video.videoController),
                             ),
                             Positioned(
                               top: 0,
@@ -71,7 +73,7 @@ class CoursePlayerView extends GetView<CoursePlayerController> {
                               bottom: 80,
                               child: GestureDetector(
                                 behavior: HitTestBehavior.translucent,
-                                onTap: controller.togglePlayPause,
+                                onTap: controller.video.togglePlayPause,
                                 child: Container(color: Colors.transparent),
                               ),
                             ),

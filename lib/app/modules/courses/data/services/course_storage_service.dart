@@ -6,6 +6,7 @@ import '../models/models.index.dart';
 class CourseStorageService {
 
   late File _storageFile;
+  int _lastSaveTime = 0;
   
   // Mapa en memoria para acceso rápido. Estructura:
   // {
@@ -37,13 +38,14 @@ class CourseStorageService {
       try {
         final String content = await _storageFile.readAsString();
         _data = json.decode(content);
-        if (!_data.containsKey('lessons')) {
-          _data['lessons'] = {};
-        }
+        if (!_data.containsKey('lessons')) _data['lessons'] = {};
+        if (!_data.containsKey('courses')) _data['courses'] = {}; 
       } catch (e) {
-        print('Error leyendo base de datos de cursos: $e');
-        _data = {'lessons': {}};
+        print('Error leyendo BD: $e');
+        _data = {'lessons': {}, 'courses': {}};
       }
+    } else {
+      _data = {'lessons': {}, 'courses': {}};
     }
   }
 
@@ -62,6 +64,7 @@ class CourseStorageService {
 
 
   //+ GESTIÓN DE PROGRESO DE LECCIONES
+
   /// Actualiza la posición del video y calcula si debe marcarse como completado
   Future<void> updateLessonProgress({
     required String lessonId,
@@ -70,13 +73,11 @@ class CourseStorageService {
     required double durationSeconds,
     bool forceComplete = false,
   }) async {
-    Map<dynamic, dynamic> lessons = _data['lessons'];
-    Map<dynamic, dynamic> lessonData = lessons[lessonId] ?? {};
+    Map<String, dynamic> lessons = _data['lessons'];
+    Map<String, dynamic> lessonData = lessons[lessonId] ?? {};
 
-    // Si el usuario lo fuerza, o si vio más del 90% del video, se marca como completado
     bool isCompleted = forceComplete || (durationSeconds > 0 && (positionSeconds / durationSeconds) >= 0.90);
     
-    // Solo permitimos regresar a 'inProgress' si no estaba ya 'viewed' (a menos que se fuerce manualmente)
     String currentStateStr = lessonData['state'] ?? LessonState.notViewed.name;
     LessonState currentState = LessonState.values.firstWhere((e) => e.name == currentStateStr);
 
@@ -84,22 +85,27 @@ class CourseStorageService {
         ? LessonState.viewed 
         : (positionSeconds > 0 ? LessonState.inProgress : LessonState.notViewed);
 
-    // Si ya estaba visto, no lo bajamos a 'inProgress' solo por retroceder el video
     if (currentState == LessonState.viewed && !forceComplete) {
       newState = LessonState.viewed;
     }
 
+    // Actualizamos siempre en memoria (RAM)
     lessonData['state'] = newState.name;
     lessonData['position'] = positionSeconds;
     lessonData['duration'] = durationSeconds;
     
     lessons[lessonId] = lessonData;
-    _data['last_viewed_course'] = courseId;
-    _data['last_viewed_lesson'] = lessonId;
+    _data['courses'][courseId] ??= {}; // Asegurar que exista el objeto del curso
+    _data['courses'][courseId]['last_lesson'] = lessonId;
 
-    await _saveData();
+    // Solo escribimos en el disco físico cada 3 segundos o si se fuerza el completado
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    if (forceComplete || (now - _lastSaveTime > 3000)) {
+      _lastSaveTime = now;
+      await _saveData();
+    }
   }
-
+  
 
   /// Cambia manualmente el estado de una lección
   Future<void> toggleLessonStateManual(String lessonId, LessonState state) async {
@@ -165,4 +171,63 @@ class CourseStorageService {
   }
   //!+
 
+
+
+  //+ GESTIÓN DE HISTORIAL POR CURSO
+
+  /// Establece la última lección vista para un curso específico y 
+  /// Actualiza la lista de lecciones recientes.
+  void setLastLessonForCourse(String courseId, String lessonId) {
+    Map<dynamic, dynamic> courses = _data['courses'];
+    if (!courses.containsKey(courseId)) courses[courseId] = {};
+    
+    courses[courseId]['last_lesson'] = lessonId;
+
+    // Gestionar la lista de los últimos 3 videos
+    List<dynamic> recent = courses[courseId]['recent_lessons'] ?? [];
+    recent.remove(lessonId); // Si ya estaba, lo quitamos para ponerlo al principio
+    recent.insert(0, lessonId); // Lo ponemos de primero
+
+    // Si supera los 3, eliminamos el más antiguo y borramos su posición guardada
+    if (recent.length > 3) {
+      String removedId = recent.removeLast();
+      if (_data['lessons'].containsKey(removedId)) {
+        _data['lessons'][removedId]['position'] = 0.0;
+      }
+    }
+    
+    courses[courseId]['recent_lessons'] = recent;
+    _saveData();
+  }
+
+
+  /// Obtiene la última lección vista para un curso específico.
+  String? getLastLessonForCourse(String courseId) {
+    Map<dynamic, dynamic> courses = _data['courses'];
+    if (courses.containsKey(courseId)) {
+      return courses[courseId]['last_lesson'];
+    }
+    return null;
+  }
+
+
+  /// Limpia la caché de posiciones de las lecciones recientes para un curso específico.
+  Future<void> clearCoursePositionCache(String courseId) async {
+    Map<dynamic, dynamic> courses = _data['courses'];
+    if (courses.containsKey(courseId)) {
+      List<dynamic> recent = courses[courseId]['recent_lessons'] ?? [];
+      
+      // Reiniciar las posiciones de los recientes a 0.0
+      for (String id in recent) {
+        if (_data['lessons'].containsKey(id)) {
+          _data['lessons'][id]['position'] = 0.0;
+        }
+      }
+      
+      courses[courseId]['recent_lessons'] = [];
+      courses[courseId]['last_lesson'] = null;
+      await _saveData();
+    }
+  }
+  //!+
 }

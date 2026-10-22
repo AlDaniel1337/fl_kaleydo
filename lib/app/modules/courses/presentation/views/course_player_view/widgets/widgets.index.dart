@@ -5,3 +5,4 @@ export 'change_video_speed_btn.dart';
 export 'volume_icon_and_text.dart';
 export 'volume_indicator.dart';
 export 'right_panel_for_lessons_and_resources.dart';
+export 'clear_cache_btn.dart';

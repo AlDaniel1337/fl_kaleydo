@@ -32,8 +32,8 @@ class CourseStudyControlsBar extends StatelessWidget {
             children: [
               //: Botones de adelantar y retroceder 10 segundos
               _FastForwardAndRewindButtons(
-                onRewind: controller.skipBackward,
-                onFastForward: controller.skipForward,
+                onRewind: controller.video.skipBackward,
+                onFastForward: controller.video.skipForward,
               ),
               const SizedBox(width: 16),
               

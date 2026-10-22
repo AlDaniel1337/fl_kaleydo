@@ -16,7 +16,7 @@ class ChangeVideoSpeedBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final currentSpeed = controller.playbackSpeed.value;
+      final currentSpeed = controller.video.playbackSpeed.value;
 
       return PopupMenuButton<double>(
         initialValue: currentSpeed,
@@ -26,7 +26,7 @@ class ChangeVideoSpeedBtn extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        onSelected: (double speed) => controller.setSpeed(speed),
+        onSelected: (double speed) => controller.video.setSpeed(speed),
         itemBuilder: (BuildContext context) {
           final speeds = [0.1, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.2];
           List<PopupMenuEntry<double>> menuItems = [];

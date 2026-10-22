@@ -16,10 +16,10 @@ class VolumeIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (!controller.showVolumeIndicator.value) return const SizedBox.shrink();
+      if (!controller.video.showVolumeIndicator.value) return const SizedBox.shrink();
       
       // Cambiamos el color si supera el 100% para indicar "Boost"
-      final bool isBoosted = controller.currentVolume.value > 100.0;
+      final bool isBoosted = controller.video.currentVolume.value > 100.0;
       
       return Positioned(
         top: 20,
@@ -35,8 +35,8 @@ class VolumeIndicator extends StatelessWidget {
           ),
           child: VolumeIconAndText(
             isBoosted: isBoosted,
-            isMuted: controller.currentVolume.value == 0,
-            currentVolume: controller.currentVolume.value,
+            isMuted: controller.video.currentVolume.value == 0,
+            currentVolume: controller.video.currentVolume.value,
           ),
         ),
       );
