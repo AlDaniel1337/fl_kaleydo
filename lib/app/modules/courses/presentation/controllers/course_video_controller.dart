@@ -16,7 +16,9 @@ class CourseVideoController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    player = Player();
+    player = Player(
+      
+    );
     videoController = VideoController(player);
     player.setVolume(100.0);
     currentVolume.value = 100.0;
@@ -25,7 +27,11 @@ class CourseVideoController extends GetxController {
   @override
   void onClose() {
     _volumeTimer?.cancel();
-    player.dispose();
+    final playerToDispose = player;
+    Future.microtask(() async {
+      await playerToDispose.stop();
+      await playerToDispose.dispose();
+    });
     super.onClose();
   }
 
