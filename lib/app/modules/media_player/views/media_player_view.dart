@@ -7,6 +7,8 @@ import 'package:kaleydo/app/modules/media_player/controllers/media_player_contro
 import 'package:kaleydo/app/modules/media_player/utils/player_shortcuts.dart';
 import './components/components.index.dart';
 
+import 'package:window_manager/window_manager.dart';
+
 class MediaPlayerView extends GetView<MediaPlayerController> {
   static const String route = "/media-player";
 
@@ -26,27 +28,16 @@ class MediaPlayerView extends GetView<MediaPlayerController> {
               child: MouseRegion(
                 onHover: (_) => controller.onMouseMove(),
                 onExit: (event) => controller.onMouseExit(),
-                child: Stack(
-                  children: [
-                    //: 1. Capa de Video
-                    Center(
-                      child: Video(controller: controller.videoController),
-                    ),
+                child: Obx(() {
 
-                    //: 2. Capa Interactiva Base (Play/Pause + Overlay de Brillo)
-                    _BrightnessOverlay(controller: controller),
+                  if (controller.isMiniPlayer.value) {
+                    return DragToMoveArea(
+                      child: _VideoPlayer(controller: controller, isMiniPlayer: true),
+                    );
+                  }
 
-                    //: 3. OSD Overlay
-                    const PlayerOsd(),
-
-                    //: 4. Controles principales (HUD Header & Footer)
-                    _VideoPlayerControls(controller: controller),
-
-                    //: 5. Banners de Navegación de Episodios
-                    _EpisodeBanner(controller: controller, isNext: false),
-                    _EpisodeBanner(controller: controller, isNext: true),
-                  ],
-                ),
+                  return _VideoPlayer(controller: controller);
+                }),
               ),
             ),
           ),
@@ -61,6 +52,48 @@ class MediaPlayerView extends GetView<MediaPlayerController> {
     }
   }
 }
+
+class _VideoPlayer extends StatelessWidget {
+  const _VideoPlayer({
+    required this.controller,
+    this.isMiniPlayer = false,
+  });
+
+  final MediaPlayerController controller;
+  final bool isMiniPlayer;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        //: 1. Capa de Video
+        Center(
+          child: Video(controller: controller.videoController),
+        ),
+    
+        //: 2. Capa Interactiva Base (Play/Pause + Overlay de Brillo)
+        _BrightnessOverlay(controller: controller),
+    
+        //: 3. OSD Overlay
+        const PlayerOsd(),
+    
+        //: 4. Controles principales (HUD Header & Footer)
+        _VideoPlayerControls(
+          controller: controller,
+          isMiniPlayer: isMiniPlayer,
+        ),
+    
+        //: 5. Banners de Navegación de Episodios
+        if(!isMiniPlayer) ...[
+          _EpisodeBanner(controller: controller, isNext: false),
+          _EpisodeBanner(controller: controller, isNext: true),
+        ],
+
+      ],
+    );
+  }
+}
+
 
 /// Capa interactiva que maneja el tap global para Play/Pause y aplica el filtro de brillo.
 class _BrightnessOverlay extends StatelessWidget {
@@ -89,9 +122,14 @@ class _BrightnessOverlay extends StatelessWidget {
 
 /// Controles principales del reproductor de medios (Header y Footer con gradiente).
 class _VideoPlayerControls extends StatelessWidget {
-  const _VideoPlayerControls({required this.controller});
+
+  const _VideoPlayerControls({
+    required this.controller, 
+    this.isMiniPlayer = false
+  });
 
   final MediaPlayerController controller;
+  final bool isMiniPlayer;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +172,7 @@ class _VideoPlayerControls extends StatelessWidget {
                   ),
                 ),
 
-                const PlayerFooterControls(),
+                PlayerFooterControls(isMiniPlayer: isMiniPlayer),
               ],
             ),
           ),

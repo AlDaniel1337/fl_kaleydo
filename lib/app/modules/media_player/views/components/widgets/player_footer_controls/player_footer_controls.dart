@@ -14,7 +14,13 @@ import 'package:kaleydo/app/shared/shared_widgets.index.dart';
 /// Presets predeterminados para la velocidad de reproducción.
 const List<double> _kSpeedPresets = [1.3, 1.5, 1.7, 2.0];
 class PlayerFooterControls extends GetView<MediaPlayerController> {
-  const PlayerFooterControls({super.key});
+  
+  final bool isMiniPlayer;
+
+  const PlayerFooterControls({
+    super.key, 
+    this.isMiniPlayer = false
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,16 +48,19 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
                     onPressed: controller.togglePlayPause,
                   )),
 
+
               //: Salto de Tiempo (-10s / +10s)
-              IconButton(
-                icon: const Icon(Icons.replay_10_rounded, color: Colors.white, size: 22),
-                onPressed: () => controller.seekRelative(-10),
-              ),
-              IconButton(
-                icon: const Icon(Icons.forward_10_rounded, color: Colors.white, size: 22),
-                onPressed: () => controller.seekRelative(10),
-              ),
-              const SizedBox(width: 12),
+              if(!isMiniPlayer) ...[
+                IconButton(
+                  icon: const Icon(Icons.replay_10_rounded, color: Colors.white, size: 22),
+                  onPressed: () => controller.seekRelative(-10),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.forward_10_rounded, color: Colors.white, size: 22),
+                  onPressed: () => controller.seekRelative(10),
+                ),
+                const SizedBox(width: 12),
+              ],
 
               //: Controles de Audio
               const MultiLayerVolumeSlider(),
@@ -62,57 +71,60 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
               const SizedBox(width: 12),
 
               //: Control de Velocidad
-              Obx(() => Row(
-                children: [
-                  HoverCustomSlider(
-                    icon: Icons.speed,
-                    mainColor: AppColors.primaryAccent,
-                    sliderValue: controller.playbackSpeed.value,
-                    onChanged: controller.setSpeed,
-                    min: 0.1,
-                    max: 4.0,
-                    divisions: 39,
-                    expandedWidth: 200,
-                    label: '${controller.playbackSpeed.value.toStringAsFixed(1)}x',
-                    onIconTap: () => controller.setSpeed(1.0),
-                  ),
-                  Text(
-                    '${controller.playbackSpeed.value.toStringAsFixed(1)}x',
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ],
-              )),
-              const SizedBox(width: 40),
+              if(!isMiniPlayer) ...[
+                Obx(() => Row(
+                  children: [
+                    HoverCustomSlider(
+                      icon: Icons.speed,
+                      mainColor: AppColors.primaryAccent,
+                      sliderValue: controller.playbackSpeed.value,
+                      onChanged: controller.setSpeed,
+                      min: 0.1,
+                      max: 4.0,
+                      divisions: 39,
+                      expandedWidth: 200,
+                      label: '${controller.playbackSpeed.value.toStringAsFixed(1)}x',
+                      onIconTap: () => controller.setSpeed(1.0),
+                    ),
+                    Text(
+                      '${controller.playbackSpeed.value.toStringAsFixed(1)}x',
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ],
+                )),
+                const SizedBox(width: 40),
 
-              //: Presets de velocidad
-              Obx(() {
-                final currentSpeed = controller.playbackSpeed.value;
+                //: Presets de velocidad
+                Obx(() {
+                  final currentSpeed = controller.playbackSpeed.value;
 
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: _kSpeedPresets.map((speed) {
-                    final isSelected = (currentSpeed - speed).abs() < 0.05;
-                    final speedLabel = speed % 1 == 0 
-                        ? '${speed.toInt()}x' 
-                        : '${speed.toStringAsFixed(1)}x';
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _kSpeedPresets.map((speed) {
+                      final isSelected = (currentSpeed - speed).abs() < 0.05;
+                      final speedLabel = speed % 1 == 0 
+                          ? '${speed.toInt()}x' 
+                          : '${speed.toStringAsFixed(1)}x';
 
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 6.0),
-                      child: TextButtonWithColoredContainer(
-                        isSelected: isSelected,
-                        text: speedLabel,
-                        onTap: () {
-                          if (!isSelected) {
-                            controller.setSpeed(speed);
-                          } else {
-                            controller.setSpeed(1.0);
-                          }
-                        },
-                      ),
-                    );
-                  }).toList(),
-                );
-              }),
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 6.0),
+                        child: TextButtonWithColoredContainer(
+                          isSelected: isSelected,
+                          text: speedLabel,
+                          onTap: () {
+                            if (!isSelected) {
+                              controller.setSpeed(speed);
+                            } else {
+                              controller.setSpeed(1.0);
+                            }
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }),
+              ],
+
               const Spacer(),
 
               //: Subtítulos
@@ -128,18 +140,27 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
                 );
               }),
 
-              //: Ajustes
-              IconButton(
-                icon: const Icon(Icons.settings_rounded, color: Colors.white, size: 22),
-                tooltip: 'Ajustes',
-                onPressed: () => showSettingsMenu(context, controller),
-              ),
+              if (!isMiniPlayer) ...[
+                //: Ajustes
+                IconButton(
+                  icon: const Icon(Icons.settings_rounded, color: Colors.white, size: 22),
+                  tooltip: 'Ajustes',
+                  onPressed: () => showSettingsMenu(context, controller),
+                ),
 
-              //: Pantalla Completa
-              Obx(() => FullScreenButton(
-                isFullScreen: controller.isFullScreen.value,
-                toggleFullScreen: controller.toggleFullScreen,
-              )),
+                //: Pantalla Completa
+                FullScreenButton(
+                  isFullScreen: controller.isFullScreen.value,
+                  toggleFullScreen: controller.toggleFullScreen,
+                ),
+              ],
+              
+              //: Mini-reproductor
+              IconButton(
+                icon: const Icon(Icons.picture_in_picture_alt, color: Colors.white, size: 22),
+                tooltip: 'Mini-reproductor',
+                onPressed: controller.toggleMiniPlayer,
+              ),
             ],
           ),
         ],
