@@ -8,8 +8,13 @@ import 'package:kaleydo/app/shared/shared_widgets.index.dart';
 class PlayerHeaderControls extends GetView<MediaPlayerController> {
 
   final String videoTitle;
+  final bool isMiniPlayer;
   
-  const PlayerHeaderControls({super.key, required this.videoTitle});
+  const PlayerHeaderControls({
+    super.key, 
+    required this.videoTitle, 
+    this.isMiniPlayer = false
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +22,10 @@ class PlayerHeaderControls extends GetView<MediaPlayerController> {
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
+          
           // Botón de retroceso
           GoBackBtn(onPressed: controller.exitPlayer),
+          
           const SizedBox(width: 16), 
 
           Text(

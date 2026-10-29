@@ -129,7 +129,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
     final tab = controller.selectedCategory.value;
     final items = controller.mediaContent[tab] ?? [];
 
-    //: Juegos / Novelas Visuales -> Usa gameController
+    //: Juegos / Novelas Visuales
     if (tab == FranchiseMediaType.juegos || tab == FranchiseMediaType.novelasVisuales) {
 
         return GameWrapView(
@@ -151,7 +151,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       );
     }
 
-    //: Manga -> Usa mangaController
+    //: Manga
     if (tab == FranchiseMediaType.manga) {
       final paginatedChapters = controller.mangaController.getPaginatedChapters(
         chapters: controller.mangaChapters,
@@ -187,7 +187,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       );
     }
 
-    //: Manga H -> Usa mangaController
+    //: Manga H
     if (tab == FranchiseMediaType.mangah) {
       final paginatedChapters = controller.mangaController.getPaginatedChapters(
         chapters: controller.mangaHChapters,
@@ -213,7 +213,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       );
     }
 
-    //: Anime / Video -> Usa animeController
+    //: Anime / Video
     if (tab == FranchiseMediaType.anime) {
       final episodes = controller.filteredAnimeEpisodes;
       return VideoListView(
@@ -221,7 +221,8 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
         episodes: episodes,
         onEpisodeTap: (idx) {
           controller.openPlayerForEpisode(
-              controller.filteredAnimeEpisodes, idx);
+            controller.filteredAnimeEpisodes, idx
+          );
         },
       );
     }

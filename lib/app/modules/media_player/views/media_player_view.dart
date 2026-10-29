@@ -105,7 +105,8 @@ class _BrightnessOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: controller.togglePlayPause,
+      onTapDown: (details) => controller.togglePlayPause(),
+      onDoubleTap: (){},
       child: Obx(() {
         final darkness = (1.0 - controller.brightness.value).clamp(0.0, 1.0);
         if (darkness <= 0.0) return const SizedBox.expand();

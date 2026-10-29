@@ -22,23 +22,21 @@ mixin PlayerMiniPlayerMixin on GetxController {
 
       // Desactiva la maximización para anular el doble clic
       await windowManager.setMaximizable(false);
-      await windowManager.setResizable(false);
-      // Configurar modo Mini-Player
       await windowManager.setAlwaysOnTop(true);
-      // Quita los bordes de Windows
+
       await windowManager.setTitleBarStyle(TitleBarStyle.hidden); 
-      // Permite hacerlo pequeño
-      await windowManager.setMinimumSize(const Size(440, 260));
+      await windowManager.setAspectRatio(16 / 9);
+      await windowManager.setMinimumSize(const Size(320, 180));
       
       // Tamaño y posición inicial del mini-player (esquina inferior derecha)
-      const miniSize = Size(620, 350);
+      const miniSize = Size(400, 260);
       await windowManager.setSize(miniSize);
       await windowManager.setAlignment(Alignment.bottomRight);
     } else {
       // Restaurar modo normal
       await windowManager.setMaximizable(true);
-      await windowManager.setResizable(true);
       await windowManager.setAlwaysOnTop(false);
+      await windowManager.setAspectRatio(0);
       await windowManager.setTitleBarStyle(TitleBarStyle.normal);
       await windowManager.setSize(_previousWindowSize);
       await windowManager.setPosition(_previousWindowPosition);

@@ -143,7 +143,7 @@ void _showFolderStructureDialog(BuildContext context) {
                   border: Border.all(color: Colors.grey.shade800),
                 ),
                 child: const Text(
-                  '📁 _cursos/ (Carpeta Raíz)\n'
+                  '📁 cursos/ (Carpeta Raíz)\n'
                   ' ├── 📁 Categoría (Ej. Flutter)\n'
                   ' │    ├── 🖼️ cover.jpg (Opcional)\n'
                   ' │    └── 📁 Curso (Ej. Curso Dart)\n'

@@ -3,25 +3,28 @@
 import 'package:get/get.dart';
 import 'package:kaleydo/app/modules/courses/data/services/course_storage_service.dart';
 import 'package:kaleydo/app/modules/courses/data/services/courses_scanner_service.dart';
+import 'package:kaleydo/app/modules/settings/controllers/config_controller.dart';
 import '../../data/models/models.index.dart';
 import 'package:kaleydo/app/modules/courses/presentation/views/course_player_view/course_player_view.dart';
 
 class CoursesController extends GetxController {
 
   final CoursesScannerService scanner = CoursesScannerService();
-  //TODO Ajustar la ruta base según la ubicación de los cursos en tu sistema
-  final String coursesRootPath = 'H:\\_kaleydo\\cursos';
 
   final RxBool isLoading = true.obs;
   final RxList<CourseCategoryModel> categories = <CourseCategoryModel>[].obs;
   final Rx<CourseCategoryModel?> selectedCategory = Rx<CourseCategoryModel?>(null);
 
   late final CourseStorageService storage;
+  
+  final ConfigController _configController = Get.find<ConfigController>();
+  String coursesRootPath = '';
 
   @override
   void onInit() {
     super.onInit();
     storage = Get.find<CourseStorageService>();
+    coursesRootPath = "${_configController.rootPath}/cursos";
     _loadCoursesData();
   }
 
