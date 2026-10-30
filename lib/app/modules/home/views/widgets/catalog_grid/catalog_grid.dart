@@ -38,10 +38,11 @@ class CatalogGrid extends GetView<HomeController> {
       return Column(
         children: [
           Expanded(
-            child: LayoutBuilder(
+            child: LayoutBuilder( 
               builder: (context, constraints) {
-                const double minItemWidth = 160.0;
-                const double maxItemWidth = 160.0;
+                
+                const double minItemWidth = 165.0;
+                const double maxItemWidth = 165.0;
                 const double spacing = 18.0;
                 const double paddingHorizontal = 16.0;
 
@@ -85,8 +86,6 @@ class CatalogGrid extends GetView<HomeController> {
               },
             ),
           ),
-          if (isRandomMode)
-            LoadRandomElementsBtn(onPressed: controller.loadRandomItems),
         ],
       );
 

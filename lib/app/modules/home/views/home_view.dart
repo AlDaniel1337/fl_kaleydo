@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/modules/home/controllers/home_controller.dart';
+import 'package:kaleydo/app/modules/home/views/widgets/catalog_grid/components/load_random_elements_btn.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/paginator/paginador.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/widgets.index.dart';
 
@@ -15,11 +16,13 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return CallbackShortcuts(
-    bindings: <ShortcutActivator, VoidCallback>{
-      const SingleActivator(LogicalKeyboardKey.f5): () {
-        controller.scanLibrary();
+
+      bindings: <ShortcutActivator, VoidCallback>{
+        const SingleActivator(LogicalKeyboardKey.f5): () {
+          controller.scanLibrary();
+        },
       },
-    },
+      
       child: Focus(
         autofocus: true,
         child: Scaffold(
@@ -78,12 +81,14 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildPaginator() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Obx(() {
         final current = controller.currentPage.value;
         final total = controller.totalPages.value;
 
-        if ( controller.isRandomTabSelected ) return const SizedBox.shrink();
+        if ( controller.isRandomTabSelected ){
+          return LoadRandomElementsBtn(onPressed: controller.loadRandomItems);
+        }
 
         return CustomPaginador(
           currentPage: current, 
