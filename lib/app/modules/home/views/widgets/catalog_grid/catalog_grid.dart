@@ -6,7 +6,6 @@ import 'package:kaleydo/app/modules/franchise_detail/presentation/views/franchis
 import 'package:kaleydo/app/modules/home/controllers/home_controller.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/catalog_grid/components/content_type_badge.dart';
 import 'package:kaleydo/app/modules/home/views/widgets/catalog_grid/components/cover_image.dart';
-import 'package:kaleydo/app/modules/home/views/widgets/catalog_grid/components/load_random_elements_btn.dart';
 import 'package:kaleydo/app/shared/shared_widgets.index.dart';
 
 
@@ -43,8 +42,8 @@ class CatalogGrid extends GetView<HomeController> {
                 
                 const double minItemWidth = 165.0;
                 const double maxItemWidth = 165.0;
-                const double spacing = 18.0;
-                const double paddingHorizontal = 16.0;
+                const double spacing = 12.0;
+                const double paddingHorizontal = 20.0;
 
                 final availableWidth = constraints.maxWidth - (paddingHorizontal * 2);
 
@@ -75,7 +74,7 @@ class CatalogGrid extends GetView<HomeController> {
                         return SizedBox(
                           width: itemWidth,
                           child: AspectRatio(
-                            aspectRatio: 0.60,
+                            aspectRatio: 0.6,
                             child: MediaCard(item: item),
                           ),
                         );

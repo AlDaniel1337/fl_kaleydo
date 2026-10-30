@@ -39,24 +39,10 @@ class HomeView extends GetView<HomeController> {
                   children: [
                     
                     //: Header Superior
-                    const KaleydoHeader(),
-        
-                    //: Sub-header (Título Dinámico y Filtro por Nombre)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-
-                          //: Título dinámico de la categoría seleccionada
-                          Obx(() => DynamicCategoryTitle(
-                            title: controller.selectedCategoryTitle.value,
-                          )),
-      
-                        ],
-                      ),
-                    ),
-        
+                    Obx(() => KaleydoHeader(
+                      title: controller.selectedCategoryTitle.value,
+                    )),
+          
                     //: Grid de Contenido Principal
                     const Expanded(
                       child: Padding(

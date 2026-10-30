@@ -11,7 +11,10 @@ import 'package:kaleydo/app/modules/settings/controllers/config_controller.dart'
 
 /// Widget que representa el encabezado de la aplicación Kaleydo. Contiene el título, el selector de pestañas, la barra de búsqueda y los botones de acción.
 class KaleydoHeader extends GetView<HomeController> {
-  const KaleydoHeader({super.key});
+
+  final String title;
+
+  const KaleydoHeader({super.key, this.title = "Kaleydo"});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +27,9 @@ class KaleydoHeader extends GetView<HomeController> {
         children: [
 
           //: Título Logo
-          const HeaderTitle(),
+          HeaderTitle(
+            title: title,
+          ),
           const SizedBox(width: 40),
 
           //: Selector de Pestañas (Todo / Favoritos / Aleatorio)
@@ -93,7 +98,14 @@ class KaleydoHeader extends GetView<HomeController> {
     return TabButton(
       label: label, 
       isSelected: isSelected, 
-      onTap: () => controller.selectTab(tab)
+      onTap: () {
+        if (tab == ViewTab.random) {
+          controller.selectTab(tab);
+          controller.loadRandomItems();
+        } else {
+          controller.selectTab(tab);
+        }
+      }
     );
   }
 }
