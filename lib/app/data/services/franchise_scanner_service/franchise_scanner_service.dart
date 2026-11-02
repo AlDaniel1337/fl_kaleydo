@@ -68,6 +68,11 @@ class FranchiseScannerService {
         else if (ValidFolderNamesConstants.validAnimeFolders.contains(folderName)) {
           result[FranchiseMediaType.anime] = await scanAnime(entity);
         }
+        
+        //: Resumen
+        else if (ValidFolderNamesConstants.validResumenFolders.contains(folderName)) {
+          result[FranchiseMediaType.resumen] = await scanAnime(entity);
+        }
         //!+
 
       } else if (entity is File && p.basename(entity.path).toLowerCase() == 'resumen.md') {

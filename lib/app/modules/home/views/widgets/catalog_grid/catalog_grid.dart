@@ -8,8 +8,6 @@ import 'package:kaleydo/app/modules/home/views/widgets/catalog_grid/components/c
 import 'package:kaleydo/app/modules/home/views/widgets/catalog_grid/components/cover_image.dart';
 import 'package:kaleydo/app/shared/shared_widgets.index.dart';
 
-
-
 /// Widget que muestra un grid de elementos multimedia filtrados y paginados.
 class CatalogGrid extends GetView<HomeController> {
   const CatalogGrid({super.key});
@@ -20,7 +18,7 @@ class CatalogGrid extends GetView<HomeController> {
       
       // Indicador de escaneo en curso
       if (controller.isScanning.value) {
-        return LoadingWidget();
+        return const LoadingWidget();
       }
 
       // Mensaje cuando no hay elementos filtrados
@@ -37,51 +35,18 @@ class CatalogGrid extends GetView<HomeController> {
       return Column(
         children: [
           Expanded(
-            child: LayoutBuilder( 
-              builder: (context, constraints) {
-                
-                const double minItemWidth = 165.0;
-                const double maxItemWidth = 165.0;
-                const double spacing = 12.0;
-                const double paddingHorizontal = 20.0;
-
-                final availableWidth = constraints.maxWidth - (paddingHorizontal * 2);
-
-                int crossAxisCount = ((availableWidth + spacing) / (minItemWidth + spacing)).floor();
-                if (crossAxisCount < 1) crossAxisCount = 1;
-
-                double itemWidth = (availableWidth - (spacing * (crossAxisCount - 1))) / crossAxisCount;
-
-                if (itemWidth > maxItemWidth) {
-                  itemWidth = maxItemWidth;
-                }
-
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12, 
-                    horizontal: paddingHorizontal,
-                  ),
-                  // Align fuerza a que todo el contenido se pegue a la izquierda del scroll
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Wrap(
-                      spacing: spacing,
-                      runSpacing: spacing,
-                      alignment: WrapAlignment.start, // Alinea tarjetas a la izquierda de la fila
-                      runAlignment: WrapAlignment.start, // Alinea filas hacia arriba
-                      crossAxisAlignment: WrapCrossAlignment.start, // Alinea items en el eje vertical
-                      children: displayItems.map((item) {
-                        return SizedBox(
-                          width: itemWidth,
-                          child: AspectRatio(
-                            aspectRatio: 0.6,
-                            child: MediaCard(item: item),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                );
+            child: GridView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+              // El delegate ajusta automáticamente las columnas y el tamaño
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 180.0, // Ancho máximo que intentará tener cada tarjeta
+                mainAxisSpacing: 12.0,     // Espaciado vertical entre tarjetas
+                crossAxisSpacing: 12.0,    // Espaciado horizontal entre tarjetas
+                childAspectRatio: 0.63,    // Proporción ancho/alto (ajusta el alto dinámicamente)
+              ),
+              itemCount: displayItems.length,
+              itemBuilder: (context, index) {
+                return MediaCard(item: displayItems[index]);
               },
             ),
           ),
@@ -118,6 +83,7 @@ class MediaCard extends StatelessWidget {
           ),
           clipBehavior: Clip.antiAlias,
           child: Stack(
+            fit: StackFit.expand, // Asegura que el contenido llene toda la tarjeta
             children: [
               
               //: Imagen y texto de Portada dinámicamente cargada

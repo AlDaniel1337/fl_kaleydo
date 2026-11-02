@@ -227,9 +227,24 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       );
     }
 
+    //: Resumen 
+    if (tab == FranchiseMediaType.resumen) {
+      final episodes = controller.filteredAnimeEpisodes;
+      return VideoListView(
+        controller: controller.animeController.animeScrollController,
+        episodes: episodes,
+        onEpisodeTap: (idx) {
+          controller.openPlayerForEpisode(
+            controller.filteredAnimeEpisodes, idx
+          );
+        },
+      );
+    }
+
+    //: Desconocido / Default
     return const Center(
       child: Text(
-        'Vista de Resumen en Markdown',
+        'Contenido no disponible',
         style: TextStyle(color: AppColors.textSecondary),
       ),
     );
