@@ -75,6 +75,9 @@ class FranchiseDetailController extends GetxController {
   List<FranchiseItemModel> get bookItems =>
     mediaContent[FranchiseMediaType.libros] ?? [];
 
+  List<FranchiseItemModel> get resumenItems =>
+    mediaContent[FranchiseMediaType.resumen] ?? [];
+
 
   /// Comprueba si se deben mostrar las pestañas de temporadas de anime
   bool showAnimeSeasonTabs() {

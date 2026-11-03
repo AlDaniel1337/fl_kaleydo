@@ -229,13 +229,13 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
 
     //: Resumen 
     if (tab == FranchiseMediaType.resumen) {
-      final episodes = controller.filteredAnimeEpisodes;
+      final episodes = controller.resumenItems;
       return VideoListView(
         controller: controller.animeController.animeScrollController,
         episodes: episodes,
         onEpisodeTap: (idx) {
           controller.openPlayerForEpisode(
-            controller.filteredAnimeEpisodes, idx
+            controller.resumenItems, idx
           );
         },
       );

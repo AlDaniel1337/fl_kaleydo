@@ -66,7 +66,7 @@ class _VideoPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        //: 1. Capa de Video
+        //: 1. Capa de Video (Rep)
         Center(
           child: Video(controller: controller.videoController),
         ),

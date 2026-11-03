@@ -9,7 +9,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'mixins/player_audio_mixin.dart';
-import 'mixins/player_mini_player.dart';
+import 'mixins/mini_player.dart';
 import 'mixins/player_playlist_mixin.dart';
 import 'mixins/player_settings_mixin.dart';
 import 'mixins/player_subtitle_mixin.dart';
@@ -18,7 +18,7 @@ import 'mixins/player_ui_mixin.dart';
 /// Controlador principal del reproductor de medios que combina múltiples mixins
 /// para manejar audio, subtítulos, configuración, interfaz de usuario y lista de reproducción.
 class MediaPlayerController extends GetxController with 
-PlayerMiniPlayerMixin,
+MiniPlayerMixin,
 PlayerAudioMixin, 
 PlayerSubtitleMixin, 
 PlayerSettingsMixin, 

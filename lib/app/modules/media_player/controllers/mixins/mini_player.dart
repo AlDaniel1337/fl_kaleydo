@@ -3,11 +3,12 @@ import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// Mixin que proporciona funcionalidades para manejar el modo Mini-Player de la ventana del reproductor.
-mixin PlayerMiniPlayerMixin on GetxController {
+mixin MiniPlayerMixin on GetxController {
   
   final RxBool isMiniPlayer = false.obs;
   Size _previousWindowSize = const Size(1280, 720);
   Offset _previousWindowPosition = Offset.zero;
+  bool wasMaximized = true;
 
   /// Alterna el modo Mini-Player de la ventana del reproductor.
   /// - Si está activado, la ventana se encoge y se coloca en la esquina inferior derecha.
@@ -19,17 +20,18 @@ mixin PlayerMiniPlayerMixin on GetxController {
       // Guardar estado actual antes de encoger
       _previousWindowSize = await windowManager.getSize();
       _previousWindowPosition = await windowManager.getPosition();
+      wasMaximized = await windowManager.isMaximized();
 
-      // Desactiva la maximización para anular el doble clic
       await windowManager.setMaximizable(false);
       await windowManager.setAlwaysOnTop(true);
+      await windowManager.unmaximize();
 
       await windowManager.setTitleBarStyle(TitleBarStyle.hidden); 
       await windowManager.setAspectRatio(16 / 9);
       await windowManager.setMinimumSize(const Size(320, 180));
       
       // Tamaño y posición inicial del mini-player (esquina inferior derecha)
-      const miniSize = Size(400, 260);
+      const miniSize = Size(640, 360);
       await windowManager.setSize(miniSize);
       await windowManager.setAlignment(Alignment.bottomRight);
     } else {
@@ -38,8 +40,13 @@ mixin PlayerMiniPlayerMixin on GetxController {
       await windowManager.setAlwaysOnTop(false);
       await windowManager.setAspectRatio(0);
       await windowManager.setTitleBarStyle(TitleBarStyle.normal);
-      await windowManager.setSize(_previousWindowSize);
-      await windowManager.setPosition(_previousWindowPosition);
+
+      if (wasMaximized) {
+        await windowManager.maximize();
+      } else {
+        await windowManager.setSize(_previousWindowSize);
+        await windowManager.setPosition(_previousWindowPosition);
+      }
     }
   }
 
