@@ -30,6 +30,7 @@ PlayerPlaylistMixin {
   @override
   late final Player player;
   late final VideoController videoController;
+  final RxBool isPlayerReady = false.obs;
   final PlayerStorageService _storage = Get.find<PlayerStorageService>();
 
   @override
@@ -64,13 +65,7 @@ PlayerPlaylistMixin {
 
     _loadStoredPreferences();
 
-    player = Player();
-    videoController = VideoController(player);
-
-    _listenToStreams();
-    _startPlayer();
-
-    startHideControlsTimer();
+    _initPlayerAsync();
   }
 
   @override
@@ -101,6 +96,44 @@ PlayerPlaylistMixin {
   }
   //!+
 
+
+
+  //+ REPRODUCTOR DE VIDEO
+  /// Inicializa el reproductor de video de manera asíncrona.
+  Future<void> _initPlayerAsync() async {
+    player = Player();
+    
+    videoController = VideoController(player);
+
+    // Notifica a la UI que ya es seguro leer 'videoController'
+    isPlayerReady.value = true;
+
+    _listenToStreams();
+    _startPlayer();
+    startHideControlsTimer();
+  }
+
+
+  /// Configura las propiedades de sincronización de video en libmpv.
+  Future<void> setupVideoSync(Player player) async {
+    final native = player.platform as dynamic;
+
+    // Comprobar velocidad (fps) del video
+
+    // 1. Limitar el framerate directamente en el filtro de video (vf) a 60fps.
+    // (Puedes reemplazar el '60' por una variable posteriormente).
+    await native.setProperty('vf', 'fps=fps=60');
+
+    // 2. Decodificación por hardware habilitada por defecto
+    await native.setProperty('hwdec', 'auto');
+    
+    // 3. Sincronizar con el reloj de audio (más estable en texturas de Flutter)
+    await native.setProperty('video-sync', 'audio');
+    
+    // 4. Permitir que libmpv descarte cuadros si el renderizador se satura
+    await native.setProperty('framedrop', 'vo');
+  }
+  //!+
 
 
   //+ NAVEGACIÓN Y REPRODUCCIÓN

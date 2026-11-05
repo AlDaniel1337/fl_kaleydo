@@ -9,11 +9,13 @@ class PlayerHeaderControls extends GetView<MediaPlayerController> {
 
   final String videoTitle;
   final bool isMiniPlayer;
+  final Widget? trailing;
   
   const PlayerHeaderControls({
     super.key, 
     required this.videoTitle, 
-    this.isMiniPlayer = false
+    this.isMiniPlayer = false,
+    this.trailing,
   });
 
   @override
@@ -22,7 +24,6 @@ class PlayerHeaderControls extends GetView<MediaPlayerController> {
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
-          
           // Botón de retroceso
           GoBackBtn(onPressed: controller.exitPlayer),
           
@@ -32,6 +33,12 @@ class PlayerHeaderControls extends GetView<MediaPlayerController> {
             videoTitle,
             style: Theme.of(context).textTheme.bodyMedium,
           ),    
+
+          if (trailing != null) ...[
+            Spacer(),
+            trailing!,
+            const SizedBox(width: 16),
+          ],
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kaleydo/app/shared/widgets/fps_monitor_overlay/fps_monitor_overlay.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
 import 'package:kaleydo/app/modules/media_player/controllers/media_player_controller.dart';
@@ -29,6 +30,10 @@ class MediaPlayerView extends GetView<MediaPlayerController> {
                 onHover: (_) => controller.onMouseMove(),
                 onExit: (event) => controller.onMouseExit(),
                 child: Obx(() {
+
+                  if (!controller.isPlayerReady.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
                   if (controller.isMiniPlayer.value) {
                     return DragToMoveArea(
@@ -162,6 +167,9 @@ class _VideoPlayerControls extends StatelessWidget {
                 
                 PlayerHeaderControls(
                   videoTitle: controller.currentEpisodeTitle.value,
+                  trailing: FpsMonitorOverlay(
+                    player: controller.player,
+                  ),
                 ),
 
                 // Área central vacía que retransmite el tap para Play/Pause
