@@ -28,7 +28,6 @@ class EpisodeNavigationBanner extends StatelessWidget {
     return Positioned(
       left: isNext ? null : 0,
       right: isNext ? 0 : null,
-      top: 60,
       bottom: 100,
       child: MouseRegion(
         hitTestBehavior: HitTestBehavior.translucent,

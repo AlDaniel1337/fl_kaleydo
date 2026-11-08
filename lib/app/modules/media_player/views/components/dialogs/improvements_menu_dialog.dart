@@ -9,7 +9,7 @@ import 'player_dialog_helper.dart';
 /// Muestra un menú emergente con las opciones de mejoras disponibles para el reproductor de medios.
 void showImprovementsMenu(BuildContext context, MediaPlayerController controller) {
 
-  final position = PlayerDialogHelper.getButtonPosition(context, verticalOffset: 200);
+  final position = PlayerDialogHelper.getButtonPosition(context, verticalOffset: 250);
 
   showMenu(
     context: context,
@@ -29,6 +29,20 @@ void showImprovementsMenu(BuildContext context, MediaPlayerController controller
       ),
 
 
+      //: Modo inmersivo
+      PopupMenuItem(
+        enabled: false,
+        child: SettingsTile(
+          icon: Icons.yard,
+          title: 'Modo inmersivo',
+          trailing: Obx(() => _buildStatusChip(
+            value: controller.isImmerseModeEnabled.value,
+            onTap: () => controller.toggleImmerseMode(),
+          )),
+          showArrow: false,
+        ),
+      ),
+      
       //: Boost de Volumen
       PopupMenuItem(
         enabled: false,
@@ -82,7 +96,7 @@ void showImprovementsMenu(BuildContext context, MediaPlayerController controller
           title: 'Auto play',
           trailing: Obx(() => _buildStatusChip(
             value: controller.autoPlayEnabled.value,
-            onTap: () => controller.setAutoPlay,
+            onTap: () => controller.setAutoPlay(!controller.autoPlayEnabled.value),
           )),
           showArrow: false,
         ),

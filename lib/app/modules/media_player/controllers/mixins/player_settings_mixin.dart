@@ -14,6 +14,7 @@ mixin PlayerSettingsMixin on GetxController {
   final RxDouble playbackSpeed = 1.0.obs;
   final RxDouble brightness = 1.0.obs;
   final RxBool autoPlayEnabled = true.obs;
+  final RxBool isImmerseModeEnabled = false.obs;
 
   // Estados de configuración avanzada MPV
   final RxBool isFastSeekingEnabled = true.obs;
@@ -23,7 +24,7 @@ mixin PlayerSettingsMixin on GetxController {
 
 
 
-  //+ Velocidad de reproducción
+  //+ Velocidad
   /// Establece la velocidad de reproducción del video.
   void setSpeed(double speed) {
     playbackSpeed.value = speed;
@@ -35,7 +36,7 @@ mixin PlayerSettingsMixin on GetxController {
 
 
 
-  //+ Brillo del reproductor
+  //+ Brillo
   /// Establece el brillo del reproductor.
   void setBrightness(double val) {
     brightness.value = val.clamp(0.2, 1.0);
@@ -51,12 +52,18 @@ mixin PlayerSettingsMixin on GetxController {
 
 
 
-  //+ Reproducción automática
+  //+ Reproducción
   /// Establece si la reproducción automática está habilitada.
   void setAutoPlay(bool enabled) {
     autoPlayEnabled.value = enabled;
     saveAllSettings();
     showOSD('Reproducción automática: ${enabled ? 'Activada' : 'Desactivada'}');
+  }
+
+  void toggleImmerseMode() {
+    isImmerseModeEnabled.value = !isImmerseModeEnabled.value;
+    saveAllSettings();
+    showOSD('Modo inmersivo: ${isImmerseModeEnabled.value ? 'Activado' : 'Desactivado'}');
   }
   //!+
 

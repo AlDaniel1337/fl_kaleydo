@@ -71,55 +71,27 @@ class _VideoPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        //: 1. Capa de Video (Rep)
+        //: Capa de Video (Rep)
         Center(
           child: Video(controller: controller.videoController),
         ),
-    
-        //: 2. Capa Interactiva Base (Play/Pause + Overlay de Brillo)
-        _BrightnessOverlay(controller: controller),
-    
-        //: 3. OSD Overlay
+
+        //: OSD Overlay
         const PlayerOsd(),
-    
-        //: 4. Controles principales (HUD Header & Footer)
+            
+        //: Controles principales (HUD Header & Footer)
         _VideoPlayerControls(
           controller: controller,
           isMiniPlayer: isMiniPlayer,
         ),
     
-        //: 5. Banners de Navegación de Episodios
+        //: Banners de Navegación de Episodios
         if(!isMiniPlayer) ...[
           _EpisodeBanner(controller: controller, isNext: false),
           _EpisodeBanner(controller: controller, isNext: true),
         ],
 
       ],
-    );
-  }
-}
-
-
-/// Capa interactiva que maneja el tap global para Play/Pause y aplica el filtro de brillo.
-class _BrightnessOverlay extends StatelessWidget {
-  const _BrightnessOverlay({required this.controller});
-
-  final MediaPlayerController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (details) => controller.togglePlayPause(),
-      onDoubleTap: (){},
-      child: Obx(() {
-        final darkness = (1.0 - controller.brightness.value).clamp(0.0, 1.0);
-        if (darkness <= 0.0) return const SizedBox.expand();
-
-        return Container(
-          color: Colors.black.withValues(alpha: darkness),
-        );
-      }),
     );
   }
 }
@@ -139,16 +111,27 @@ class _VideoPlayerControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final areVisible = controller.isControlsVisible.value;
 
-      return IgnorePointer(
-        ignoring: !areVisible,
+    return Obx(() {
+
+      // Determina si los controles deben ser visibles y los valores de opacidad correspondientes.
+      final areTheControlsVisible = controller.isImmerseModeEnabled.value
+        ? controller.isPlaying.value
+        : controller.isControlsVisible.value;
+      final values = [[1.0, 0.0], [0.0, 1.0]];
+      final opacityValues = !controller.isImmerseModeEnabled.value ? values[0] : values[1];
+      
+      return MouseRegion(
+        cursor: controller.isImmerseModeEnabled.value
+        ? !areTheControlsVisible 
+          ? SystemMouseCursors.basic 
+          : SystemMouseCursors.none
+        : SystemMouseCursors.basic,
         child: AnimatedOpacity(
-          opacity: areVisible ? 1.0 : 0.0,
+          opacity: areTheControlsVisible ? opacityValues[0] : opacityValues[1],
           duration: const Duration(milliseconds: 200),
           child: Container(
-
+        
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -160,7 +143,7 @@ class _VideoPlayerControls extends StatelessWidget {
                 ],
               ),
             ),
-
+        
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -171,16 +154,48 @@ class _VideoPlayerControls extends StatelessWidget {
                     player: controller.player,
                   ),
                 ),
-
+        
                 // Área central vacía que retransmite el tap para Play/Pause
                 Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: controller.togglePlayPause,
-                    child: const SizedBox.expand(),
+                  child: Row(
+                    children: [
+                      
+                      // Espacio para retroceder 10 segundos
+                      FastForwardOrRewindSpace(
+                        isOnRight: false,
+                        onTap: () => controller.seekRelative(-10),
+                        shouldShowCursor: !controller.isImmerseModeEnabled.value,
+                      ),
+        
+                      // Área central que captura el tap para Play/Pause
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: controller.togglePlayPause,
+                          onVerticalDragUpdate: controller.isImmerseModeEnabled.value
+                            ? (details) {
+                              if (details.delta.dy > 0) {
+                                controller.setVolume(controller.volume.value - 1);
+                              } else if (details.delta.dy < 0) {
+                                controller.setVolume(controller.volume.value + 1);
+                              }
+                            }
+                            : null,
+                          child: const SizedBox.expand(),
+                        ),
+                      ),
+        
+                      // Espacio para avanzar 10 segundos
+                      FastForwardOrRewindSpace(
+                        isOnRight: true,
+                        onTap: () => controller.seekRelative(10),
+                        shouldShowCursor: !controller.isImmerseModeEnabled.value
+                      ),
+        
+                    ],
                   ),
                 ),
-
+        
                 PlayerFooterControls(isMiniPlayer: isMiniPlayer),
               ],
             ),
@@ -213,8 +228,8 @@ class _EpisodeBanner extends StatelessWidget {
       final hasTarget = targetIndex >= 0 && targetIndex < playlist.length;
 
       final isBannerVisible = isNext
-          ? controller.showNextEpisodeBanner.value
-          : controller.showPreviousEpisodeBanner.value;
+        ? controller.showNextEpisodeBanner.value
+        : controller.showPreviousEpisodeBanner.value;
 
       final isVisible = isBannerVisible && hasTarget;
       final targetEpisode = hasTarget ? playlist[targetIndex] : null;

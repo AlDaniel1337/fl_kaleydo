@@ -30,6 +30,8 @@ class PlayerStorageService extends GetxService {
 
 
   //+ CONFIGURACIONES Y GETTERS
+
+  //: Guardar configuraciones del reproductor
   /// Guardar todas las configuraciones del reproductor juntas en formato JSON.
   void saveSettings({
     required double speed,
@@ -37,6 +39,7 @@ class PlayerStorageService extends GetxService {
     required bool subtitles,
     required bool fastSeeking,
     required double brightness,
+    required bool immerseMode,
     String? audioTrackId,
     bool? autoPlay,
   }) {
@@ -49,21 +52,28 @@ class PlayerStorageService extends GetxService {
       'audioTrackId': audioTrackId ?? '',
       'autoResume': autoResumeEnabled,
       'autoPlay': autoPlay ?? true,
+      'immerseMode': immerseMode,
     };
     _box.write(_kSettings, settings);
   }
 
-  /// Habilita o deshabilita la reanudación automática del reproductor.
+  //: Almacenamiento de configuraciones individuales
+  /// Establece el estado de la reanudación automática del reproductor.
   void setAutoResume(bool enabled) {
     _saveSettingValue('autoResume', enabled);
   }
 
-  /// Habilita o deshabilita la reproducción automática del reproductor.
+  /// Establece el estado de la reproducción automática del reproductor.
   void setAutoPlay(bool enabled) {
     _saveSettingValue('autoPlay', enabled);
   }
+  
+  /// Establece el estado del modo inmersivo del reproductor.
+  void setImmerseMode(bool enabled) {
+    _saveSettingValue('immerseMode', enabled);
+  }
 
-  // Getters con parseo numérico seguro
+  //: Getters
   double get speed           => _asDouble(_getSettingsMap()['speed'], defaultValue: 1.0);
   double get volume          => _asDouble(_getSettingsMap()['volume'], defaultValue: 100.0);
   bool get subtitlesEnabled  => _getSettingsMap()['subtitles'] as bool? ?? false;
@@ -72,9 +82,14 @@ class PlayerStorageService extends GetxService {
   double get brightness      => _asDouble(_getSettingsMap()['brightness'], defaultValue: 1.0);
   bool get autoResumeEnabled => _getSettingsMap()['autoResume'] as bool? ?? true;
   bool get autoPlayEnabled   => _getSettingsMap()['autoPlay'] as bool? ?? true;
+  bool get immerseModeEnabled => _getSettingsMap()['immerseMode'] as bool? ?? false;
   //!+
 
+
+
   //+ GESTIÓN DE POSICIONES E HISTORIAL
+
+  //: Gestión de posiciones
   /// Guarda la última posición y actualiza el historial reciente por medio, franquicia y episodio.
   void savePosition({
     required String mediaType,     // Ej: '_anime', 'anime', 'video'
@@ -120,6 +135,8 @@ class PlayerStorageService extends GetxService {
     _box.write(_kRecentMedia, history);
   }
 
+
+  //: Posición guardada de un video
   /// Obtiene la posición guardada de un video (0 por defecto).
   int getPosition(String videoPath) {
     final rawPositions = _box.read<Map<String, dynamic>>(_kPositions) ?? {};
@@ -127,6 +144,8 @@ class PlayerStorageService extends GetxService {
     return (rawVal as num?)?.toInt() ?? 0;
   }
 
+
+  //: Historial reciente de medios por tipo de medio
   /// Obtiene los medios recientes de video filtrados por tipo de medio (ej: '_anime').
   List<Map<String, dynamic>> getRecentMediaByType(String mediaType) {
     final rawHistory = _box.read<List<dynamic>>(_kRecentMedia) ?? [];
@@ -137,6 +156,7 @@ class PlayerStorageService extends GetxService {
         .toList();
   }
 
+  //: Último video reproducido de una franquicia
   /// Obtiene el último video/episodio reproducido de una franquicia específica.
   Map<String, dynamic>? getLatestVideoForFranchise(String franchisePath) {
     final rawHistory = _box.read<List<dynamic>>(_kRecentMedia) ?? [];
@@ -156,6 +176,7 @@ class PlayerStorageService extends GetxService {
 
 
   //+ MÉTODOS AUXILIARES
+
   /// Obtiene el mapa completo de configuraciones o uno vacío por defecto.
   Map<String, dynamic> _getSettingsMap() {
     final raw = _box.read<Map<String, dynamic>>(_kSettings);

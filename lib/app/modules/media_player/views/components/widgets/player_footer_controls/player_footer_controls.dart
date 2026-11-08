@@ -137,6 +137,21 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
                   onTap: controller.toggleSubtitles,
                   onLongPress: () => showSubtitlesMenu(context, controller),
                   icon: Icons.subtitles_rounded,
+                  tooltip: 'Subtítulos',
+                );
+              }),
+
+              //: Modo inmersivo
+              Obx(() {
+                final isImmerseMode = controller.isImmerseModeEnabled.value;
+                return QuickAndLongPressIconButton(
+                  activeColor: AppColors.primaryAccent,
+                  longPressDuration: const Duration(milliseconds: 200),
+                  isActive: isImmerseMode,
+                  onTap: controller.toggleImmerseMode,
+                  onLongPress: controller.toggleImmerseMode,
+                  icon: Icons.yard,
+                  tooltip: 'Modo inmersivo',
                 );
               }),
 

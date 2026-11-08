@@ -19,6 +19,7 @@ class FullScreenButton extends StatelessWidget {
           : Icons.fullscreen_rounded,
         color: Colors.white,
       ),
+      tooltip: 'Pantalla Completa',
       onPressed: toggleFullScreen,
     );
   }

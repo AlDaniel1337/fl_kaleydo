@@ -19,7 +19,7 @@ mixin PlayerPlaylistMixin on GetxController {
   // Estados reactivos de la Playlist
   List<FranchiseItemModel> playlist = [];
   int currentIndex = 0;
-  final RxBool showNextEpisodeBanner = false.obs;
+  final RxBool showNextEpisodeBanner     = false.obs;
   final RxBool showPreviousEpisodeBanner = false.obs;
   final RxInt autoPlayCountdown = 10.obs;
   Timer? autoPlayTimer;

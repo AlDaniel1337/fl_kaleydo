@@ -244,6 +244,7 @@ PlayerPlaylistMixin {
       brightness: brightness.value,
       audioTrackId: savedAudioTrackId,
       autoPlay: autoPlayEnabled.value,
+      immerseMode: isImmerseModeEnabled.value,
     );
   }
 
@@ -257,6 +258,7 @@ PlayerPlaylistMixin {
     brightness.value = _storage.brightness;
     savedAudioTrackId = _storage.audioTrackId;
     autoPlayEnabled.value = _storage.autoPlayEnabled;
+    isImmerseModeEnabled.value = _storage.immerseModeEnabled;
   }
 
 
