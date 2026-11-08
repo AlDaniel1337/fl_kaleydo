@@ -23,7 +23,14 @@ mixin PlayerUIMixin on GetxController {
   /// Alterna el estado de pantalla completa del reproductor.
   Future<void> toggleFullScreen() async {
     isFullScreen.value = !isFullScreen.value;
-    await windowManager.setFullScreen(isFullScreen.value);
+
+    if (isFullScreen.value) {
+      await windowManager.unmaximize();    
+      await windowManager.setFullScreen(isFullScreen.value);
+    } else {
+      await windowManager.setFullScreen(isFullScreen.value);
+      await windowManager.maximize();
+    }
   }
 
   /// Muestra los controles del reproductor cuando se detecta movimiento del ratón.
