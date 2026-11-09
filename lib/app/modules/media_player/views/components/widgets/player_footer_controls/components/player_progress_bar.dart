@@ -5,14 +5,23 @@ import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/modules/media_player/controllers/media_player_controller.dart';
 
 class PlayerProgressBar extends GetView<MediaPlayerController> {
-  const PlayerProgressBar({super.key});
+
+  final double barSize;
+
+  const PlayerProgressBar({
+    super.key, 
+    this.barSize = 4.0
+  });
 
   @override
   Widget build(BuildContext context) {
+
     // Control de arrastre y temporizador para debounce
     final RxBool isDragging = false.obs;
     final RxDouble dragValue = 0.0.obs;
     Timer? debounceTimer;
+
+    final barSize = this.barSize;
 
     return Obx(() {
       final double maxDuration = controller.getMediaMaxDuration;
@@ -26,8 +35,8 @@ class PlayerProgressBar extends GetView<MediaPlayerController> {
 
       return SliderTheme(
         data: SliderThemeData(
-          trackHeight: 2,
-          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+          trackHeight: barSize,
+          thumbShape:  RoundSliderThumbShape(enabledThumbRadius: barSize + 4),
           activeTrackColor: AppColors.primaryAccent,
           inactiveTrackColor: Colors.white24,
           thumbColor: AppColors.primaryAccent,

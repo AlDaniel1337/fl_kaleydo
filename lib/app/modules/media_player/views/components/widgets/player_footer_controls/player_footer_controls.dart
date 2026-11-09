@@ -16,10 +16,12 @@ const List<double> _kSpeedPresets = [1.3, 1.5, 1.7, 2.0];
 class PlayerFooterControls extends GetView<MediaPlayerController> {
   
   final bool isMiniPlayer;
+  final bool isImmersiveMode;
 
   const PlayerFooterControls({
     super.key, 
-    this.isMiniPlayer = false
+    this.isMiniPlayer = false,
+    this.isImmersiveMode = false
   });
 
   @override
@@ -31,7 +33,9 @@ class PlayerFooterControls extends GetView<MediaPlayerController> {
         children: [
 
           //: Barra de progreso del reproductor
-          const PlayerProgressBar(),
+          PlayerProgressBar(
+            barSize: isImmersiveMode ? 14.0 : 4.0,
+          ),
           const SizedBox(height: 16),
 
           Row(

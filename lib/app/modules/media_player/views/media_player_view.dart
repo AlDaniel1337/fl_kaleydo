@@ -199,7 +199,10 @@ class _VideoPlayerControls extends StatelessWidget {
                 ),
 
                 //: Footer
-                PlayerFooterControls(isMiniPlayer: isMiniPlayer),
+                PlayerFooterControls(
+                  isMiniPlayer: isMiniPlayer,
+                  isImmersiveMode: isImmersive,
+                ),
               ],
             ),
           ),

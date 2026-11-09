@@ -12,7 +12,7 @@ class FastForwardOrRewindSpace extends StatefulWidget {
     super.key,
     required this.isOnRight,
     required this.onTap,
-    this.heightFactor = 0.6,
+    this.heightFactor = 0.75,
     this.showIcon = true,
     this.shouldShowCursor = false,
   });
@@ -29,7 +29,7 @@ class _FastForwardOrRewindSpaceState extends State<FastForwardOrRewindSpace> {
   @override
   Widget build(BuildContext context) {
 
-    double width = MediaQuery.of(context).size.width * 0.2;
+    double width = MediaQuery.of(context).size.width * 0.12;
 
     return SizedBox(
       width: width,
