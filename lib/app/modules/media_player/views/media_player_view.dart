@@ -10,6 +10,8 @@ import './components/components.index.dart';
 
 import 'package:window_manager/window_manager.dart';
 
+import 'components/widgets/player_footer_controls/components/media_duration_badge.dart';
+
 class MediaPlayerView extends GetView<MediaPlayerController> {
   static const String route = "/media-player";
 
@@ -76,6 +78,16 @@ class _VideoPlayer extends StatelessWidget {
           child: Video(controller: controller.videoController),
         ),
 
+        //: Duración del video
+        Positioned(
+          top: 16,
+          right: 16,
+          child: MediaDurationBadge(
+            shouldHide: true,
+            whiteOpacity: 0.4
+          ),
+        ),
+
         //: OSD Overlay
         const PlayerOsd(),
             
@@ -100,10 +112,9 @@ class _VideoPlayer extends StatelessWidget {
 
 /// Controles principales del reproductor de medios (Header y Footer con gradiente).
 class _VideoPlayerControls extends StatelessWidget {
-
   const _VideoPlayerControls({
-    required this.controller, 
-    this.isMiniPlayer = false
+    required this.controller,
+    this.isMiniPlayer = false,
   });
 
   final MediaPlayerController controller;
@@ -111,27 +122,26 @@ class _VideoPlayerControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Obx(() {
 
-      // Determina si los controles deben ser visibles y los valores de opacidad correspondientes.
-      final areTheControlsVisible = controller.isImmerseModeEnabled.value
-        ? controller.isPlaying.value
-        : controller.isControlsVisible.value;
-      final values = [[1.0, 0.0], [0.0, 1.0]];
-      final opacityValues = !controller.isImmerseModeEnabled.value ? values[0] : values[1];
+      final bool isImmersive = controller.isImmerseModeEnabled.value;
+      final bool isPlaying = controller.isPlaying.value;
+      final bool isControlsVisible = controller.isControlsVisible.value;
       
+      final bool areControlsVisible = isImmersive
+          ? (isControlsVisible && !isPlaying)
+          : isControlsVisible;
+
+      final mouseCursor = (isImmersive && !areControlsVisible)
+          ? SystemMouseCursors.none
+          : SystemMouseCursors.basic;
+
       return MouseRegion(
-        cursor: controller.isImmerseModeEnabled.value
-        ? !areTheControlsVisible 
-          ? SystemMouseCursors.basic 
-          : SystemMouseCursors.none
-        : SystemMouseCursors.basic,
+        cursor: mouseCursor,
         child: AnimatedOpacity(
-          opacity: areTheControlsVisible ? opacityValues[0] : opacityValues[1],
+          opacity: areControlsVisible ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 200),
           child: Container(
-        
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -143,59 +153,52 @@ class _VideoPlayerControls extends StatelessWidget {
                 ],
               ),
             ),
-        
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                
+
+                //: Header
                 PlayerHeaderControls(
                   videoTitle: controller.currentEpisodeTitle.value,
                   trailing: FpsMonitorOverlay(
                     player: controller.player,
                   ),
                 ),
-        
+                
                 // Área central vacía que retransmite el tap para Play/Pause
                 Expanded(
                   child: Row(
                     children: [
-                      
                       // Espacio para retroceder 10 segundos
                       FastForwardOrRewindSpace(
                         isOnRight: false,
                         onTap: () => controller.seekRelative(-10),
-                        shouldShowCursor: !controller.isImmerseModeEnabled.value,
+                        shouldShowCursor: areControlsVisible,
                       ),
-        
+
                       // Área central que captura el tap para Play/Pause
                       Expanded(
                         child: GestureDetector(
                           behavior: HitTestBehavior.translucent,
                           onTap: controller.togglePlayPause,
-                          onVerticalDragUpdate: controller.isImmerseModeEnabled.value
-                            ? (details) {
-                              if (details.delta.dy > 0) {
-                                controller.setVolume(controller.volume.value - 1);
-                              } else if (details.delta.dy < 0) {
-                                controller.setVolume(controller.volume.value + 1);
-                              }
-                            }
-                            : null,
+                          onVerticalDragUpdate: isImmersive
+                              ? (details) => _handleVolumeChange(details.delta.dy)
+                              : null,
                           child: const SizedBox.expand(),
                         ),
                       ),
-        
+
                       // Espacio para avanzar 10 segundos
                       FastForwardOrRewindSpace(
                         isOnRight: true,
                         onTap: () => controller.seekRelative(10),
-                        shouldShowCursor: !controller.isImmerseModeEnabled.value
+                        shouldShowCursor: areControlsVisible,
                       ),
-        
                     ],
                   ),
                 ),
-        
+
+                //: Footer
                 PlayerFooterControls(isMiniPlayer: isMiniPlayer),
               ],
             ),
@@ -203,6 +206,15 @@ class _VideoPlayerControls extends StatelessWidget {
         ),
       );
     });
+  }
+
+  /// Ajusta el volumen en función de la dirección del arrastre vertical.
+  void _handleVolumeChange(double deltaY) {
+    if (deltaY > 0) {
+      controller.setVolume(controller.volume.value - 1);
+    } else if (deltaY < 0) {
+      controller.setVolume(controller.volume.value + 1);
+    }
   }
 }
 

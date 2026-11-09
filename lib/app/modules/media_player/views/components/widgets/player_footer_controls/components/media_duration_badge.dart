@@ -5,25 +5,43 @@ import 'package:kaleydo/app/modules/media_player/utils/duration_formatter.dart';
 
 /// Muestra la duración actual y total del medio en reproducción.
 class MediaDurationBadge extends GetView<MediaPlayerController> {
-  const MediaDurationBadge({super.key});
+
+  final bool shouldHide;
+  final double whiteOpacity;
+
+  const MediaDurationBadge({
+    super.key, 
+    this.shouldHide = false,
+    this.whiteOpacity = 0.12
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Obx(() {
-        final current = DurationFormatter.format(controller.position.value);
-        final total = DurationFormatter.format(controller.duration.value);
+
+    return Obx(() {
+      
+      final isPlaying = controller.isPlaying.value;
+      final isImmerseMode = controller.isImmerseModeEnabled.value;
+
+      if (shouldHide && (!isImmerseMode || !isPlaying )) {
+        return const SizedBox.shrink();
+      }
+
+      final current = DurationFormatter.format(controller.position.value);
+      final total = DurationFormatter.format(controller.duration.value);
         
-        return Text(
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color:Colors.black.withValues(alpha: whiteOpacity),
+          borderRadius: BorderRadius.circular(12),
+        ),
+
+        child: Text(
           '$current / $total',
           style: const TextStyle(color: Colors.white, fontSize: 12),
-        );
-      }),
-    );
+        ),
+      );
+    });
   }
 }
