@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:process_run/process_run.dart';
 import '../../domain/entities/folder_option.dart';
 import '../../domain/usecases/create_folder_structure_usecase.dart';
 
@@ -18,13 +17,18 @@ class CreateFolderDialog extends StatefulWidget {
 }
 
 class _CreateFolderDialogState extends State<CreateFolderDialog> {
+
   final TextEditingController _folderNameController = TextEditingController();
   final TextEditingController _folderDetailsController = TextEditingController();
   final TextEditingController _folderTagsController = TextEditingController();
 
-  final List<FolderOption> _subfolderOptions = FolderNames.values.map((e) => FolderOption(name: e.name, isSelected: e.isSelected)).toList();
+  final List<FolderOption> _subfolderOptions = FolderNames.values.map(
+    (e) => FolderOption(name: e.name, isSelected: e.isSelected)
+  ).toList();
 
-  final List<FolderOption> _extraFolderOptions = ExtraFolderNames.values.map((e) => FolderOption(name: e.name, isSelected: e.isSelected)).toList();
+  final List<FolderOption> _extraFolderOptions = ExtraFolderNames.values.map(
+    (e) => FolderOption(name: e.name, isSelected: e.isSelected)
+  ).toList();
 
   bool _isCreating = false;
 
@@ -36,76 +40,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
     super.dispose();
   }
 
-  void _onSubfolderChanged(FolderOption option, bool value) {
-    setState(() {
-      option.isSelected = value;
 
-      // Sincroniza la casilla 'Imagenes' de _extraFolderOptions si cambia 'Juego'
-      if (option.name == FolderNames.juego.name) {
-        final index = _extraFolderOptions.indexWhere(
-          (opt) => opt.name == ExtraFolderNames.imagenes.name
-        );
-
-        if (index != -1) {
-          _extraFolderOptions[index].isSelected = value;
-        }
-      }
-      
-      if (option.name == FolderNames.novelaVisual.name) {
-        final index = _extraFolderOptions.indexWhere(
-          (opt) => opt.name == ExtraFolderNames.cgs.name
-        );
-
-        if (index != -1) {
-          _extraFolderOptions[index].isSelected = value;
-        }
-      }
-    });
-  }
-
-  void _onExtraFolderChanged(FolderOption option, bool value) {
-    setState(() {
-      option.isSelected = value;
-    });
-  }
-
-  Future<void> _createStructure() async {
-
-    // Revisa que se haya seleccionado al menos una subcarpeta
-    if (_subfolderOptions.every((opt) => !opt.isSelected)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Debes seleccionar al menos una subcarpeta')),
-        );
-      }
-      return;
-    }
-
-    setState(() => _isCreating = true);
-
-    try {
-      final selectedNames = _subfolderOptions.where((opt) => opt.isSelected).toList();
-
-      await widget.createFolderUseCase(
-        parentPath: widget.parentDirectoryPath,
-        rootName: _folderNameController.text,
-        subfolderNames: selectedNames,
-        folderDetails: _folderDetailsController.text,
-        folderTags: _folderTagsController.text,
-        extraFolderOptions: _extraFolderOptions,
-      );
-
-      if (mounted) Navigator.of(context).pop(true);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isCreating = false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -199,16 +134,94 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
         ElevatedButton(
           onPressed: _isCreating ? null : _createStructure,
           child: _isCreating
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Crear carpeta(s)'),
+            ? const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Text('Crear carpeta(s)'),
         ),
       ],
     );
   }
+
+
+
+  // ==========================================
+  //: Funciones
+  // ==========================================
+
+  void _onSubfolderChanged(FolderOption option, bool value) {
+    setState(() {
+      option.isSelected = value;
+
+      // Sincroniza la casilla 'Imagenes' de _extraFolderOptions si cambia 'Juego'
+      if (option.name == FolderNames.juego.name) {
+        final index = _extraFolderOptions.indexWhere(
+          (opt) => opt.name == ExtraFolderNames.imagenes.name
+        );
+
+        if (index != -1) {
+          _extraFolderOptions[index].isSelected = value;
+        }
+      }
+      
+      if (option.name == FolderNames.novelaVisual.name) {
+        final index = _extraFolderOptions.indexWhere(
+          (opt) => opt.name == ExtraFolderNames.cgs.name
+        );
+
+        if (index != -1) {
+          _extraFolderOptions[index].isSelected = value;
+        }
+      }
+    });
+  }
+
+  void _onExtraFolderChanged(FolderOption option, bool value) {
+    setState(() {
+      option.isSelected = value;
+    });
+  }
+
+  Future<void> _createStructure() async {
+
+    // Revisa que se haya seleccionado al menos una subcarpeta
+    if (_subfolderOptions.every((opt) => !opt.isSelected)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Debes seleccionar al menos una subcarpeta')),
+        );
+      }
+      return;
+    }
+
+    setState(() => _isCreating = true);
+
+    try {
+      final selectedNames = _subfolderOptions.where((opt) => opt.isSelected).toList();
+
+      await widget.createFolderUseCase(
+        parentPath: widget.parentDirectoryPath,
+        rootName: _folderNameController.text,
+        subfolderNames: selectedNames,
+        folderDetails: _folderDetailsController.text,
+        folderTags: _folderTagsController.text,
+        extraFolderOptions: _extraFolderOptions,
+      );
+
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isCreating = false);
+    }
+  }
+  
 }
 
 
@@ -330,8 +343,19 @@ class FolderFormFields extends StatelessWidget {
             border: OutlineInputBorder(),
           ),
           maxLines: 3,
+          onChanged: onEtiquetaChanged,
         ),
       ],
     );
+  }
+
+  void onEtiquetaChanged(String value) {
+    // Remplazar los saltos (\n) y los dobles espacios por comas ","
+    value = value.replaceAll('\n', ', ').replaceAll('  ', ', ');
+    
+    // Ajustar texto para que solo sea un renglón por etiqueta
+    value = value.split(',').map((e) => e.trim()).join(', ');
+    
+    tagsController.text = value;
   }
 }
