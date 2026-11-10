@@ -18,6 +18,7 @@ class CreateFolderStructureUseCase {
     required String parentPath,
     required String rootName,
     required List<FolderOption> subfolderNames,
+    required List<FolderOption> extraFolderOptions,
     required String folderDetails,
     required String folderTags,
   }) async {
@@ -36,7 +37,7 @@ class CreateFolderStructureUseCase {
     final rootDirPath = '$parentPath/$rootName'; // O mediante un helper de path
     final extraDirPath = '$rootDirPath/extra';
     final cgsDirPath = '$extraDirPath/cgs';
-    final imagesDirPath = '$extraDirPath/images';
+    final imagesDirPath = '$extraDirPath/imagenes';
     final infoFilePath = '$extraDirPath/info.txt';
 
     //: Crear la carpeta raíz si no existe
@@ -57,14 +58,14 @@ class CreateFolderStructureUseCase {
             await repository.createDirectory(extraDirPath);
             
             //: Crear la carpeta "cgs" dentro de "extra" si la opción está activada
-            if (subfolder.createCGSFolder && !await repository.directoryExists(cgsDirPath)) {
+            if (extraFolderOptions.any((opt) => opt.name == 'CGs' && opt.isSelected) && !await repository.directoryExists(cgsDirPath)) {
               if (!await repository.directoryExists(cgsDirPath)) {
                 await repository.createDirectory(cgsDirPath);
               }
             }
             
             //: Crear la carpeta "images" dentro de "extra" si la opción está activada
-            if (subfolder.createImagesFolder && !await repository.directoryExists(imagesDirPath)) {
+            if (extraFolderOptions.any((opt) => opt.name == 'Imagenes' && opt.isSelected) && !await repository.directoryExists(imagesDirPath)) {
               await repository.createDirectory(imagesDirPath);
             }
 
