@@ -15,4 +15,17 @@ class FolderLocalDataSource {
   Future<bool> directoryExists(String path) async {
     return await Directory(path).exists();
   }
+
+  // Crea un archivo en la ruta especificada si no existe.
+  Future<void> createFile(String path) async {
+    final file = File(path);
+    if (!await file.exists()) {
+      await file.create(recursive: true);
+    }
+  }
+
+  // Verifica si un archivo existe en la ruta especificada.
+  Future<bool> fileExists(String path) async {
+    return await File(path).exists();
+  }
 }

@@ -18,6 +18,8 @@ class CreateFolderDialog extends StatefulWidget {
 
 class _CreateFolderDialogState extends State<CreateFolderDialog> {
   final TextEditingController _folderNameController = TextEditingController();
+  final TextEditingController _folderDetailsController = TextEditingController();
+  final TextEditingController _folderTagsController = TextEditingController();
 
   final List<FolderOption> _subfolderOptions = [
     FolderOption(name: 'Anime'),
@@ -35,6 +37,8 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
   @override
   void dispose() {
     _folderNameController.dispose();
+    _folderDetailsController.dispose();
+    _folderTagsController.dispose();
     super.dispose();
   }
 
@@ -48,6 +52,8 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
         parentPath: widget.parentDirectoryPath,
         rootName: _folderNameController.text,
         subfolderNames: selectedNames,
+        folderDetails: _folderDetailsController.text,
+        folderTags: _folderTagsController.text,
       );
 
       if (mounted) Navigator.of(context).pop(true);
@@ -72,16 +78,21 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            
+            //: Título del campo de nombre de carpeta principal
             TextField(
               controller: _folderNameController,
               enabled: !_isCreating,
               decoration: const InputDecoration(
                 labelText: 'Nombre de carpeta principal',
-                hintText: 'Ej: MiNuevoProyecto',
+                hintText: 'Ej: Contenido Nuevo',
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
+            
+            
+            //: Título de la sección de subcarpetas
             const Text(
               'Selecciona las subcarpetas a incluir:',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -105,6 +116,31 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                 }).toList(),
               ),
             ),
+            
+            //: Sinopsis, descripción y/o detalles
+            TextField(
+              controller: _folderDetailsController,
+              enabled: !_isCreating,
+              decoration: const InputDecoration(
+                labelText: 'Sinopsis, Descripción y/o Detalles',
+                hintText: 'Ej: Contenido de la carpeta',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 2,
+            ),
+            const SizedBox(height: 16),
+            
+            //: Etiquetas 
+            TextField(
+              controller: _folderTagsController,
+              enabled: !_isCreating,
+              decoration: const InputDecoration(
+                labelText: 'Etiquetas (separadas por comas)',
+                hintText: 'Ej: Etiqueta1, Etiqueta2, etc.',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -121,7 +157,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                 height: 16,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Text('Crear carpetas'),
+            : const Text('Crear carpeta(s)'),
         ),
       ],
     );

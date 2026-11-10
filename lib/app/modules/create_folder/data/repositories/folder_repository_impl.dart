@@ -11,4 +11,10 @@ class FolderRepositoryImpl implements FolderRepository {
 
   @override
   Future<bool> directoryExists(String path) => localDataSource.directoryExists(path);
+
+  @override
+  Future<void> createFile(String path) => localDataSource.createFile(path);
+
+  @override
+  Future<bool> fileExists(String path) => localDataSource.fileExists(path);
 }
