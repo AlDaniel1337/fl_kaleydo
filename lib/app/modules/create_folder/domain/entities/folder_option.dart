@@ -24,8 +24,7 @@ enum FolderNames {
   // Constructor
   const FolderNames({ 
     required this._name,
-    this._isSelected = false,
-  });
+  }) : _isSelected = false;
 
   // Propiedades
   final String _name;
