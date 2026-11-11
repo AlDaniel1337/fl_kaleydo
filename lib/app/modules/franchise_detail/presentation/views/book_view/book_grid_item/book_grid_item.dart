@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:kaleydo/app/shared/widgets/hover_zoom.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
@@ -48,16 +48,21 @@ class BookGridItem extends StatelessWidget {
             
             //: Imagen de la primera página como miniatura
             Expanded(
-              child: firstImage != null
-                ? Image.file(
-                  File(firstImage!),
-                  fit: BoxFit.cover,
-                  cacheWidth: 300,
-                )
-                : Container(
-                  color: Colors.black26,
-                  child: const Icon(Icons.broken_image_rounded, color: Colors.white54),
+              child: ClipRRect( // Opcional: Evita que la imagen se salga del espacio reservado al ampliarse
+                child: HoverZoom(
+                  scale: 1.1, // Ajusta qué tanto quieres que se amplíe (ej. 1.1 = 10%)
+                  child: firstImage != null
+                    ? Image.file(
+                        File(firstImage!),
+                        fit: BoxFit.cover,
+                        cacheWidth: 300,
+                      )
+                    : Container(
+                        color: Colors.black26,
+                        child: const Icon(Icons.broken_image_rounded, color: Colors.white54),
+                      ),
                 ),
+              ),
             ),
     
             //: Título del capítulo

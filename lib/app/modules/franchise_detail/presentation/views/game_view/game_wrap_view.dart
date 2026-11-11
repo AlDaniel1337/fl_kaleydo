@@ -216,14 +216,17 @@ class _MoreGamesSectionState extends State<_MoreGamesSection> {
                 spacing: 20,
                 runSpacing: _runSpacing,
                 children: widget.items.map((item) {
-                  return SizedBox(
-                    width: 120,
-                    height: _cardHeight,
-                    child: SmallGameCard(
-                      game: item,
-                      isNovel: widget.isNovel,
-                      showButtons: false,
-                      onTap: () => widget.onSelectGame(item, widget.items.indexOf(item)),
+                  return GestureDetector(
+                    onTap: () => widget.onSelectGame(item, widget.items.indexOf(item)),
+                    child: SizedBox(
+                      width: 120,
+                      height: _cardHeight,
+                      child: SmallGameCard(
+                        game: item,
+                        isNovel: widget.isNovel,
+                        showButtons: false,
+                        onTap: () => widget.onSelectGame(item, widget.items.indexOf(item)),
+                      ),
                     ),
                   );
                 }).toList(),
