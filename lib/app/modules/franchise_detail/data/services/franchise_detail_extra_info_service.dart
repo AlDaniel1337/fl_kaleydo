@@ -6,7 +6,7 @@ import 'package:kaleydo/app/modules/franchise_detail/domain/entities/game_extra_
 typedef InfoFileResult = Future<({String info, List<String> tags})>;
 typedef ImageGalleryResult = Future<({List<String> images, List<String> randomImages, bool hasCGsGallery})>;
 
-class GameExtraInfoService {
+class FranchiseDetailExtraInfoService {
 
   /// Obtener la información extra del juego, incluyendo detalles, etiquetas e imágenes.
   Future<GameExtraInfoResult> loadExtraData(String itemBasePath) async {
@@ -28,7 +28,6 @@ class GameExtraInfoService {
       hasCGsGallery: imageData.hasCGsGallery,
     );
   }
-
 
 
   /// Analiza el archivo de información del juego y extrae los detalles y etiquetas.
@@ -59,7 +58,7 @@ class GameExtraInfoService {
   /// Analiza la galería de imágenes del juego y devuelve las imágenes ordenadas, imágenes aleatorias y si tiene galería de CGs.
   ImageGalleryResult _parseImageGallery(String extraPath) async {
     final cgDir = Directory('$extraPath/CGs');
-    final imagesDir = Directory('$extraPath/Images');
+    final imagesDir = Directory('$extraPath/Imagenes');
 
     Directory? targetDir;
     bool hasCGs = false;
@@ -107,4 +106,5 @@ class GameExtraInfoService {
 
     return selectedIndices.map((index) => images[index]).toList();
   }
+
 }

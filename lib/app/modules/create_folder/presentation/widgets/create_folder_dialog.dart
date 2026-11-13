@@ -11,6 +11,7 @@ class CreateFolderDialog extends StatefulWidget {
     required this.parentDirectoryPath,
     required this.createFolderUseCase,
   });
+  
 
   @override
   State<CreateFolderDialog> createState() => _CreateFolderDialogState();
@@ -99,7 +100,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
+                
                 FolderFormFields(
                   detailsController: _folderDetailsController,
                   tagsController: _folderTagsController,
@@ -196,6 +197,9 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
       return;
     }
 
+    // Asegura el formateo de etiquetas si se presiona "Crear" sin quitar el foco antes
+    _formatTags();
+
     setState(() => _isCreating = true);
 
     try {
@@ -220,6 +224,17 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
     } finally {
       if (mounted) setState(() => _isCreating = false);
     }
+  }
+
+  void _formatTags() {
+    String value = _folderTagsController.text;
+    // Remplazar los saltos (\n) y los dobles espacios por comas ","
+    value = value.replaceAll('\n', ', ').replaceAll('  ', ', ');
+    
+    // Ajustar texto para que solo sea un renglón por etiqueta
+    value = value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).join(', ');
+    
+    _folderTagsController.text = value;
   }
   
 }
@@ -306,7 +321,7 @@ class ExtraFolderSelectionList extends StatelessWidget {
 
 
 /// Componente para los campos de texto de detalles y etiquetas
-class FolderFormFields extends StatelessWidget {
+class FolderFormFields extends StatefulWidget {
   final TextEditingController detailsController;
   final TextEditingController tagsController;
   final bool isEnabled;
@@ -319,13 +334,36 @@ class FolderFormFields extends StatelessWidget {
   });
 
   @override
+  State<FolderFormFields> createState() => _FolderFormFieldsState();
+}
+
+class _FolderFormFieldsState extends State<FolderFormFields> {
+  final FocusNode _tagsFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _tagsFocusNode.addListener(() {
+      if (!_tagsFocusNode.hasFocus) {
+        onEtiquetaChanged(widget.tagsController.text);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tagsFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         TextField(
-          controller: detailsController,
-          enabled: isEnabled,
+          controller: widget.detailsController,
+          enabled: widget.isEnabled,
           decoration: const InputDecoration(
             labelText: 'Sinopsis, Descripción y/o Detalles',
             hintText: 'Ej: Contenido de la carpeta',
@@ -335,15 +373,19 @@ class FolderFormFields extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         TextField(
-          controller: tagsController,
-          enabled: isEnabled,
+          controller: widget.tagsController,
+          focusNode: _tagsFocusNode,
+          enabled: widget.isEnabled,
           decoration: const InputDecoration(
             labelText: 'Etiquetas (separadas por comas)',
             hintText: 'Ej: Etiqueta1, Etiqueta2, etc.',
             border: OutlineInputBorder(),
           ),
           maxLines: 3,
-          onChanged: onEtiquetaChanged,
+          onEditingComplete: () {
+            onEtiquetaChanged(widget.tagsController.text);
+            _tagsFocusNode.unfocus();
+          },
         ),
       ],
     );
@@ -354,8 +396,10 @@ class FolderFormFields extends StatelessWidget {
     value = value.replaceAll('\n', ', ').replaceAll('  ', ', ');
     
     // Ajustar texto para que solo sea un renglón por etiqueta
-    value = value.split(',').map((e) => e.trim()).join(', ');
+    value = value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).join(', ');
     
-    tagsController.text = value;
+    if (widget.tagsController.text != value) {
+      widget.tagsController.text = value;
+    }
   }
 }

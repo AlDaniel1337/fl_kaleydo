@@ -9,11 +9,6 @@ class CreateFolderStructureUseCase {
 
   CreateFolderStructureUseCase(this.repository);
 
-  bool isValidWindowsFolderName(String name) {
-    final invalidChars = RegExp(r'[<>:"/\\|?*]');
-    return !invalidChars.hasMatch(name);
-  }
-
   Future<void> call({
     required String parentPath,
     required String rootName,
@@ -23,22 +18,17 @@ class CreateFolderStructureUseCase {
     required String folderTags,
   }) async {
 
-    // Validar el nombre de la carpeta raíz antes de crearla
-    if (rootName.trim().isEmpty) {
-      throw Exception('Ingresa un nombre para la carpeta raíz');
-    }
-
-    // Validar el nombre de la carpeta raíz según las reglas de Windows
-    if (!isValidWindowsFolderName(rootName)) {
-      throw Exception('El nombre contiene caracteres inválidos (< > : " / \\ | ? *)');
+    var (isValid, errorMessage) = isRootFolderNameValid(rootName);
+    if (!isValid) {
+      throw Exception(errorMessage);
     }
 
     //: Paths
-    final rootDirPath = '$parentPath/$rootName'; // O mediante un helper de path
-    final extraDirPath = '$rootDirPath/extra';
-    final cgsDirPath = '$extraDirPath/cgs';
+    final rootDirPath   = '$parentPath/$rootName';
+    final extraDirPath  = '$rootDirPath/extra';
+    final cgsDirPath    = '$extraDirPath/cgs';
     final imagesDirPath = '$extraDirPath/imagenes';
-    final infoFilePath = '$extraDirPath/info.txt';
+    final infoFilePath  = '$extraDirPath/info.txt';
 
     //: Crear la carpeta raíz si no existe
     if (!await repository.directoryExists(rootDirPath)) {
@@ -89,5 +79,22 @@ class CreateFolderStructureUseCase {
         }
       }
     }
+  }
+
+
+
+  /// Valida si el nombre de la carpeta raíz es válido en Windows.
+  (bool, String) isRootFolderNameValid(String name) {
+   
+    if(name.trim().isEmpty){
+      return (false, 'Ingresa un nombre para la carpeta raíz');
+    }
+
+    final invalidChars = RegExp(r'[<>:"/\\|?*]');
+    if(invalidChars.hasMatch(name)) {
+      return (false, 'El nombre contiene caracteres inválidos');
+    }
+
+    return (true, 'Nombre válido');
   }
 }

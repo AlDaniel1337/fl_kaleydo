@@ -36,6 +36,7 @@ class GameWrapView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
+    
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 40,),
@@ -94,6 +95,7 @@ class GameWrapView extends StatelessWidget {
 
 
 
+//: Galería
 /// Sección de galería de imágenes del juego seleccionado
 class _GameImagesGallery extends StatelessWidget {
   final List<String> images;
@@ -123,6 +125,7 @@ class _GameImagesGallery extends StatelessWidget {
 
 
 
+//: Más juegos
 /// Sección de "Más juegos" relacionados con el juego seleccionado
 class _MoreGamesSection extends StatefulWidget {
   final List<FranchiseItemModel> items;
@@ -145,9 +148,11 @@ class _MoreGamesSectionState extends State<_MoreGamesSection> {
   // Dimensiones exactas basadas en tus Tarjetas y Wrap
   static const double _cardHeight = 200.0;
   static const double _runSpacing = 20.0;
+  bool isScrolling = false;
 
-  void _scrollByRow(bool forward) {
-    if (!_scrollController.hasClients) return;
+  void _scrollByRow(bool forward) {    
+    if (!_scrollController.hasClients || isScrolling) return;
+    isScrolling = true;
 
     // Distancia exacta para avanzar/retroceder una fila (220px)
     final double rowOffset = _cardHeight + _runSpacing;
@@ -162,9 +167,9 @@ class _MoreGamesSectionState extends State<_MoreGamesSection> {
 
     _scrollController.animateTo(
       clampedOffset,
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 200),
       curve: Curves.easeOutCubic,
-    );
+    ).whenComplete(() => isScrolling = false);
   }
 
   @override

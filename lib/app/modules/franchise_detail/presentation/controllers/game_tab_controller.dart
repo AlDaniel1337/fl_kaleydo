@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
 import 'package:kaleydo/app/data/data.models.index.dart';
-import 'package:kaleydo/app/modules/franchise_detail/data/services/game_extra_info_service.dart';
+import 'package:kaleydo/app/modules/franchise_detail/data/services/franchise_detail_extra_info_service.dart';
 import 'package:process_run/shell.dart';
 
 class GameTabController extends GetxController {
 
-  final GameExtraInfoService _extraInfoService = GameExtraInfoService();
+  final FranchiseDetailExtraInfoService _extraInfoService = FranchiseDetailExtraInfoService();
 
   FranchiseItemModel? selectedGameItem;
   final RxString selectedGameItemInfo = ''.obs;

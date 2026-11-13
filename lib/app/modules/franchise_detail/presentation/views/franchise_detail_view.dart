@@ -51,17 +51,17 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
   Widget _buildHeaderBanner() {
     return HeaderBanner(
       coverImage: controller.mediaItem.coverPath != null
-          ? DecorationImage(
-              image: FileImage(File(controller.mediaItem.coverPath!)),
-              fit: BoxFit.cover,
-            )
-          : null,
+        ? DecorationImage(
+            image: FileImage(File(controller.mediaItem.coverPath!)),
+            fit: BoxFit.cover,
+          )
+        : null,
       onBackPressed: () => Get.back(),
       onRefresh: () => controller.refreshFranchiseContent(),
       itemPath: controller.mediaItem.path,
-      title: controller.mediaItem.title,
-      onOpenFolder: () =>
-          controller.openFranchiseFolder(controller.mediaItem.path),
+      subfolderName: controller.gameController.selectedGameItem?.path ?? '',
+      title: controller.gameController.selectedGameItem?.title ?? controller.mediaItem.title,
+      onOpenFolder: () => controller.openFranchiseFolder(controller.mediaItem.path),
     );
   }
 
@@ -132,7 +132,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
     //: Juegos / Novelas Visuales
     if (tab == FranchiseMediaType.juegos || tab == FranchiseMediaType.novelasVisuales) {
 
-        return GameWrapView(
+      return GameWrapView(
         items: items,
         selectedGameItemIndex: controller.gameController.selectedGameItemIndex.value,
         isNovel: tab == FranchiseMediaType.novelasVisuales,
@@ -145,7 +145,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
         selectedGameItemTags: controller.gameController.selectedGameItemTags,
         selectedGameItemImages: controller.gameController.randomSelectedGameItemImages,
         onShowCGsGallery: () => _openGalleryModal(
-          context: context,
+          context: context, 
           imageUrls: controller.gameController.selectedGameItemImages,
         ),
       );

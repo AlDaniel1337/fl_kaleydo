@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
+import 'package:kaleydo/app/modules/create_folder/presentation/widgets/edit_folder_data_button.dart';
 import 'package:kaleydo/app/modules/franchise_detail/presentation/views/widgets/header_banner/media_action_buttons.dart';
 
 class HeaderBanner extends StatelessWidget {
@@ -8,8 +9,10 @@ class HeaderBanner extends StatelessWidget {
   final VoidCallback? onBackPressed;
   final VoidCallback? onRefresh; 
   final VoidCallback? onOpenFolder; 
+  final VoidCallback? onEditFranchiseInfo;
   final String title; 
   final String itemPath; 
+  final String subfolderName; 
    
   const HeaderBanner({
     super.key,
@@ -17,7 +20,9 @@ class HeaderBanner extends StatelessWidget {
     this.onBackPressed,
     this.onRefresh,
     this.onOpenFolder,
+    this.onEditFranchiseInfo,
     required this.itemPath,
+    required this.subfolderName,
     required this.title,
   });
   
@@ -26,8 +31,7 @@ class HeaderBanner extends StatelessWidget {
     return Stack(
       children: [
 
-        //: Banner
-        // Contenedor del banner con la imagen de portada y degradado
+        //: Banner con la imagen de portada y degradado
         Container(
           height: 130,
           width: double.infinity,
@@ -63,7 +67,7 @@ class HeaderBanner extends StatelessWidget {
         //: Botón de Favorito y En Proceso
         Positioned(
           top: 16,
-          right: 150,
+          right: 180,
           child: MediaActionButtons(
             itemPath: itemPath,
           )
@@ -81,7 +85,7 @@ class HeaderBanner extends StatelessWidget {
         ),
         
         
-        //: Botón 
+        //: Botón de Abrir Carpeta
         Positioned(
           top: 16,
           right: 60, 
@@ -90,6 +94,15 @@ class HeaderBanner extends StatelessWidget {
             tooltip: 'Abrir ubicación del archivo',
             color: Colors.white,
             onPressed: onOpenFolder,
+          ),
+        ),
+
+        //: Botón para modificar la información de la franquicia
+        Positioned(
+          top: 16,
+          right: 110, 
+          child: CreateSubFolderButton(
+            currentDirectoryPath: subfolderName,
           ),
         ),
 
