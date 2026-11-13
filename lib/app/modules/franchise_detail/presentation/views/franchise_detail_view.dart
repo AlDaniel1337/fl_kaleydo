@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kaleydo/app/config/theme/app_colors.dart';
 import 'package:kaleydo/app/data/models/franchise_model.dart';
+import 'package:kaleydo/app/modules/create_folder/domain/entities/folder_option.dart';
 import 'package:kaleydo/app/modules/franchise_detail/presentation/controllers/franchise_detail_controller.dart';
 import 'package:kaleydo/app/modules/franchise_detail/presentation/views/widgets/components.index.dart';
 import 'package:kaleydo/app/shared/widgets/dialogs/gallery_modal_dialog/gallery_modal_dialog.dart';
@@ -49,6 +50,10 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
 
   /// Banner superior independiente de los sub-controllers
   Widget _buildHeaderBanner() {
+    
+    String title = controller.gameController.selectedGameItem?.title ?? FolderNames.juego.name;
+    if(title == FolderNames.juego.name) title = controller.mediaItem.title;
+
     return HeaderBanner(
       coverImage: controller.mediaItem.coverPath != null
         ? DecorationImage(
@@ -60,7 +65,7 @@ class FranchiseDetailView extends GetView<FranchiseDetailController> {
       onRefresh: () => controller.refreshFranchiseContent(),
       itemPath: controller.mediaItem.path,
       subfolderName: controller.gameController.selectedGameItem?.path ?? '',
-      title: controller.gameController.selectedGameItem?.title ?? controller.mediaItem.title,
+      title: title,
       onOpenFolder: () => controller.openFranchiseFolder(controller.mediaItem.path),
     );
   }
